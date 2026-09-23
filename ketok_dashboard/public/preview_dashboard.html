@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preview Dashboard Admin Ketok - Marketplace & Layanan Jasa</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="ketok.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#030813',         // KetokColors.darkPrimary
+                            primary: '#1A202C',      // KetokColors.primary
+                            bg: '#F8F9FB',           // KetokColors.bgColor
+                            surface: '#FFFFFF',      // KetokColors.surfaceCard
+                            surfaceLow: '#F3F4F6',   // KetokColors.surfaceLow
+                            border: '#E7E8EA',       // KetokColors.borderColor
+                            text: '#191C1E',         // KetokColors.onSurface
+                            muted: '#76777C',        // KetokColors.onSurfaceVariant
+                            success: '#18A673',      // KetokColors.success
+                            danger: '#E53E3E',       // KetokColors.danger
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8F9FB;
+            color: #191C1E;
+        }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-brand-bg flex antialiased" x-data="{ sidebarOpen: false, quickModalOpen: false }">
+
+    <!-- Mobile Backdrop -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-black/50 lg:hidden" x-cloak></div>
+
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#030813] text-white flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-xl"
+           :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+        
+        <!-- Logo -->
+        <div class="h-16 flex items-center justify-between px-6 border-b border-white/10">
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-black border border-white/15 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+                    <img src="ketok.png" alt="Ketok" class="w-full h-full object-cover scale-125">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xl font-extrabold tracking-tight text-white">
+                        Ketok
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#F3F4F6] text-[#030813] font-black tracking-wider border border-[#E7E8EA]">
+                        ADMIN
+                    </span>
+                </div>
+            </a>
+            <button @click="sidebarOpen = false" class="text-gray-400 hover:text-white lg:hidden">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Links -->
+        <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6 custom-scrollbar">
+            <div>
+                <p class="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Utama</p>
+                <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold bg-white text-[#030813] shadow-sm">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Dashboard & Analitik</span>
+                </a>
+            </div>
+
+            <div>
+                <p class="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Marketplace & Jasa</p>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                        <span>Etalase Jasa Mitra</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>Kategori & Master Jasa</span>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p class="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Operasional</p>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="hard-hat" class="w-4 h-4"></i>
+                            <span>Manajemen Mitra</span>
+                        </div>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#E53E3E] text-white">3</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        <span>Pesanan (Direct Booking)</span>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p class="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Edukasi & Wilayah</p>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Tips & SOP Mitra</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                        <span>Wilayah (Malang Raya)</span>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p class="px-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Keuangan & Pelanggan</p>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                        <span>Invoice & Komisi</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span>Pelanggan</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-white/10 hover:text-white font-medium">
+                        <i data-lucide="star" class="w-4 h-4"></i>
+                        <span>Moderasi Ulasan</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-black/40">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-[#191C1E] border border-white/15 flex items-center justify-center text-white font-bold text-sm">
+                    A
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white truncate">Administrator Ketok</p>
+                    <p class="text-xs text-[#18A673] flex items-center gap-1 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-[#18A673] inline-block"></span>
+                        Super Admin
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden lg:pl-64">
+        
+        <!-- Topbar -->
+        <header class="h-16 bg-white border-b border-brand-border flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-xs">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = true" class="text-brand-muted hover:text-brand-text lg:hidden p-1.5 rounded-lg hover:bg-gray-100">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="hidden sm:flex items-center gap-2 text-xs text-brand-muted">
+                    <span class="font-medium text-brand-text">Ketok Admin</span>
+                    <span>/</span>
+                    <span class="text-brand-text font-bold">Ringkasan Platform</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Supabase Connected</span>
+                </div>
+
+                <button @click="quickModalOpen = true" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-dark text-white text-xs font-semibold hover:bg-black transition-colors shadow-xs">
+                    <i data-lucide="plus" class="w-3.5 h-3.5 text-white"></i>
+                    <span>Aksi Cepat</span>
+                </button>
+
+                <div class="w-8 h-8 rounded-lg bg-[#F3F4F6] border border-[#E7E8EA] flex items-center justify-center text-[#191C1E] text-xs font-extrabold">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Body -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar space-y-6">
+
+            <!-- 4 KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="bg-white rounded-2xl p-5 border border-brand-border shadow-xs hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Total GMV (Lunas)</span>
+                        <div class="w-10 h-10 rounded-xl bg-[#F3F4F6] text-[#030813] flex items-center justify-center">
+                            <i data-lucide="wallet" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="text-2xl font-black text-brand-text">Rp 148.520.000</h3>
+                        <p class="text-xs text-[#18A673] font-medium mt-1 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                            <span>+14.8% dari bulan lalu</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-brand-border shadow-xs hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Pesanan Berjalan</span>
+                        <div class="w-10 h-10 rounded-xl bg-[#F3F4F6] text-[#030813] flex items-center justify-center">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="text-2xl font-black text-brand-text">18 <span class="text-xs font-normal text-brand-muted">pesanan</span></h3>
+                        <p class="text-xs text-brand-muted mt-1">Total 124 pesanan terdaftar</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-brand-border shadow-xs hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Mitra Terdaftar</span>
+                        <div class="w-10 h-10 rounded-xl bg-[#F3F4F6] text-[#030813] flex items-center justify-center">
+                            <i data-lucide="hard-hat" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="text-2xl font-black text-brand-text">1.280 <span class="text-xs font-normal text-brand-muted">mitra</span></h3>
+                        <p class="text-xs text-brand-muted mt-1 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-[#18A673] inline-block"></span>
+                            <span class="text-[#18A673] font-semibold">312 online</span> saat ini
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 border border-brand-border shadow-xs hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider">Etalase Marketplace</span>
+                        <div class="w-10 h-10 rounded-xl bg-[#F3F4F6] text-[#030813] flex items-center justify-center">
+                            <i data-lucide="layers" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 class="text-2xl font-black text-brand-text">420 <span class="text-xs font-normal text-brand-muted">layanan</span></h3>
+                        <p class="text-xs text-brand-muted mt-1">Katalog jasa aktif mitra</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-brand-border shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-bold text-brand-text text-base">Tren Booking Jasa & Pendapatan</h3>
+                            <p class="text-xs text-brand-muted">Statistik performa transaksi platform 6 bulan terakhir</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg bg-[#F3F4F6] text-brand-text text-xs font-semibold">Tahun 2026</span>
+                    </div>
+                    <div class="h-64 sm:h-72 w-full">
+                        <canvas id="previewRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-brand-border shadow-xs flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-brand-text text-base">Kategori Terpopuler</h3>
+                        <p class="text-xs text-brand-muted mb-4">Sebaran pemesanan jasa per Quick Menu</p>
+                        <div class="h-48 relative flex items-center justify-center">
+                            <canvas id="previewCategoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-brand-border space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#030813]"></span> Teknisi & Perbaikan</span>
+                            <span class="font-bold text-brand-text">38%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#4A5568]"></span> Pertukangan & Bangunan</span>
+                            <span class="font-bold text-brand-text">27%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#718096]"></span> Kebersihan & Laundry</span>
+                            <span class="font-bold text-brand-text">18%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#A0AEC0]"></span> Elektronik & Gadget</span>
+                            <span class="font-bold text-brand-text">17%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pesanan Terbaru -->
+            <div class="bg-white rounded-2xl border border-brand-border shadow-xs overflow-hidden">
+                <div class="p-5 border-b border-brand-border flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-brand-text text-base">Pesanan Terkini (Direct Booking)</h3>
+                        <p class="text-xs text-brand-muted">Daftar pesanan langsung pengguna ke mitra yang dipilih</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50/75 text-brand-muted font-semibold border-b border-brand-border">
+                            <tr>
+                                <th class="px-5 py-3">ID & Layanan</th>
+                                <th class="px-5 py-3">Pelanggan</th>
+                                <th class="px-5 py-3">Mitra Terpilih</th>
+                                <th class="px-5 py-3">Biaya Kunjungan</th>
+                                <th class="px-5 py-3">Quotation Biaya</th>
+                                <th class="px-5 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-brand-border">
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="px-5 py-3.5 font-medium text-brand-text">
+                                    <span class="font-bold text-[#030813]">#KTK-1092</span>
+                                    <p class="text-brand-muted text-[11px]">Perbaikan AC Split</p>
+                                </td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Budi Prasetyo</td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Agus Hendra (Teknisi AC)</td>
+                                <td class="px-5 py-3.5 font-bold text-brand-text">Rp 50.000</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                        Disetujui Pelanggan
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border bg-[#F3F4F6] text-[#191C1E] border-[#E7E8EA]">
+                                        Diproses
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="px-5 py-3.5 font-medium text-brand-text">
+                                    <span class="font-bold text-[#030813]">#KTK-1093</span>
+                                    <p class="text-brand-muted text-[11px]">Instalasi Titik Listrik</p>
+                                </td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Siti Rahma</td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Dedi Kurniawan</td>
+                                <td class="px-5 py-3.5 font-bold text-brand-text">Rp 50.000</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F3F4F6] text-brand-text border border-brand-border">
+                                        Menunggu Persetujuan
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border bg-[#F3F4F6] text-[#191C1E] border-[#E7E8EA]">
+                                        Estimasi Biaya
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="px-5 py-3.5 font-medium text-brand-text">
+                                    <span class="font-bold text-[#030813]">#KTK-1094</span>
+                                    <p class="text-brand-muted text-[11px]">Pemasangan Keramik 30x30</p>
+                                </td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Ahmad Fauzi</td>
+                                <td class="px-5 py-3.5 font-medium text-brand-text">Tukang Sukses Malang</td>
+                                <td class="px-5 py-3.5 font-bold text-brand-text">Rp 50.000</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                        Lunas
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                        Selesai
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Quick Modal -->
+    <div x-show="quickModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs" x-cloak>
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-brand-border" @click.away="quickModalOpen = false">
+            <h3 class="font-bold text-brand-text text-base pb-3 border-b border-brand-border">Aksi Cepat Admin Ketok</h3>
+            <div class="mt-4 space-y-2 text-xs">
+                <p class="text-brand-muted">Pilih pintasan aksi yang ingin Anda lakukan:</p>
+                <div class="space-y-1.5">
+                    <a href="#" class="block p-3 rounded-xl bg-gray-50 hover:bg-gray-100 font-semibold border border-brand-border transition-colors">
+                        + Tambah Kategori / Sub-Jasa Baru
+                    </a>
+                    <a href="#" class="block p-3 rounded-xl bg-gray-50 hover:bg-gray-100 font-semibold border border-brand-border transition-colors">
+                        + Tulis Tips / SOP Edukasi Mitra
+                    </a>
+                    <a href="#" class="block p-3 rounded-xl bg-gray-50 hover:bg-gray-100 font-semibold border border-brand-border transition-colors">
+                        + Kirim Broadcast Pengumuman Massal
+                    </a>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-brand-border text-right">
+                <button @click="quickModalOpen = false" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:bg-gray-100">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            const ctx1 = document.getElementById('previewRevenueChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'],
+                        datasets: [{
+                            label: 'Pendapatan (Juta Rp)',
+                            data: [72, 85, 94, 110, 128, 148],
+                            borderColor: '#030813',
+                            backgroundColor: 'rgba(3, 8, 19, 0.04)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#030813',
+                        }, {
+                            label: 'Volume Pesanan',
+                            data: [45, 58, 64, 82, 95, 124],
+                            borderColor: '#76777C',
+                            backgroundColor: 'transparent',
+                            borderWidth: 1.5,
+                            borderDash: [4, 4],
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#76777C',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { font: { family: 'Plus Jakarta Sans', size: 11 }, usePointStyle: true }
+                            }
+                        },
+                        scales: {
+                            y: { grid: { color: '#F1F5F9' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } } },
+                            x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            const ctx2 = document.getElementById('previewCategoryChart');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Teknisi', 'Pertukangan', 'Kebersihan', 'Elektronik'],
+                        datasets: [{
+                            data: [38, 27, 18, 17],
+                            backgroundColor: ['#030813', '#4A5568', '#718096', '#A0AEC0'],
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '72%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,26 +5,39 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:ketok_app/main.dart';
+import 'package:ketok_mitra/screens/beranda_screen.dart';
+import 'package:ketok_mitra/screens/pesanan_detail_screen.dart';
+import 'package:flutter/material.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('BerandaScreen UI basic test', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(home: BerandaScreen()));
+    expect(find.text('Ketok'), findsOneWidget);
+    expect(find.text('MITRA'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('PesananDetailScreen shows order information', (
+    WidgetTester tester,
+  ) async {
+    final order = {
+      'id_pesanan': 42,
+      'category_name': 'Pembersihan Rumah',
+      'customer_name': 'Budi Santoso',
+      'lokasi': 'Jl. Merdeka No. 15',
+      'jadwal': '2026-09-11T10:00:00.000',
+      'status': 'diproses',
+      'price': 450000,
+      'catatan': 'Tolong datang sebelum siang.',
+    };
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(
+      MaterialApp(home: PesananDetailScreen(order: order)),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Detail Pesanan'), findsOneWidget);
+    expect(find.text('Pembersihan Rumah'), findsOneWidget);
+    expect(find.text('Budi Santoso'), findsOneWidget);
+    expect(find.text('Jl. Merdeka No. 15'), findsOneWidget);
   });
 }

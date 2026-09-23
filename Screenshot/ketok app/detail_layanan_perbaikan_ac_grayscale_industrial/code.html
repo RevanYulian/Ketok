@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+    @layer base {
+        html, body {
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        body {
+            overscroll-behavior: none;
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+    }
+    ::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#030813",
+          "background": "#f8f9fb",
+          "surface": "#ffffff"
+        },
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+          heading: ['Manrope', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 antialiased min-h-screen">
+<!-- 1. HEADER -->
+<header class="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 h-14 flex items-center px-4 justify-between pt-safe">
+<button class="w-10 h-10 -ml-2 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition text-gray-800" onclick="history.back()">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="font-heading font-bold text-base text-gray-900 truncate">Detail Layanan</h1>
+<button class="w-10 h-10 -mr-2 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition text-gray-800">
+<span class="material-symbols-outlined text-[22px]">share</span>
+</button>
+</header>
+<!-- MAIN WRAPPER -->
+<main class="w-full pt-14 pb-28">
+<!-- 2. HERO IMAGE -->
+<div class="px-4 pt-4"><div class="relative w-full h-56 rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-100"><img src="https://lh3.googleusercontent.com/aida/AEtjO1XX19vH5ORO9ZpyXay6-UgwvPxmPPaWOk5lbTMUVyk5yeyrPXjp2TvI2zuTbXhG6OSaK1Z9EBXBqqnMi_PFw9aF2fGK9D7VFxB8lKWHkzlkLXGyhye-_1RW6uHGNbRDU_qcaaL7pEXA1J2oKj2cHbqeCv3aDrewA8RxgnLzWhMPCrv31OSx4BkTLOVP92jKX5js0Wl3cxgWWHxXwCeagYGMXSs873TRAK0uTYJEk_c9V9fZFza4QrcrpDw" alt="Perbaikan dan Perawatan AC" class="w-full h-full object-cover"><div class="absolute top-3 left-3 bg-gray-900/80 backdrop-blur-md text-white text-[12px] font-medium px-3 py-1 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">verified</span>Teknisi &amp; Pendingin</div><div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md text-gray-900 text-[12px] font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[16px] text-sky-500" style="font-variation-settings: 'FILL' 1;">verified_user</span>Garansi 30 Hari</div><div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-gray-900 text-[12px] font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[16px] text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>★ 4.9 (240+ ulasan)</div></div><div class="mt-4"><h2 class="font-heading font-bold text-2xl text-gray-900 leading-tight">Perbaikan &amp; Perawatan AC</h2></div><div class="mt-4 grid grid-cols-3 gap-2 bg-gray-100/70 p-3 rounded-2xl border border-gray-200"><div class="flex flex-col items-center text-center"><div class="flex items-center gap-1 text-gray-900 mb-0.5"><span class="material-symbols-outlined text-[18px] text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span><span class="font-heading font-bold text-base text-gray-900">4.9</span></div><span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Rating</span></div><div class="flex flex-col items-center text-center border-x border-gray-200"><div class="text-gray-900 mb-0.5"><span class="font-heading font-bold text-base text-gray-900">1.2k+</span></div><span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Servis Selesai</span></div><div class="flex flex-col items-center text-center"><div class="text-gray-900 mb-0.5"><span class="font-heading font-bold text-base text-gray-900">30 Hari</span></div><span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Garansi</span></div></div></div>
+<!-- 3. MAIN CONTENT -->
+<div class="px-4 py-4 space-y-5 max-w-lg mx-auto"><!-- Tentang Layanan -->
+<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-xs space-y-2">
+  <h3 class="font-heading font-bold text-sm text-gray-900">Tentang Layanan</h3>
+  <p class="text-xs text-gray-600 leading-relaxed">
+    Layanan pembersihan dan perawatan pendingin ruangan (AC) menyeluruh untuk rumah tinggal, kantor, maupun ruko. Dikerjakan oleh teknisi ahli berpengalaman dengan SOP berstandar industri, peralatan modern bertekanan stabil, dan jaminan pengerjaan bersih tanpa meninggalkan kotoran.
+  </p>
+</div>
+
+<!-- Keunggulan & Garansi -->
+<div class="space-y-3">
+  <h3 class="font-heading font-bold text-sm text-gray-900">Keunggulan &amp; Garansi</h3>
+  <div class="grid grid-cols-2 gap-2.5">
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs flex items-start gap-2.5">
+      <span class="material-symbols-outlined text-gray-900 text-[20px] flex-none mt-0.5">verified_user</span>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Teknisi Bersertifikat</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Teknisi terverifikasi &amp; berpengalaman 5+ tahun.</p>
+      </div>
+    </div>
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs flex items-start gap-2.5">
+      <span class="material-symbols-outlined text-gray-900 text-[20px] flex-none mt-0.5">shield</span>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Garansi Servis 30 Hari</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Garansi cuci ulang jika bocor atau tidak dingin.</p>
+      </div>
+    </div>
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs flex items-start gap-2.5">
+      <span class="material-symbols-outlined text-gray-900 text-[20px] flex-none mt-0.5">handyman</span>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Peralatan Lengkap</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pompa jet wash &amp; plastik pelindung interior.</p>
+      </div>
+    </div>
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs flex items-start gap-2.5">
+      <span class="material-symbols-outlined text-gray-900 text-[20px] flex-none mt-0.5">receipt_long</span>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Biaya Transparan</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Tidak ada biaya tak terduga di luar konfirmasi.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Apa yang Termasuk -->
+<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-xs space-y-3">
+  <h3 class="font-heading font-bold text-sm text-gray-900">Apa yang Termasuk</h3>
+  <div class="grid grid-cols-1 gap-2.5">
+    <div class="flex items-center gap-2.5 text-xs text-gray-700">
+      <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+      <span class="">Pembersihan filter &amp; sirip evaporator unit indoor</span>
+    </div>
+    <div class="flex items-center gap-2.5 text-xs text-gray-700">
+      <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+      <span class="">Pembersihan kipas blower &amp; saluran drainase pembuangan air</span>
+    </div>
+    <div class="flex items-center gap-2.5 text-xs text-gray-700">
+      <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+      <span class="">Penyemprotan kondensor outdoor unit</span>
+    </div>
+    <div class="flex items-center gap-2.5 text-xs text-gray-700">
+      <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+      <span class="">Pengecekan tekanan ampere freon &amp; kestabilan suhu</span>
+    </div>
+    <div class="flex items-center gap-2.5 text-xs text-gray-700">
+      <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+      <span class="">Tes performa kelistrikan &amp; fungsi remote control</span>
+    </div>
+  </div>
+</div>
+
+<!-- Alur Pengerjaan -->
+<div class="space-y-3">
+  <h3 class="font-heading font-bold text-sm text-gray-900">Alur Pengerjaan</h3>
+  <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-xs space-y-3.5">
+    <div class="flex items-start gap-3">
+      <div class="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs flex-none">1</div>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Pilih Paket &amp; Jadwal</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Tentukan layanan yang dibutuhkan serta tanggal dan jam kedatangan teknisi.</p>
+      </div>
+    </div>
+    <div class="flex items-start gap-3">
+      <div class="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs flex-none">2</div>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Teknisi Datang ke Lokasi</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Teknisi hadir tepat waktu lengkap dengan peralatan dan seragam resmi.</p>
+      </div>
+    </div>
+    <div class="flex items-start gap-3">
+      <div class="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs flex-none">3</div>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Pengecekan &amp; Pengerjaan</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pemeriksaan awal kondisi AC dilanjutkan pembersihan standar SOP.</p>
+      </div>
+    </div>
+    <div class="flex items-start gap-3">
+      <div class="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs flex-none">4</div>
+      <div>
+        <div class="font-semibold text-xs text-gray-900">Pembayaran &amp; Garansi</div>
+        <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pemeriksaan hasil kerja bersama konsumen dan aktivasi garansi servis 30 hari.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ulasan Pelanggan -->
+<div class="space-y-3">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="font-heading font-bold text-sm text-gray-900">Ulasan Pelanggan</h3>
+      <p class="text-xs text-gray-500 mt-0.5">★ 4.9 dari 240 ulasan pengguna</p>
+    </div>
+    <span class="text-xs text-gray-600 font-semibold cursor-pointer">Lihat Semua</span>
+  </div>
+  <div class="space-y-2.5">
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs space-y-1.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-700">A</div>
+          <span class="font-semibold text-xs text-gray-900">Andi Wijaya</span>
+        </div>
+        <div class="flex text-amber-500">
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+        </div>
+      </div>
+      <p class="text-xs text-gray-600 leading-relaxed">Pengerjaan sangat rapi dan tepat waktu. AC kembali dingin senyap dan tidak bocor lagi.</p>
+    </div>
+    <div class="p-3 bg-white rounded-xl border border-gray-200 shadow-xs space-y-1.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-700">S</div>
+          <span class="font-semibold text-xs text-gray-900">Santi Putri</span>
+        </div>
+        <div class="flex text-amber-500">
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+        </div>
+      </div>
+      <p class="text-xs text-gray-600 leading-relaxed">Sangat profesional dan transparan. Tidak ada biaya mendadak di luar estimasi.</p>
+    </div>
+  </div>
+</div></div>
+</main>
+<!-- 4. FIXED BOTTOM BAR -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-3 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+<div class="max-w-lg mx-auto flex items-center justify-between gap-3"><button class="w-full bg-zinc-900 text-white font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm active:scale-95 transition shadow-sm">
+  <span class="material-symbols-outlined text-[18px]">bolt</span>
+  <span class="">Pesan Jasa Sekarang</span>
+</button></div>
+</div>
+
+
+</body></html>

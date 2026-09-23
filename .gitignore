@@ -1,0 +1,29 @@
+# Environment files and credentials
+.env
+.env.*
+!.env.example
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log
+
+# Build & Dependencies (catch-all)
+**/build/
+**/.dart_tool/
+**/node_modules/

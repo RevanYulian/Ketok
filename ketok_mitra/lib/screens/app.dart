@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'login_screen.dart';
+import 'beranda_screen.dart';
+import 'maintenance_screen.dart';
+import '../services/app_config_service.dart';
+
+final GlobalKey<NavigatorState> ketokMitraNavigatorKey = GlobalKey<NavigatorState>();
 
 class KetokMitraApp extends StatelessWidget {
   const KetokMitraApp({super.key});
@@ -7,13 +13,63 @@ class KetokMitraApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: ketokMitraNavigatorKey,
       title: 'Ketok Mitra',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorSchemeSeed: const Color(0xFFE0177A),
+        colorSchemeSeed: const Color(0xFF030813),
+        scaffoldBackgroundColor: const Color(0xFFF8F9FB),
         useMaterial3: true,
       ),
-      home: const _HomePage(),
+      home: const _MitraRootGate(),
+    );
+  }
+}
+
+class _MitraRootGate extends StatefulWidget {
+  const _MitraRootGate();
+
+  @override
+  State<_MitraRootGate> createState() => _MitraRootGateState();
+}
+
+class _MitraRootGateState extends State<_MitraRootGate> {
+  @override
+  void initState() {
+    super.initState();
+    AppConfigService.instance.configNotifier.addListener(_onConfigChanged);
+  }
+
+  @override
+  void dispose() {
+    AppConfigService.instance.configNotifier.removeListener(_onConfigChanged);
+    super.dispose();
+  }
+
+  void _onConfigChanged() {
+    final config = AppConfigService.instance.configNotifier.value;
+    if (config != null && config.statusMaintenance) {
+      ketokMitraNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<AppConfig?>(
+      valueListenable: AppConfigService.instance.configNotifier,
+      builder: (context, config, _) {
+        if (config != null && config.statusMaintenance) {
+          return MaintenanceScreen(config: config);
+        }
+
+        return StreamBuilder<AuthState>(
+          stream: Supabase.instance.client.auth.onAuthStateChange,
+          builder: (context, snapshot) {
+            final session = Supabase.instance.client.auth.currentSession;
+            return session != null ? const BerandaScreen() : const LoginScreen();
+          },
+        );
+      },
     );
   }
 }

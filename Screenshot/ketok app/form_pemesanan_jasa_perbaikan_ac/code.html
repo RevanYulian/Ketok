@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="id" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'on-secondary-container': '#5f6367', 'primary': '#030813', 'error': '#ba1a1a', 'surface-container-low': '#f3f4f6', 'on-tertiary': '#ffffff', 'surface-variant': '#e1e2e4', 'on-secondary': '#ffffff', 'secondary-fixed': '#e0e3e7', 'on-error': '#ffffff', 'on-primary-fixed': '#161c27', 'inverse-primary': '#c1c6d7', 'tertiary': '#000817', 'tertiary-fixed': '#d8e3fa', 'on-primary-container': '#828796', 'surface-tint': '#585e6c', 'on-error-container': '#93000a', 'error-container': '#ffdad6', 'surface-container': '#edeef0', 'surface-container-high': '#e7e8ea', 'primary-fixed-dim': '#c1c6d7', 'surface-bright': '#f8f9fb', 'primary-container': '#1a202c', 'background': '#f8f9fb', 'on-surface-variant': '#45474c', 'secondary-container': '#dde0e4', 'on-secondary-fixed-variant': '#43474b', 'on-surface': '#191c1e', 'on-secondary-fixed': '#181c1f', 'on-tertiary-container': '#7d889c', 'outline': '#76777c', 'on-primary': '#ffffff', 'secondary-fixed-dim': '#c3c7cb', 'inverse-on-surface': '#f0f1f3', 'tertiary-fixed-dim': '#bcc7dd', 'on-primary-fixed-variant': '#414754', 'primary-fixed': '#dde2f3', 'secondary': '#5b5f62', 'on-background': '#191c1e', 'surface-container-lowest': '#ffffff', 'on-tertiary-fixed': '#111c2c', 'surface-container-highest': '#e1e2e4', 'surface': '#f8f9fb', 'tertiary-container': '#152031', 'outline-variant': '#c6c6cc', 'inverse-surface': '#2e3132', 'on-tertiary-fixed-variant': '#3c475a', 'surface-dim': '#d9dadc' }, borderRadius: { 'DEFAULT': '0.125rem', 'lg': '0.25rem', 'xl': '0.5rem', 'full': '0.75rem' }, spacing: { 'gutter': '24px', 'margin-desktop': '48px', 'margin-mobile': '16px', 'unit': '8px', 'container-max': '1200px' }, fontFamily: { 'label-sm': ['Inter'], 'headline-xl': ['Manrope'], 'label-md': ['Inter'], 'headline-md': ['Manrope'], 'headline-lg': ['Manrope'], 'body-lg': ['Inter'], 'headline-lg-mobile': ['Manrope'], 'body-md': ['Inter'] }, fontSize: { 'label-sm': ['12px', { lineHeight: '16px', letterSpacing: '0', fontWeight: '500' }], 'headline-xl': ['40px', { lineHeight: '48px', letterSpacing: '-0.02em', fontWeight: '700' }], 'label-md': ['14px', { lineHeight: '20px', letterSpacing: '0.05em', fontWeight: '600' }], 'headline-md': ['24px', { lineHeight: '32px', letterSpacing: '0', fontWeight: '600' }], 'headline-lg': ['32px', { lineHeight: '40px', letterSpacing: '-0.01em', fontWeight: '700' }], 'body-lg': ['18px', { lineHeight: '28px', letterSpacing: '0', fontWeight: '400' }], 'headline-lg-mobile': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '700' }], 'body-md': ['16px', { lineHeight: '24px', letterSpacing: '0', fontWeight: '400' }] } } } }</script></head><body class="bg-background text-on-surface min-h-screen flex flex-col font-body-md text-body-md"><header class="fixed top-0 inset-x-0 z-50 bg-surface/80 backdrop-blur-xl pt-safe border-b border-surface-container"><div class="h-16 px-margin-mobile flex items-center justify-between"><button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button><h1 class="font-headline-md text-headline-md text-on-surface tracking-tight">Pesan Jasa</h1><div class="flex items-center px-2.5 py-1 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant font-medium"><span class="">Langkah 1/2</span></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-28 bg-surface px-margin-mobile"><div class="flex flex-col w-full pb-6">
+<!-- Form Container wrapping inputs -->
+<form class="flex flex-col gap-6" id="booking-ac-form" onsubmit="event.preventDefault();">
+<!-- Service Header Summary Card -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-3.5 border border-surface-container-high/60"><div class="flex items-start gap-3.5"><img class="w-16 h-16 rounded-xl object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1XX19vH5ORO9ZpyXay6-UgwvPxmPPaWOk5lbTMUVyk5yeyrPXjp2TvI2zuTbXhG6OSaK1Z9EBXBqqnMi_PFw9aF2fGK9D7VFxB8lKWHkzlkLXGyhye-_1RW6uHGNbRDU_qcaaL7pEXA1J2oKj2cHbqeCv3aDrewA8RxgnLzWhMPCrv31OSx4BkTLOVP92jKX5js0Wl3cxgWWHxXwCeagYGMXSs873TRAK0uTYJEk_c9V9fZFza4QrcrpDw" alt="Perbaikan AC"><div class="flex flex-col flex-1 min-w-0"><div class="flex items-center gap-1.5 mb-1"><span class="material-symbols-outlined text-[14px] text-on-surface-variant">ac_unit</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Teknisi &amp; Pendingin</span></div><h2 class="font-headline-md text-headline-md text-on-surface leading-tight truncate">Perbaikan &amp; Perawatan AC</h2><div class="flex items-center gap-3 mt-1.5"><div class="flex items-center gap-1 text-on-surface font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px] text-primary">star</span><span class="font-semibold">4.9</span><span class="text-on-surface-variant">(1.2k)</span></div><span class="text-surface-container-highest">•</span><div class="flex items-center gap-1 text-on-surface font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px] text-primary">verified</span><span class="">Garansi 30 Hari</span></div></div></div></div></div>
+<!-- Section 1: Service Location -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">pin_drop</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Lokasi Pengerjaan</h3>
+</div>
+<button class="font-label-md text-label-md text-on-surface underline underline-offset-4 active:opacity-70" type="button">Ubah Alamat</button>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-3">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface">home</span>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Rumah Utama</span>
+<span class="bg-secondary-container text-on-secondary-fixed px-2 py-0.5 rounded font-label-sm text-label-sm">Utama</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">Jl. Boulevard Timur No. 24, Cilandak Barat, Jakarta Selatan</p>
+</div>
+</div>
+<div class="relative w-full h-24 rounded-lg overflow-hidden mt-1" data-location="Jl. Boulevard Timur No. 24, Jakarta Selatan">
+<div class="absolute inset-0 bg-surface-container flex items-center justify-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">map</span> Koordinat GPS Terverifikasi
+            </span>
+</div>
+</div>
+<div class="flex flex-col gap-1 mt-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="address-notes">Patokan &amp; Instruksi Gerbang</label>
+<input class="w-full bg-surface-container-low px-3 py-2.5 rounded-lg font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container transition-colors" id="address-notes" placeholder="Contoh: Rumah pagar hitam samping pos satpam, bel pintu aktif" type="text">
+</div>
+</div>
+</div>
+<!-- Section 2: Date & Time Schedule -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">calendar_today</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Jadwal Kedatangan Teknisi</h3>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-4">
+<!-- Horizontal Date Selector -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-2">Pilih Tanggal</span>
+<div class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+<button class="date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-primary text-on-primary flex flex-col items-center justify-center gap-0.5 transition-all" onclick="selectDate(this)" type="button">
+<span class="font-label-sm text-label-sm opacity-80">Hari Ini</span>
+<span class="font-label-md text-label-md">24 Okt</span>
+</button>
+<button class="date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-surface-container text-on-surface flex flex-col items-center justify-center gap-0.5 transition-all" onclick="selectDate(this)" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Besok</span>
+<span class="font-label-md text-label-md">25 Okt</span>
+</button>
+<button class="date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-surface-container text-on-surface flex flex-col items-center justify-center gap-0.5 transition-all" onclick="selectDate(this)" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sabtu</span>
+<span class="font-label-md text-label-md">26 Okt</span>
+</button>
+<button class="date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-surface-container text-on-surface flex flex-col items-center justify-center gap-0.5 transition-all" onclick="selectDate(this)" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Minggu</span>
+<span class="font-label-md text-label-md">27 Okt</span>
+</button>
+</div>
+</div>
+<!-- Session Selector -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-2">Sesi Waktu Kerja</span>
+<div class="grid grid-cols-3 gap-2">
+<button class="time-chip py-2.5 px-2 rounded-lg bg-primary text-on-primary text-center font-label-md text-label-md transition-all" onclick="selectTime(this)" type="button">
+              09:00 - 11:00
+            </button>
+<button class="time-chip py-2.5 px-2 rounded-lg bg-surface-container text-on-surface text-center font-label-md text-label-md transition-all" onclick="selectTime(this)" type="button">
+              13:00 - 15:00
+            </button>
+<button class="time-chip py-2.5 px-2 rounded-lg bg-surface-container text-on-surface text-center font-label-md text-label-md transition-all" onclick="selectTime(this)" type="button">
+              15:30 - 17:30
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: AC Requirements & Issues -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">tune</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Rincian Kendala &amp; Unit</h3>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-4">
+<!-- Quantity Stepper -->
+<div class="flex items-center justify-between py-1">
+<div>
+<span class="font-label-md text-label-md text-on-surface block">Jumlah Unit AC</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maksimal 6 unit per kunjungan</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container p-1 rounded-lg">
+<button class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface active:scale-95 transition-transform" onclick="adjustQty(-1)" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<span class="font-headline-md text-headline-md text-on-surface min-w-[20px] text-center" id="unit-qty">1</span>
+<button class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-on-surface active:scale-95 transition-transform" onclick="adjustQty(1)" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- AC Type Chips -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-2">Tipe Unit Pendingin</span>
+<div class="flex flex-wrap gap-2">
+<button class="type-chip py-2 px-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md transition-colors" onclick="toggleSelection(this)" type="button">Split Wall</button>
+<button class="type-chip py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md transition-colors" onclick="toggleSelection(this)" type="button">Inverter</button>
+<button class="type-chip py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md transition-colors" onclick="toggleSelection(this)" type="button">Cassette / Standing</button>
+</div>
+</div>
+<!-- Issue Tags -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-2">Keluhan Utama (Pilih yang sesuai)</span>
+<div class="flex flex-wrap gap-2">
+<button class="issue-pill py-2 px-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors" onclick="toggleIssue(this)" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span class="">AC Tidak Dingin</span>
+</button>
+<button class="issue-pill py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" onclick="toggleIssue(this)" type="button">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+<span class="">Bocor / Air Menetes</span>
+</button>
+<button class="issue-pill py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" onclick="toggleIssue(this)" type="button">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+<span class="">Bunyi Berisik</span>
+</button>
+<button class="issue-pill py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" onclick="toggleIssue(this)" type="button">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+<span class="">Bau Tidak Sedap</span>
+</button>
+<button class="issue-pill py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" onclick="toggleIssue(this)" type="button">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+<span class="">Hanya Cuci Rutin</span>
+</button>
+</div>
+</div>
+<!-- Technician Notes -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="tech-notes">Catatan Tambahan untuk Teknisi</label>
+<textarea class="w-full bg-surface-container-low p-3 rounded-lg font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container resize-none transition-colors" id="tech-notes" placeholder="Tuliskan posisi unit (misal: di lantai 2 perlu tangga) atau rincian kode error di layar unit..." rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Section 4: Photo / Condition Proof (Optional) -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">add_a_photo</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Foto Kondisi Unit</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Opsional</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-3">
+<div class="w-full py-6 px-4 rounded-lg bg-surface-container-low flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container transition-colors">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[20px] text-on-surface">upload_file</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">+ Unggah Foto AC / Area Pengerjaan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1 max-w-[280px]">Membantu teknisi memetakan akses &amp; menyiapkan suku cadang yang presisi</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="font-label-sm text-label-sm">Format JPG/PNG maks. 10MB per berkas</span>
+</div>
+</div>
+</div>
+<!-- Section 5: Cost Breakdown & Promo -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">receipt_long</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Rincian Biaya Transparan</h3>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-3">
+<!-- Voucher Input -->
+<div class="flex gap-2">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-3 text-[18px] text-on-surface-variant">loyalty</span>
+<input class="w-full bg-surface-container-low pl-9 pr-3 py-2.5 rounded-lg font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container uppercase transition-colors" placeholder="Punya kode promo?" type="text">
+</div>
+<button class="px-4 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md active:bg-primary active:text-on-primary transition-colors" type="button">Gunakan</button>
+</div>
+<div class="h-[1px] bg-surface-container my-1"></div>
+<!-- Breakdown list -->
+<div class="flex flex-col gap-2 font-body-md text-body-md">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="">Biaya Kunjungan &amp; Diagnosis</span>
+<span class="text-on-surface font-label-md text-label-md">Rp 35.000</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="">Servis Dasar Awal (1 Unit)</span>
+<span class="text-on-surface font-label-md text-label-md">Rp 75.000</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="">Diskon Layanan</span>
+<span class="text-on-surface font-label-md text-label-md">Rp 0</span>
+</div>
+</div>
+<div class="h-[1px] bg-surface-container my-1"></div>
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Total Estimasi Awal</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Termasuk PPN &amp; Garansi</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Rp 110.000</span>
+</div>
+<!-- Clarification Box -->
+<div class="bg-surface-container-low p-3 rounded-lg flex items-start gap-2.5 mt-1">
+<span class="material-symbols-outlined text-[18px] text-on-surface flex-shrink-0 mt-0.5">shield</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-normal">
+            Biaya final penggantian suku cadang atau pengisian freon akan disepakati langsung bersama Anda sebelum pengerjaan dimulai melalui invoice resmi sistem.
+          </p>
+</div>
+</div>
+</div>
+<!-- Assurance Badges Grid -->
+<div class="grid grid-cols-2 gap-2 mt-1">
+<div class="p-3 bg-surface-container rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-on-surface">badge</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Teknisi Tersertifikasi</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">SOP Baku &amp; Rapi</span>
+</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-on-surface">lock</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Garansi 30 Hari</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Perbaikan Ulang Gratis</span>
+</div>
+</div>
+</div>
+</form>
+</div>
+<script>
+  function selectDate(el) {
+    document.querySelectorAll('.date-chip').forEach(btn => {
+      btn.className = 'date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-surface-container text-on-surface flex flex-col items-center justify-center gap-0.5 transition-all';
+      const sub = btn.querySelector('span:first-child');
+      if (sub) sub.className = 'font-label-sm text-label-sm text-on-surface-variant';
+    });
+    el.className = 'date-chip flex-1 min-w-[92px] py-2.5 px-3 rounded-lg bg-primary text-on-primary flex flex-col items-center justify-center gap-0.5 transition-all';
+    const activeSub = el.querySelector('span:first-child');
+    if (activeSub) activeSub.className = 'font-label-sm text-label-sm opacity-80';
+  }
+
+  function selectTime(el) {
+    document.querySelectorAll('.time-chip').forEach(btn => {
+      btn.className = 'time-chip py-2.5 px-2 rounded-lg bg-surface-container text-on-surface text-center font-label-md text-label-md transition-all';
+    });
+    el.className = 'time-chip py-2.5 px-2 rounded-lg bg-primary text-on-primary text-center font-label-md text-label-md transition-all';
+  }
+
+  function toggleSelection(el) {
+    document.querySelectorAll('.type-chip').forEach(btn => {
+      btn.className = 'type-chip py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md transition-colors';
+    });
+    el.className = 'type-chip py-2 px-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md transition-colors';
+  }
+
+  function toggleIssue(el) {
+    const icon = el.querySelector('.material-symbols-outlined');
+    const isSelected = el.classList.contains('bg-primary');
+    if (isSelected) {
+      el.className = 'issue-pill py-2 px-3 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors';
+      if (icon) icon.classList.add('hidden');
+    } else {
+      el.className = 'issue-pill py-2 px-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 transition-colors';
+      if (icon) icon.classList.remove('hidden');
+    }
+  }
+
+  let qty = 1;
+  function adjustQty(delta) {
+    qty = Math.max(1, Math.min(6, qty + delta));
+    const label = document.getElementById('unit-qty');
+    if (label) label.textContent = qty;
+  }
+</script></main><footer class="fixed bottom-0 inset-x-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.04)]"><div class="p-3 pb-safe"><div class="flex items-center justify-between gap-3"><button class="w-full bg-primary text-on-primary font-semibold py-4 px-6 rounded-2xl flex items-center justify-center gap-2 font-label-md text-label-md active:scale-95 transition-transform shadow-sm" form="booking-ac-form" type="submit"><span class="material-symbols-outlined text-[18px]">bolt</span><span class="font-medium">Konfirmasi &amp; Lanjut Pembayaran</span></button></div></div></footer>
+
+</body></html>

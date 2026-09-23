@@ -2,48 +2,52 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    protected $table = 'users';
+    protected $primaryKey = 'id_user';
+    public $timestamps = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
+        'nama',
         'email',
-        'password',
+        'role',
+        'status_mitra',
+        'auth_uid',
+        'foto_profil',
+        'no_hp',
+        'terakhir_aktif',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $casts = [
+        'terakhir_aktif' => 'datetime',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function mitraProfil()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(MitraProfil::class, 'user_id', 'id_user');
+    }
+
+
+    public function mitraLayanan()
+    {
+        return $this->hasMany(MitraLayanan::class, 'mitra_id', 'id_user');
+    }
+
+    public function pesananSebagaiPengguna()
+    {
+        return $this->hasMany(Pesanan::class, 'pengguna_id', 'id_user');
+    }
+
+    public function pesananSebagaiMitra()
+    {
+        return $this->hasMany(Pesanan::class, 'mitra_id', 'id_user');
+    }
+
+    public function notifikasi()
+    {
+        return $this->hasMany(Notifikasi::class, 'user_id', 'id_user');
     }
 }

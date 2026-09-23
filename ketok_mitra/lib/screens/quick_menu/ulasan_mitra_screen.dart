@@ -1,0 +1,157 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../widgets/ketok_colors.dart';
+import 'quick_menu_shared.dart';
+
+class UlasanMitraScreen extends StatefulWidget {
+  const UlasanMitraScreen({super.key});
+
+  @override
+  State<UlasanMitraScreen> createState() => _UlasanMitraScreenState();
+}
+
+class _UlasanMitraScreenState extends State<UlasanMitraScreen> {
+  bool _loading = true;
+  String? _errorMessage;
+  List<Map<String, dynamic>> _reviews = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
+    try {
+      final client = Supabase.instance.client;
+      final mitraId = await loadMitraId(client);
+      final orders = await client
+          .from('pesanan')
+          .select('id_pesanan, pengguna_id')
+          .eq('mitra_id', mitraId)
+          .eq('status', 'selesai');
+      final orderIds = orders.map((row) => row['id_pesanan']).toList();
+      final loaded = <Map<String, dynamic>>[];
+      if (orderIds.isNotEmpty) {
+        final reviews = await client
+            .from('ulasan')
+            .select('id_ulasan, pesanan_id, rating, komentar')
+            .inFilter('pesanan_id', orderIds)
+            .order('id_ulasan', ascending: false);
+        for (final review in reviews) {
+          final order = orders
+              .cast<Map<String, dynamic>>()
+              .where((row) => row['id_pesanan'] == review['pesanan_id'])
+              .firstOrNull;
+          final customer = order == null
+              ? null
+              : await client
+                    .from('users')
+                    .select('nama')
+                    .eq('id_user', order['pengguna_id'])
+                    .maybeSingle();
+          loaded.add({
+            ...Map<String, dynamic>.from(review),
+            'customer_name': customer?['nama'] ?? 'Pelanggan',
+          });
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _reviews = loaded;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _errorMessage = quickMenuError(error);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return QuickMenuScaffold(
+      title: 'Ulasan Mitra',
+      icon: Icons.rate_review_outlined,
+      onRefresh: _loadReviews,
+      child: QuickMenuContent(
+        loading: _loading,
+        errorMessage: _errorMessage,
+        onRetry: _loadReviews,
+        child: _reviews.isEmpty
+            ? const QuickMenuEmptyState(
+                icon: Icons.rate_review_outlined,
+                title: 'Belum ada ulasan',
+                subtitle:
+                    'Ulasan pelanggan akan tampil setelah pesanan selesai.',
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+                itemCount: _reviews.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                itemBuilder: (_, index) => _buildReview(_reviews[index]),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildReview(Map<String, dynamic> review) {
+    final rating = (review['rating'] as num?)?.toDouble() ?? 0;
+    return QuickMenuCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                backgroundColor: KetokColors.surfaceLow,
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: KetokColors.darkPrimary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  review['customer_name'] as String,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.star_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 19,
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    rating.toStringAsFixed(1),
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            (review['komentar'] as String?)?.isNotEmpty == true
+                ? review['komentar'] as String
+                : 'Pelanggan tidak menulis komentar.',
+            style: const TextStyle(
+              color: KetokColors.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
