@@ -301,26 +301,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             color: Color(0xFF0F172A),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: _saving ? null : _saveProfile,
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(
-                    isIndo ? 'Simpan' : 'Save',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())

@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 import 'pesanan_detail_screen.dart';
+import 'quick_menu/quick_menu_shared.dart';
 
 class PesananScreen extends StatefulWidget {
   final VoidCallback? onNotificationTap;
@@ -97,10 +98,16 @@ class _PesananScreenState extends State<PesananScreen> {
           }
         }
 
+        final catName = category?['nama_katagori'] as String? ?? 'Layanan Ketok';
+        final serviceName = extractServiceName(
+          row['catatan'] as String?,
+          catName,
+        );
         loadedOrders.add({
           ...Map<String, dynamic>.from(row),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
-          'category_name': category?['nama_katagori'] ?? 'Layanan Ketok',
+          'category_name': serviceName,
+          'raw_category': catName,
           'price': priceVal,
           'biaya_kunjungan': row['biaya_kunjungan'] ?? payment?['biaya_kunjungan'] ?? priceVal,
           'biaya_jasa': payment?['biaya_jasa'],
@@ -532,7 +539,7 @@ class _PesananScreenState extends State<PesananScreen> {
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: const Icon(
-                  Icons.ac_unit_rounded,
+                  Icons.build_circle_outlined,
                   size: 30,
                   color: _primary,
                 ),

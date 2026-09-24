@@ -60,10 +60,16 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
             .eq('pesanan_id', order['id_pesanan'])
             .maybeSingle();
 
+        final catName = category?['nama_katagori'] as String? ?? 'Layanan Ketok';
+        final serviceName = extractServiceName(
+          order['catatan'] as String?,
+          catName,
+        );
         loaded.add({
           ...Map<String, dynamic>.from(order),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
-          'category_name': category?['nama_katagori'] ?? 'Layanan Ketok',
+          'category_name': serviceName,
+          'raw_category': catName,
           'price': invoice?['jumlah_biaya'] ?? order['biaya_kunjungan'] ?? 50000,
         });
       }

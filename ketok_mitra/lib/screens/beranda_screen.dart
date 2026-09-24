@@ -11,6 +11,7 @@ import 'verifikasi_ktp_screen.dart';
 import 'notifikasi_screen.dart';
 import 'dompet_detail_screen.dart';
 import 'quick_menu/panduan_sop_screen.dart';
+import 'quick_menu/quick_menu_shared.dart';
 import 'quick_menu/pesanan_tersedia_screen.dart';
 import 'bantuan_screen.dart';
 import 'quick_menu/tagihan_marketing_screen.dart';
@@ -368,10 +369,16 @@ class _BerandaScreenState extends State<BerandaScreen> {
             .eq('pesanan_id', order['id_pesanan'])
             .maybeSingle();
 
+        final catName = category?['nama_katagori'] as String? ?? 'Layanan Ketok';
+        final serviceName = extractServiceName(
+          order['catatan'] as String?,
+          catName,
+        );
         orders.add({
           ...Map<String, dynamic>.from(order),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
-          'category_name': category?['nama_katagori'] ?? 'Layanan Ketok',
+          'category_name': serviceName,
+          'raw_category': catName,
           'price': invoice?['jumlah_biaya'] ?? order['biaya_kunjungan'] ?? 50000,
         });
       }
@@ -1243,7 +1250,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
       address: order['lokasi'] as String? ?? (l10n.isIndonesian ? 'Lokasi belum tersedia' : 'Location not available'),
       price: price,
       status: l10n.isIndonesian ? 'Pesanan Baru' : 'New Order',
-      icon: Icons.ac_unit_rounded,
+      icon: Icons.build_circle_outlined,
       urgent: true,
     );
   }
@@ -1293,9 +1300,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                             vertical: 4,
                           ),
                           color: _surfaceLow,
-                          child: const Text(
-                            'AIR CONDITIONER',
-                            style: TextStyle(
+                          child: Text(
+                            (order['raw_category'] as String? ?? title).toUpperCase(),
+                            style: const TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                             ),

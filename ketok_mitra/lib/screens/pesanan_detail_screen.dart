@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
+import 'quick_menu/quick_menu_shared.dart';
 
 class PesananDetailScreen extends StatefulWidget {
   final Map<String, dynamic> order;
@@ -973,7 +974,8 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
     final isIndo = l10n.isIndonesian;
 
     final status = _order['status'] as String? ?? '';
-    final title = _order['category_name'] as String? ?? (isIndo ? 'Pesanan' : 'Order');
+    final rawCategoryName = _order['category_name'] as String? ?? (isIndo ? 'Pesanan' : 'Order');
+    final title = extractServiceName(_order['catatan'] as String?, rawCategoryName);
     final customer = _order['customer_name'] as String? ?? (isIndo ? 'Pelanggan' : 'Customer');
     final location = _order['lokasi'] as String? ?? (isIndo ? 'Lokasi belum tersedia' : 'Location not available');
     final date = _formatDate(_order['jadwal'], isIndo: isIndo);

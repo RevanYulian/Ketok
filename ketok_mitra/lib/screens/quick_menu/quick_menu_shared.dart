@@ -298,3 +298,19 @@ String formatQuickMenuCurrency(dynamic value, [bool isIndo = true]) {
   );
   return 'Rp $formatted';
 }
+
+/// Extracts the specific service name from the order's `catatan` field.
+///
+/// When a customer places an order in Ketok App, the first line of `catatan`
+/// is formatted as `Jasa: <service name>`. This function parses that line and
+/// returns the service name. If the field is absent or doesn't match, returns
+/// [fallback] (typically the category name from `kategori_layanan`).
+String extractServiceName(String? catatan, String fallback) {
+  if (catatan == null || catatan.isEmpty) return fallback;
+  final firstLine = catatan.split('\n').first;
+  if (firstLine.startsWith('Jasa: ')) {
+    final name = firstLine.replaceFirst('Jasa: ', '').trim();
+    if (name.isNotEmpty) return name;
+  }
+  return fallback;
+}
