@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
@@ -61,6 +62,30 @@ class _UlasanMitraScreenState extends State<UlasanMitraScreen> {
             'customer_name': customer?['nama'] ?? 'Pelanggan',
           });
         }
+
+        // Tandai seluruh ulasan yang ada sebagai sudah dilihat
+        if (reviews.isNotEmpty) {
+          int maxId = 0;
+          for (final r in reviews) {
+            final id = (r['id_ulasan'] as num?)?.toInt() ?? 0;
+            if (id > maxId) maxId = id;
+          }
+          if (maxId > 0) {
+            try {
+              final prefs = await SharedPreferences.getInstance();
+              final currentSaved = prefs.getInt('last_seen_review_id_$mitraId') ?? 0;
+              if (maxId > currentSaved) {
+                await prefs.setInt('last_seen_review_id_$mitraId', maxId);
+              }
+              await prefs.setBool('has_seen_reviews_$mitraId', true);
+            } catch (_) {}
+          }
+        }
+      } else {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('has_seen_reviews_$mitraId', true);
+        } catch (_) {}
       }
       if (!mounted) return;
       setState(() {

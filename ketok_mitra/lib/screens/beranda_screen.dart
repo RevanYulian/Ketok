@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_screen.dart';
 import 'pesanan_screen.dart';
@@ -44,6 +45,8 @@ class _BerandaScreenState extends State<BerandaScreen> {
   int _completedOrderCount = 0;
   double _averageRating = 0;
   int _reviewCount = 0;
+  int _unreadReviewCount = 0;
+  int _latestReviewMaxId = 0;
   int _activeOrdersCount = 0;
   int _tagihanMarketingCount = 0;
   int _chatCount = 0;
@@ -236,11 +239,38 @@ class _BerandaScreenState extends State<BerandaScreen> {
           .whereType<double>()
           .toList();
 
+      int unreadReviews = 0;
+      int maxReviewId = 0;
+      for (final r in reviews) {
+        final id = (r['id_ulasan'] as num?)?.toInt() ?? 0;
+        if (id > maxReviewId) maxReviewId = id;
+      }
+
+      if (reviews.isNotEmpty && _mitraUserId != null) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final lastSeenId = prefs.getInt('last_seen_review_id_$_mitraUserId');
+          final hasSeen = prefs.getBool('has_seen_reviews_$_mitraUserId') ?? false;
+
+          if (!hasSeen && lastSeenId == null) {
+            unreadReviews = reviews.length;
+          } else {
+            final maxSeen = lastSeenId ?? 0;
+            unreadReviews = reviews.where((r) {
+              final id = (r['id_ulasan'] as num?)?.toInt() ?? 0;
+              return id > maxSeen;
+            }).length;
+          }
+        } catch (_) {}
+      }
+
       if (!mounted) return;
       setState(() {
         _monthlyIncome = income;
         _completedOrderCount = completedOrders.length;
         _reviewCount = reviews.length;
+        _unreadReviewCount = unreadReviews;
+        _latestReviewMaxId = maxReviewId;
         _averageRating = ratings.isEmpty
             ? 0
             : ratings.reduce((a, b) => a + b) / ratings.length;
@@ -258,6 +288,49 @@ class _BerandaScreenState extends State<BerandaScreen> {
         SnackBar(content: Text('Data beranda gagal dimuat: $error')),
       );
     }
+  }
+
+  Future<void> _markReviewsAsSeen() async {
+    if (_mitraUserId == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_latestReviewMaxId > 0) {
+        final currentSaved = prefs.getInt('last_seen_review_id_$_mitraUserId') ?? 0;
+        if (_latestReviewMaxId > currentSaved) {
+          await prefs.setInt('last_seen_review_id_$_mitraUserId', _latestReviewMaxId);
+        }
+      }
+      await prefs.setBool('has_seen_reviews_$_mitraUserId', true);
+      if (mounted) {
+        setState(() {
+          _unreadReviewCount = 0;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _syncUnreadReviews() async {
+    if (_mitraUserId == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastSeenId = prefs.getInt('last_seen_review_id_$_mitraUserId') ?? 0;
+      final hasSeen = prefs.getBool('has_seen_reviews_$_mitraUserId') ?? false;
+
+      if (!hasSeen) return;
+
+      int unread = 0;
+      if (_reviews.isNotEmpty) {
+        unread = _reviews.where((r) {
+          final id = (r['id_ulasan'] as num?)?.toInt() ?? 0;
+          return id > lastSeenId;
+        }).length;
+      }
+      if (mounted) {
+        setState(() {
+          _unreadReviewCount = unread;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadAvailableOrders() async {
@@ -992,7 +1065,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
       (
         Icons.rate_review_outlined,
         l10n.quickMenuReviews,
-        _reviewCount > 0 ? _reviewCount.toString() : '',
+        _unreadReviewCount > 0 ? _unreadReviewCount.toString() : '',
         const UlasanMitraScreen(),
       ),
       (
@@ -1030,10 +1103,26 @@ class _BerandaScreenState extends State<BerandaScreen> {
         itemBuilder: (_, index) {
           final item = items[index];
           return InkWell(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => item.$4),
-            ),
+            onTap: () async {
+              if (index == 1) {
+                setState(() {
+                  _unreadReviewCount = 0;
+                });
+                _markReviewsAsSeen();
+              }
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => item.$4),
+              );
+              if (!mounted) return;
+              if (index == 1) {
+                await _syncUnreadReviews();
+              } else if (index == 0) {
+                await _loadAvailableOrders();
+              } else {
+                _loadHomeData();
+              }
+            },
             borderRadius: BorderRadius.circular(9),
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -1477,7 +1566,19 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () async {
+                  setState(() {
+                    _unreadReviewCount = 0;
+                  });
+                  _markReviewsAsSeen();
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const UlasanMitraScreen()),
+                  );
+                  if (mounted) {
+                    await _syncUnreadReviews();
+                  }
+                },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(50, 30),
@@ -1517,65 +1618,81 @@ class _BerandaScreenState extends State<BerandaScreen> {
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final item = _reviews[index];
-                return Container(
-                  width: 280,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: _surfaceCard,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _borderColor.withValues(alpha: 0.9),
+                return InkWell(
+                  onTap: () async {
+                    setState(() {
+                      _unreadReviewCount = 0;
+                    });
+                    _markReviewsAsSeen();
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const UlasanMitraScreen()),
+                    );
+                    if (mounted) {
+                      await _syncUnreadReviews();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: 280,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: _surfaceCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: _borderColor.withValues(alpha: 0.9),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Color(0xFFF59E0B),
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${item['rating']}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: _onSurface,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Color(0xFFF59E0B),
+                              size: 18,
                             ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${item['rating']}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: _onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '"${item['komentar'] ?? (l10n.isIndonesian ? 'Pelanggan belum menulis komentar.' : 'Customer has not written a comment.')}"',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                            color: _onSurface,
+                            height: 1.3,
                           ),
-                        ],
-                      ),
-                      Text(
-                        '"${item['komentar'] ?? (l10n.isIndonesian ? 'Pelanggan belum menulis komentar.' : 'Customer has not written a comment.')}"',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontStyle: FontStyle.italic,
-                          color: _onSurface,
-                          height: 1.3,
                         ),
-                      ),
-                      Text(
-                        '${item['customer_name']} - ${l10n.customerLabel}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: _onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
+                        Text(
+                          '${item['customer_name']} - ${l10n.customerLabel}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: _onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
