@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/ketok_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class UbahSandiScreen extends StatefulWidget {
   const UbahSandiScreen({super.key});
@@ -28,20 +29,27 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
   }
 
   Future<void> _submit() async {
+    final isIndo = context.l10n.isIndonesian;
     final oldPwd = _oldPasswordController.text;
     final newPwd = _newPasswordController.text;
     final confPwd = _confirmController.text;
     
     if (oldPwd.isEmpty || newPwd.isEmpty || confPwd.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Harap isi semua kolom.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isIndo ? 'Harap isi semua kolom.' : 'Please fill in all fields.'),
+      ));
       return;
     }
     if (newPwd.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kata sandi baru minimal 6 karakter.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isIndo ? 'Kata sandi baru minimal 6 karakter.' : 'New password must be at least 6 characters.'),
+      ));
       return;
     }
     if (newPwd != confPwd) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Konfirmasi kata sandi tidak cocok.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isIndo ? 'Konfirmasi kata sandi tidak cocok.' : 'Password confirmation does not match.'),
+      ));
       return;
     }
     
@@ -49,7 +57,7 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
     try {
       final supabase = Supabase.instance.client;
       final email = supabase.auth.currentUser?.email;
-      if (email == null) throw Exception('Sesi tidak valid. Silakan login kembali.');
+      if (email == null) throw Exception(isIndo ? 'Sesi tidak valid. Silakan login kembali.' : 'Invalid session. Please log in again.');
       
       // Verifikasi sandi lama dengan mencoba login
       await supabase.auth.signInWithPassword(
@@ -64,13 +72,17 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
       
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kata sandi berhasil diperbarui.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isIndo ? 'Kata sandi berhasil diperbarui.' : 'Password updated successfully.'),
+        ));
       }
     } catch (e) {
       if (mounted) {
         setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: Pastikan kata sandi lama benar.')),
+          SnackBar(
+            content: Text(isIndo ? 'Gagal: Pastikan kata sandi lama benar.' : 'Failed: Make sure old password is correct.'),
+          ),
         );
       }
     }
@@ -78,10 +90,11 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Keamanan Akun', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(isIndo ? 'Keamanan Akun' : 'Account Security', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
       ),
@@ -91,34 +104,36 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            const Text(
-              'Ubah Kata Sandi',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+            Text(
+              isIndo ? 'Ubah Kata Sandi' : 'Change Password',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Untuk keamanan akun Anda, masukkan kata sandi saat ini sebelum membuat kata sandi baru.',
-              style: TextStyle(color: KetokColors.onSurfaceVariant, height: 1.5),
+            Text(
+              isIndo
+                  ? 'Untuk keamanan akun Anda, masukkan kata sandi saat ini sebelum membuat kata sandi baru.'
+                  : 'For your account security, enter your current password before creating a new password.',
+              style: const TextStyle(color: KetokColors.onSurfaceVariant, height: 1.5),
             ),
             const SizedBox(height: 32),
             
             _buildTextField(
               controller: _oldPasswordController,
-              label: 'Kata Sandi Saat Ini',
+              label: isIndo ? 'Kata Sandi Saat Ini' : 'Current Password',
               obscure: _obscureOld,
               onToggle: () => setState(() => _obscureOld = !_obscureOld),
             ),
             const SizedBox(height: 20),
             _buildTextField(
               controller: _newPasswordController,
-              label: 'Kata Sandi Baru',
+              label: isIndo ? 'Kata Sandi Baru' : 'New Password',
               obscure: _obscureNew,
               onToggle: () => setState(() => _obscureNew = !_obscureNew),
             ),
             const SizedBox(height: 20),
             _buildTextField(
               controller: _confirmController,
-              label: 'Konfirmasi Kata Sandi Baru',
+              label: isIndo ? 'Konfirmasi Kata Sandi Baru' : 'Confirm New Password',
               obscure: _obscureConfirm,
               onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
             ),
@@ -135,7 +150,7 @@ class _UbahSandiScreenState extends State<UbahSandiScreen> {
                 ),
                 child: _loading 
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                    : const Text('Simpan Kata Sandi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    : Text(isIndo ? 'Simpan Kata Sandi' : 'Save Password', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               ),
             ),
           ],

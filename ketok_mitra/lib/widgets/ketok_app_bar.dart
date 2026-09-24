@@ -45,10 +45,10 @@ class KetokAppBar extends StatelessWidget {
                         ? Image.network(
                             logoUrl,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => Image.asset(
+                            errorBuilder: (_, _, _) => Image.asset(
                               'assets/images/logo_mitra.png',
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, _, _) => const Icon(
                                 Icons.business_rounded,
                                 color: Colors.white,
                                 size: 20,
@@ -58,7 +58,7 @@ class KetokAppBar extends StatelessWidget {
                         : Image.asset(
                             'assets/images/logo_mitra.png',
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.business_rounded,
                               color: Colors.white,
                               size: 20,

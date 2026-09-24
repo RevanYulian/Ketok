@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 
 class PesananDetailScreen extends StatefulWidget {
@@ -99,41 +100,56 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
     return 'Rp $formatted';
   }
 
-  String _formatDate(dynamic value) {
+  String _formatDate(dynamic value, {bool isIndo = true}) {
     if (value == null) return '-';
     final date = DateTime.tryParse(value.toString());
     if (date == null) return value.toString();
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
+    final months = isIndo
+        ? [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'Mei',
+            'Jun',
+            'Jul',
+            'Agu',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des',
+          ]
+        : [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+          ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(String status, {bool isIndo = true}) {
     switch (status) {
       case 'diproses':
-        return 'Diproses';
+        return isIndo ? 'Diproses' : 'In Progress';
       case 'menuju_lokasi':
-        return 'Menuju Lokasi';
+        return isIndo ? 'Menuju Lokasi' : 'En Route';
       case 'dikerjakan':
-        return 'Dalam Pengerjaan';
+        return isIndo ? 'Dalam Pengerjaan' : 'Working';
       case 'selesai':
-        return 'Selesai';
+        return isIndo ? 'Selesai' : 'Completed';
       case 'dibatalkan':
-        return 'Dibatalkan';
+        return isIndo ? 'Dibatalkan' : 'Cancelled';
       default:
-        return 'Menunggu Konfirmasi';
+        return isIndo ? 'Menunggu Konfirmasi' : 'Awaiting Confirmation';
     }
   }
 
@@ -173,6 +189,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
   }
 
   void _showFormEstimasiModal() {
+    final isIndo = context.l10n.isIndonesian;
     final visitCost = _getVisitCost();
     final initialJasa = _getJasaCost();
     final initialSparepart = _getSparepartCost();
@@ -239,21 +256,23 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Form Estimasi Biaya',
-                                style: TextStyle(
+                                isIndo ? 'Form Estimasi Biaya' : 'Cost Estimation Form',
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: KetokColors.darkPrimary,
                                 ),
                               ),
                               Text(
-                                'Kirim rincian biaya setelah pemeriksaan di lokasi',
-                                style: TextStyle(
+                                isIndo
+                                    ? 'Kirim rincian biaya setelah pemeriksaan di lokasi'
+                                    : 'Send cost details after on-site inspection',
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF64748B),
                                 ),
@@ -279,10 +298,12 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                             color: Color(0xFF64748B),
                           ),
                           const SizedBox(width: 10),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Biaya Kunjungan (Sudah Disepakati)',
-                              style: TextStyle(
+                              isIndo
+                                  ? 'Biaya Kunjungan (Sudah Disepakati)'
+                                  : 'Call-out Fee (Agreed)',
+                              style: const TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF334155),
                                 fontWeight: FontWeight.w600,
@@ -301,9 +322,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Biaya Jasa / Pengerjaan *',
-                      style: TextStyle(
+                    Text(
+                      isIndo ? 'Biaya Jasa / Pengerjaan *' : 'Service / Labor Fee *',
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: KetokColors.darkPrimary,
@@ -320,7 +341,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           fontWeight: FontWeight.w700,
                           color: KetokColors.darkPrimary,
                         ),
-                        hintText: 'Contoh: 150000',
+                        hintText: isIndo ? 'Contoh: 150000' : 'e.g.: 150000',
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         contentPadding: const EdgeInsets.symmetric(
@@ -347,9 +368,11 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                       },
                     ),
                     const SizedBox(height: 14),
-                    const Text(
-                      'Biaya Sparepart / Material (Opsional)',
-                      style: TextStyle(
+                    Text(
+                      isIndo
+                          ? 'Biaya Sparepart / Material (Opsional)'
+                          : 'Spare Parts / Materials Fee (Optional)',
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: KetokColors.darkPrimary,
@@ -366,7 +389,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           fontWeight: FontWeight.w700,
                           color: KetokColors.darkPrimary,
                         ),
-                        hintText: '0 jika tidak ada pergantian komponen',
+                        hintText: isIndo
+                            ? '0 jika tidak ada pergantian komponen'
+                            : '0 if no component replacement',
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         contentPadding: const EdgeInsets.symmetric(
@@ -393,9 +418,11 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                       },
                     ),
                     const SizedBox(height: 14),
-                    const Text(
-                      'Rincian Kerusakan & Komponen',
-                      style: TextStyle(
+                    Text(
+                      isIndo
+                          ? 'Rincian Kerusakan & Komponen'
+                          : 'Damage & Component Details',
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: KetokColors.darkPrimary,
@@ -406,8 +433,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                       controller: rincianController,
                       maxLines: 2,
                       decoration: InputDecoration(
-                        hintText:
-                            'Contoh: Penggantian kapasitor 25uF & tambah freon AC',
+                        hintText: isIndo
+                            ? 'Contoh: Penggantian kapasitor 25uF & tambah freon AC'
+                            : 'e.g.: Replace capacitor 25uF & add AC refrigerant',
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         contentPadding: const EdgeInsets.all(14),
@@ -438,9 +466,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Kunjungan',
-                                style: TextStyle(
+                              Text(
+                                isIndo ? 'Kunjungan' : 'Visit',
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF475569),
                                 ),
@@ -458,9 +486,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Jasa Perbaikan',
-                                style: TextStyle(
+                              Text(
+                                isIndo ? 'Jasa Perbaikan' : 'Service Labor',
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF475569),
                                 ),
@@ -478,9 +506,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Sparepart/Bahan',
-                                style: TextStyle(
+                              Text(
+                                isIndo ? 'Sparepart/Bahan' : 'Spare Parts/Materials',
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF475569),
                                 ),
@@ -498,9 +526,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Total Estimasi Biaya',
-                                style: TextStyle(
+                              Text(
+                                isIndo ? 'Total Estimasi Biaya' : 'Total Estimated Cost',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                   color: KetokColors.darkPrimary,
@@ -530,9 +558,11 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                                   ScaffoldMessenger.of(
                                     modalContext,
                                   ).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'Biaya jasa harus diisi lebih dari Rp 0.',
+                                        isIndo
+                                            ? 'Biaya jasa harus diisi lebih dari Rp 0.'
+                                            : 'Labor fee must be greater than Rp 0.',
                                       ),
                                     ),
                                   );
@@ -557,9 +587,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           ),
                         ),
                         icon: const Icon(Icons.send_rounded),
-                        label: const Text(
-                          'Kirim Estimasi ke Pelanggan',
-                          style: TextStyle(
+                        label: Text(
+                          isIndo ? 'Kirim Estimasi ke Pelanggan' : 'Send Estimation to Customer',
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                           ),
@@ -583,6 +613,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
     required num totalBiaya,
     required String rincian,
   }) async {
+    final isIndo = context.l10n.isIndonesian;
     setState(() => _loading = true);
 
     try {
@@ -635,9 +666,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Color(0xFF059669),
-          content: Text('Estimasi biaya berhasil dikirim ke pelanggan!'),
+        SnackBar(
+          backgroundColor: const Color(0xFF059669),
+          content: Text(isIndo ? 'Estimasi biaya berhasil dikirim ke pelanggan!' : 'Cost estimate sent successfully to customer!'),
         ),
       );
     } catch (error) {
@@ -646,13 +677,13 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Gagal mengirim estimasi: $error'),
+          content: Text(isIndo ? 'Gagal mengirim estimasi: $error' : 'Failed to send estimate: $error'),
         ),
       );
     }
   }
 
-  Widget _buildQuotationStatusCard() {
+  Widget _buildQuotationStatusCard(bool isIndo) {
     final statusPersetujuan =
         _order['status_persetujuan_biaya'] as String? ?? 'menunggu_estimasi';
     final visitCost = _getVisitCost();
@@ -672,17 +703,19 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.hourglass_top_rounded,
                   color: KetokColors.darkPrimary,
                   size: 20,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
-                  'Estimasi Terkirim - Menunggu Persetujuan',
-                  style: TextStyle(
+                  isIndo
+                      ? 'Estimasi Terkirim - Menunggu Persetujuan'
+                      : 'Estimate Sent - Pending Approval',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
                     color: KetokColors.darkPrimary,
@@ -691,9 +724,11 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Menunggu konfirmasi pelanggan terhadap total estimasi biaya berikut:',
-              style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+            Text(
+              isIndo
+                  ? 'Menunggu konfirmasi pelanggan terhadap total estimasi biaya berikut:'
+                  : 'Awaiting customer confirmation for the following cost estimate:',
+              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 10),
             Container(
@@ -708,9 +743,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Biaya Kunjungan',
-                        style: TextStyle(
+                      Text(
+                        isIndo ? 'Biaya Kunjungan' : 'Call-out Fee',
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF64748B),
                         ),
@@ -728,9 +763,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Jasa Perbaikan',
-                        style: TextStyle(
+                      Text(
+                        isIndo ? 'Jasa Perbaikan' : 'Service Labor',
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF64748B),
                         ),
@@ -748,9 +783,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Sparepart/Komponen',
-                        style: TextStyle(
+                      Text(
+                        isIndo ? 'Sparepart/Komponen' : 'Spare Parts/Components',
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF64748B),
                         ),
@@ -768,9 +803,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total Estimasi',
-                        style: TextStyle(
+                      Text(
+                        isIndo ? 'Total Estimasi' : 'Total Estimate',
+                        style: const TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 13,
                           color: KetokColors.darkPrimary,
@@ -816,9 +851,11 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Estimasi Biaya Disetujui Pelanggan',
-                    style: TextStyle(
+                  Text(
+                    isIndo
+                        ? 'Estimasi Biaya Disetujui Pelanggan'
+                        : 'Cost Estimate Approved by Customer',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
                       color: Color(0xFF065F46),
@@ -826,7 +863,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Pelanggan telah menyetujui total biaya ${_formatPrice(totalCost)}. Anda dapat menyelesaikan perbaikan unit.',
+                    isIndo
+                        ? 'Pelanggan telah menyetujui total biaya ${_formatPrice(totalCost)}. Anda dapat menyelesaikan perbaikan unit.'
+                        : 'Customer approved total cost of ${_formatPrice(totalCost)}. You can proceed to complete unit repair.',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF047857),
@@ -849,27 +888,31 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: const Color(0xFFFECACA)),
         ),
-        child: const Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.cancel_rounded, color: Color(0xFFDC2626), size: 22),
-            SizedBox(width: 10),
+            const Icon(Icons.cancel_rounded, color: Color(0xFFDC2626), size: 22),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Estimasi Biaya Ditolak Pelanggan',
-                    style: TextStyle(
+                    isIndo
+                        ? 'Estimasi Biaya Ditolak Pelanggan'
+                        : 'Cost Estimate Declined by Customer',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 13,
                       color: Color(0xFF991B1B),
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Pelanggan tidak menyetujui estimasi biaya sebelumnya. Anda dapat berdiskusi via Chat atau mengirim ulang estimasi baru.',
-                    style: TextStyle(fontSize: 12, color: Color(0xFFB91C1C)),
+                    isIndo
+                        ? 'Pelanggan tidak menyetujui estimasi biaya sebelumnya. Anda dapat berdiskusi via Chat atau mengirim ulang estimasi baru.'
+                        : 'Customer declined the previous cost estimate. You can discuss via Chat or resend a new estimate.',
+                    style: const TextStyle(fontSize: 12, color: Color(0xFFB91C1C)),
                   ),
                 ],
               ),
@@ -888,31 +931,33 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: KetokColors.borderColor),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline_rounded,
             color: KetokColors.darkPrimary,
             size: 20,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tahap Pemeriksaan Unit',
-                  style: TextStyle(
+                  isIndo ? 'Tahap Pemeriksaan Unit' : 'Unit Inspection Phase',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: KetokColors.darkPrimary,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Cek kondisi di lokasi pelanggan, lalu gunakan tombol "Kirim Estimasi" di bawah untuk mengajukan rincian biaya pengerjaan.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  isIndo
+                      ? 'Cek kondisi di lokasi pelanggan, lalu gunakan tombol "Kirim Estimasi" di bawah untuk mengajukan rincian biaya pengerjaan.'
+                      : 'Check condition at customer site, then use "Send Estimate" below to submit service cost details.',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                 ),
               ],
             ),
@@ -924,11 +969,14 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
     final status = _order['status'] as String? ?? '';
-    final title = _order['category_name'] as String? ?? 'Pesanan';
-    final customer = _order['customer_name'] as String? ?? 'Pelanggan';
-    final location = _order['lokasi'] as String? ?? 'Lokasi belum tersedia';
-    final date = _formatDate(_order['jadwal']);
+    final title = _order['category_name'] as String? ?? (isIndo ? 'Pesanan' : 'Order');
+    final customer = _order['customer_name'] as String? ?? (isIndo ? 'Pelanggan' : 'Customer');
+    final location = _order['lokasi'] as String? ?? (isIndo ? 'Lokasi belum tersedia' : 'Location not available');
+    final date = _formatDate(_order['jadwal'], isIndo: isIndo);
     final price = _formatPrice(_order['price']);
     final note = _order['catatan'] as String? ?? '';
     final statusPersetujuan =
@@ -938,7 +986,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
     return Scaffold(
       backgroundColor: KetokColors.bgColor,
       appBar: AppBar(
-        title: const Text('Detail Pesanan'),
+        title: Text(isIndo ? 'Detail Pesanan' : 'Order Details'),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: KetokColors.darkPrimary,
@@ -1001,7 +1049,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Pesanan #${_order['id_pesanan'] ?? '-'}',
+                                '${isIndo ? "Pesanan" : "Order"} #${_order['id_pesanan'] ?? '-'}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF64748B),
@@ -1023,7 +1071,7 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        _statusLabel(status),
+                        _statusLabel(status, isIndo: isIndo),
                         style: TextStyle(
                           color: _statusColor(status),
                           fontWeight: FontWeight.w700,
@@ -1035,31 +1083,31 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              _buildQuotationStatusCard(),
+              _buildQuotationStatusCard(isIndo),
               _infoSection(
-                title: 'Informasi Pelanggan & Biaya',
+                title: isIndo ? 'Informasi Pelanggan & Biaya' : 'Customer & Cost Information',
                 items: [
-                  _infoRow(Icons.person_outline_rounded, 'Pemesan', customer),
-                  _infoRow(Icons.location_on_outlined, 'Lokasi', location),
-                  _infoRow(Icons.calendar_month_rounded, 'Jadwal', date),
+                  _infoRow(Icons.person_outline_rounded, isIndo ? 'Pemesan' : 'Customer', customer),
+                  _infoRow(Icons.location_on_outlined, isIndo ? 'Lokasi' : 'Location', location),
+                  _infoRow(Icons.calendar_month_rounded, isIndo ? 'Jadwal' : 'Schedule', date),
                   _infoRow(
                     Icons.payments_outlined,
-                    isApproved ? 'Total Biaya' : 'Biaya Kunjungan',
+                    isApproved ? (isIndo ? 'Total Biaya' : 'Total Cost') : (isIndo ? 'Biaya Kunjungan' : 'Call-out Fee'),
                     price,
                   ),
                 ],
               ),
               const SizedBox(height: 18),
               _infoSection(
-                title: 'Catatan & Rincian',
+                title: isIndo ? 'Catatan & Rincian' : 'Notes & Details',
                 items: [
                   if (note.isNotEmpty)
-                    _infoRow(Icons.notes_rounded, 'Catatan', note)
+                    _infoRow(Icons.notes_rounded, isIndo ? 'Catatan' : 'Notes', note)
                   else
                     _infoRow(
                       Icons.notes_rounded,
-                      'Catatan',
-                      'Tidak ada catatan tambahan',
+                      isIndo ? 'Catatan' : 'Notes',
+                      isIndo ? 'Tidak ada catatan tambahan' : 'No additional notes',
                     ),
                 ],
               ),
@@ -1083,10 +1131,10 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                           icon: const Icon(Icons.request_quote_outlined),
                           label: Text(
                             statusPersetujuan == 'menunggu_persetujuan'
-                                ? 'Ubah Estimasi Biaya'
+                                ? (isIndo ? 'Ubah Estimasi Biaya' : 'Edit Cost Estimate')
                                 : (statusPersetujuan == 'ditolak'
-                                    ? 'Kirim Ulang Estimasi Biaya'
-                                    : 'Kirim Estimasi & Minta Persetujuan'),
+                                    ? (isIndo ? 'Kirim Ulang Estimasi Biaya' : 'Resend Cost Estimate')
+                                    : (isIndo ? 'Kirim Estimasi & Minta Persetujuan' : 'Send Estimate & Request Approval')),
                             style: const TextStyle(fontWeight: FontWeight.w800),
                           ),
                         ),
@@ -1112,9 +1160,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                             ),
                           ),
                           icon: const Icon(Icons.check_circle_outline_rounded),
-                          label: const Text(
-                            'Selesaikan Pesanan',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          label: Text(
+                            isIndo ? 'Selesaikan Pesanan' : 'Complete Order',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
@@ -1135,9 +1183,9 @@ class _PesananDetailScreenState extends State<PesananDetailScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.close_rounded),
-                    label: const Text(
-                      'Tutup',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    label: Text(
+                      isIndo ? 'Tutup' : 'Close',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 
 class AddressItem {
@@ -113,18 +114,28 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
       await _loadAddresses();
 
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Alamat utama berhasil diubah.'),
-            backgroundColor: Color(0xFF10B981),
+          SnackBar(
+            content: Text(
+              isIndo
+                  ? 'Alamat utama berhasil diubah.'
+                  : 'Primary address changed successfully.',
+            ),
+            backgroundColor: const Color(0xFF10B981),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal mengubah alamat utama: $e'),
+            content: Text(
+              isIndo
+                  ? 'Gagal mengubah alamat utama: $e'
+                  : 'Failed to change primary address: $e',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -139,15 +150,25 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
       await _loadAddresses();
 
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Alamat berhasil dihapus.')),
+          SnackBar(
+            content: Text(
+              isIndo ? 'Alamat berhasil dihapus.' : 'Address deleted successfully.',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menghapus alamat: $e'),
+            content: Text(
+              isIndo
+                  ? 'Gagal menghapus alamat: $e'
+                  : 'Failed to delete address: $e',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -156,6 +177,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
   }
 
   void _showAddAddressModal([AddressItem? existing]) {
+    final isIndo = context.l10n.isIndonesian;
     final labelCtrl = TextEditingController(text: existing?.label ?? '');
     final nameCtrl = TextEditingController(text: existing?.receiverName ?? '');
     final phoneCtrl = TextEditingController(text: existing?.phoneNumber ?? '');
@@ -196,7 +218,9 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  existing == null ? 'Tambah Alamat Baru' : 'Edit Alamat',
+                  existing == null
+                      ? (isIndo ? 'Tambah Alamat Baru' : 'Add New Address')
+                      : (isIndo ? 'Edit Alamat' : 'Edit Address'),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -205,49 +229,51 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: labelCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Label Alamat (Contoh: Rumah, Kantor)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: isIndo
+                        ? 'Label Alamat (Contoh: Rumah, Kantor)'
+                        : 'Address Label (e.g. Home, Office)',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Penerima',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: isIndo ? 'Nama Penerima' : 'Recipient Name',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Nomor WhatsApp / HP',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: isIndo ? 'Nomor WhatsApp / HP' : 'WhatsApp / Phone Number',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: addressCtrl,
                   maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Alamat Lengkap',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: isIndo ? 'Alamat Lengkap' : 'Full Address',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: notesCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Patokan / Catatan (Opsional)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: isIndo ? 'Patokan / Catatan (Opsional)' : 'Landmark / Notes (Optional)',
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Jadikan sebagai Alamat Utama'),
+                  title: Text(isIndo ? 'Jadikan sebagai Alamat Utama' : 'Set as Primary Address'),
                   value: isDef,
                   onChanged: (val) => setModalState(() => isDef = val),
                 ),
@@ -262,8 +288,12 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                             final addressText = addressCtrl.text.trim();
                             if (addressText.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Alamat tidak boleh kosong.'),
+                                SnackBar(
+                                  content: Text(
+                                    isIndo
+                                        ? 'Alamat tidak boleh kosong.'
+                                        : 'Address cannot be empty.',
+                                  ),
                                 ),
                               );
                               return;
@@ -271,8 +301,12 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
 
                             if (_userId == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Sesi user tidak ditemukan.'),
+                                SnackBar(
+                                  content: Text(
+                                    isIndo
+                                        ? 'Sesi user tidak ditemukan.'
+                                        : 'User session not found.',
+                                  ),
                                 ),
                               );
                               return;
@@ -293,7 +327,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                               final payload = {
                                 'user_id': _userId,
                                 'label': labelCtrl.text.trim().isEmpty
-                                    ? 'Alamat'
+                                    ? (isIndo ? 'Alamat' : 'Address')
                                     : labelCtrl.text.trim(),
                                 'nama_penerima': nameCtrl.text.trim(),
                                 'nomor_telepon': phoneCtrl.text.trim(),
@@ -322,8 +356,12 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                                   SnackBar(
                                     content: Text(
                                       existing == null
-                                          ? 'Alamat berhasil ditambahkan ke database.'
-                                          : 'Alamat berhasil diperbarui.',
+                                          ? (isIndo
+                                              ? 'Alamat berhasil ditambahkan ke database.'
+                                              : 'Address added to database successfully.')
+                                          : (isIndo
+                                              ? 'Alamat berhasil diperbarui.'
+                                              : 'Address updated successfully.'),
                                     ),
                                     backgroundColor: const Color(0xFF10B981),
                                   ),
@@ -334,7 +372,11 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Gagal menyimpan alamat: $e'),
+                                    content: Text(
+                                      isIndo
+                                          ? 'Gagal menyimpan alamat: $e'
+                                          : 'Failed to save address: $e',
+                                    ),
                                     backgroundColor: Colors.redAccent,
                                   ),
                                 );
@@ -352,7 +394,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('Simpan Alamat'),
+                        : Text(isIndo ? 'Simpan Alamat' : 'Save Address'),
                   ),
                 ),
               ],
@@ -365,6 +407,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
@@ -375,9 +418,9 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
-          'Alamat Tersimpan',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Alamat Tersimpan' : 'Saved Addresses',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF0F172A),
@@ -393,7 +436,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
         child: FilledButton.icon(
           onPressed: () => _showAddAddressModal(),
           icon: const Icon(Icons.add_location_alt_outlined),
-          label: const Text('Tambah Alamat Baru'),
+          label: Text(isIndo ? 'Tambah Alamat Baru' : 'Add New Address'),
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFF0F172A),
             minimumSize: const Size.fromHeight(48),
@@ -410,28 +453,32 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
               child: _addresses.isEmpty
                   ? ListView(
                       padding: const EdgeInsets.all(32),
-                      children: const [
-                        SizedBox(height: 80),
-                        Icon(
+                      children: [
+                        const SizedBox(height: 80),
+                        const Icon(
                           Icons.location_off_outlined,
                           size: 64,
                           color: Color(0xFF94A3B8),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
-                          'Belum ada alamat tersimpan',
+                          isIndo
+                              ? 'Belum ada alamat tersimpan'
+                              : 'No saved addresses yet',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF1E293B),
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Text(
-                          'Tambahkan alamat rumah atau lokasi kerja untuk mempermudah pemesanan jasa teknisi.',
+                          isIndo
+                              ? 'Tambahkan alamat rumah atau lokasi kerja untuk mempermudah pemesanan jasa teknisi.'
+                              : 'Add your home or work address to make booking technician services easier.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Color(0xFF64748B)),
+                          style: const TextStyle(color: Color(0xFF64748B)),
                         ),
                       ],
                     )
@@ -486,9 +533,9 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                                           borderRadius:
                                               BorderRadius.circular(6),
                                         ),
-                                        child: const Text(
-                                          'UTAMA',
-                                          style: TextStyle(
+                                        child: Text(
+                                          isIndo ? 'UTAMA' : 'PRIMARY',
+                                          style: const TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.w800,
                                             color: Color(0xFF059669),
@@ -508,19 +555,25 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                                       },
                                       itemBuilder: (context) => [
                                         if (!item.isDefault)
-                                          const PopupMenuItem(
+                                          PopupMenuItem(
                                             value: 'default',
-                                            child: Text('Jadikan Alamat Utama'),
+                                            child: Text(
+                                              isIndo
+                                                  ? 'Jadikan Alamat Utama'
+                                                  : 'Set as Primary Address',
+                                            ),
                                           ),
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: 'edit',
-                                          child: Text('Edit Alamat'),
+                                          child: Text(
+                                            isIndo ? 'Edit Alamat' : 'Edit Address',
+                                          ),
                                         ),
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: 'delete',
                                           child: Text(
-                                            'Hapus Alamat',
-                                            style: TextStyle(color: Colors.red),
+                                            isIndo ? 'Hapus Alamat' : 'Delete Address',
+                                            style: const TextStyle(color: Colors.red),
                                           ),
                                         ),
                                       ],
@@ -560,7 +613,7 @@ class _AlamatTersimpanScreenState extends State<AlamatTersimpanScreen> {
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
-                                          'Patokan: ${item.notes}',
+                                          '${isIndo ? 'Patokan' : 'Landmark'}: ${item.notes}',
                                           style: const TextStyle(
                                             fontSize: 11.5,
                                             color: Color(0xFF64748B),

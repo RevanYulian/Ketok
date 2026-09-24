@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'quick_menu_shared.dart';
 
 class UlasanMitraScreen extends StatefulWidget {
@@ -77,8 +78,9 @@ class _UlasanMitraScreenState extends State<UlasanMitraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return QuickMenuScaffold(
-      title: 'Ulasan Mitra',
+      title: isIndo ? 'Ulasan Mitra' : 'Customer Reviews',
       icon: Icons.rate_review_outlined,
       onRefresh: _loadReviews,
       child: QuickMenuContent(
@@ -86,23 +88,24 @@ class _UlasanMitraScreenState extends State<UlasanMitraScreen> {
         errorMessage: _errorMessage,
         onRetry: _loadReviews,
         child: _reviews.isEmpty
-            ? const QuickMenuEmptyState(
+            ? QuickMenuEmptyState(
                 icon: Icons.rate_review_outlined,
-                title: 'Belum ada ulasan',
-                subtitle:
-                    'Ulasan pelanggan akan tampil setelah pesanan selesai.',
+                title: isIndo ? 'Belum ada ulasan' : 'No reviews yet',
+                subtitle: isIndo
+                    ? 'Ulasan pelanggan akan tampil setelah pesanan selesai.'
+                    : 'Customer reviews will appear once orders are completed.',
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 itemCount: _reviews.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (_, index) => _buildReview(_reviews[index]),
+                itemBuilder: (_, index) => _buildReview(_reviews[index], isIndo),
               ),
       ),
     );
   }
 
-  Widget _buildReview(Map<String, dynamic> review) {
+  Widget _buildReview(Map<String, dynamic> review, bool isIndo) {
     final rating = (review['rating'] as num?)?.toDouble() ?? 0;
     return QuickMenuCard(
       child: Column(
@@ -144,7 +147,7 @@ class _UlasanMitraScreenState extends State<UlasanMitraScreen> {
           Text(
             (review['komentar'] as String?)?.isNotEmpty == true
                 ? review['komentar'] as String
-                : 'Pelanggan tidak menulis komentar.',
+                : (isIndo ? 'Pelanggan tidak menulis komentar.' : 'Customer did not write a comment.'),
             style: const TextStyle(
               color: KetokColors.onSurfaceVariant,
               height: 1.4,

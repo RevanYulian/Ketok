@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_app_bar.dart';
 import '../widgets/ketok_colors.dart';
 import 'pesanan_screen.dart';
@@ -20,21 +21,24 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadNotifications();
+    });
   }
 
   Future<void> _loadNotifications() async {
+    final isIndo = mounted ? context.l10n.isIndonesian : true;
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
-      if (authUser == null) throw Exception('Sesi login tidak ditemukan.');
+      if (authUser == null) throw Exception(isIndo ? 'Sesi login tidak ditemukan.' : 'Login session not found.');
       final profile = await client
           .from('users')
           .select('id_user')
           .eq('auth_uid', authUser.id)
           .maybeSingle();
       final userId = profile?['id_user'];
-      if (userId is! int) throw Exception('Profil pengguna belum tersedia.');
+      if (userId is! int) throw Exception(isIndo ? 'Profil pengguna belum tersedia.' : 'User profile not available.');
 
       final notifications = <_AppNotification>[];
 
@@ -63,7 +67,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
           if (isUnread) hasUnread = true;
 
           final rawText = (row['judul'] as String? ?? '').trim();
-          final parsed = _parseNotification(rawText);
+          final parsed = _parseNotification(rawText, isIndo: isIndo);
 
           notifications.add(
             _AppNotification(
@@ -72,7 +76,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
               color: parsed.color,
               title: parsed.title,
               message: rawText,
-              time: row['dibuat_pada'] != null ? _formatDate(row['dibuat_pada']) : null,
+              time: row['dibuat_pada'] != null ? _formatDate(row['dibuat_pada'], isIndo: isIndo) : null,
               unread: isUnread,
               actionType: parsed.actionType,
             ),
@@ -96,7 +100,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         for (final order in orders) {
           final status = order['status'] as String? ?? '';
           final id = order['id_pesanan'];
-          final item = _notificationForOrder(id, status, order['jadwal']);
+          final item = _notificationForOrder(id, status, order['jadwal'], isIndo: isIndo);
           if (item != null) notifications.add(item);
         }
       } catch (e) {
@@ -105,11 +109,11 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
       if (notifications.isEmpty) {
         notifications.add(
-          const _AppNotification(
+          _AppNotification(
             icon: Icons.check_circle_outline_rounded,
-            color: Color(0xFF15803D),
-            title: 'Semua Sudah Diperiksa',
-            message: 'Belum ada notifikasi baru untuk Anda.',
+            color: const Color(0xFF15803D),
+            title: isIndo ? 'Semua Sudah Diperiksa' : 'All Caught Up',
+            message: isIndo ? 'Belum ada notifikasi baru untuk Anda.' : 'No new notifications for you yet.',
           ),
         );
       }
@@ -128,72 +132,74 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     }
   }
 
-  _NotificationStyle _parseNotification(String raw) {
+  _NotificationStyle _parseNotification(String raw, {bool isIndo = true}) {
     final lower = raw.toLowerCase();
 
     if (lower.contains('promo') || lower.contains('voucher') || lower.contains('diskon')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.local_offer_rounded,
-        color: Color(0xFF7C3AED),
-        title: 'Promo Spesial',
+        color: const Color(0xFF7C3AED),
+        title: isIndo ? 'Promo Spesial' : 'Special Promo',
       );
     }
     if (lower.contains('bayar') || lower.contains('pembayaran') || lower.contains('invoice')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.account_balance_wallet_rounded,
-        color: Color(0xFF0D9488),
-        title: 'Info Pembayaran',
+        color: const Color(0xFF0D9488),
+        title: isIndo ? 'Info Pembayaran' : 'Payment Info',
         actionType: 'pesanan',
       );
     }
     if (lower.contains('selesai') || lower.contains('berhasil')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.check_circle_rounded,
-        color: Color(0xFF16A34A),
-        title: 'Pesanan Selesai',
+        color: const Color(0xFF16A34A),
+        title: isIndo ? 'Pesanan Selesai' : 'Order Completed',
         actionType: 'pesanan',
       );
     }
     if (lower.contains('batal') || lower.contains('dibatalkan') || lower.contains('tolak')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.cancel_rounded,
-        color: Color(0xFFDC2626),
-        title: 'Info Pembatalan',
+        color: const Color(0xFFDC2626),
+        title: isIndo ? 'Info Pembatalan' : 'Cancellation Info',
         actionType: 'pesanan',
       );
     }
     if (lower.contains('menuju lokasi') || lower.contains('perjalanan')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.near_me_rounded,
-        color: Color(0xFF2563EB),
-        title: 'Mitra Menuju Lokasi',
+        color: const Color(0xFF2563EB),
+        title: isIndo ? 'Mitra Menuju Lokasi' : 'Partner En Route',
         actionType: 'pesanan',
       );
     }
     if (lower.contains('pesanan') || lower.contains('teknisi') || lower.contains('mitra')) {
-      return const _NotificationStyle(
+      return _NotificationStyle(
         icon: Icons.handyman_rounded,
         color: KetokColors.primary,
-        title: 'Info Pesanan',
+        title: isIndo ? 'Info Pesanan' : 'Order Info',
         actionType: 'pesanan',
       );
     }
-    return const _NotificationStyle(
+    return _NotificationStyle(
       icon: Icons.campaign_rounded,
-      color: Color(0xFF0284C7),
-      title: 'Pemberitahuan',
+      color: const Color(0xFF0284C7),
+      title: isIndo ? 'Pemberitahuan' : 'Notification',
     );
   }
 
-  _AppNotification? _notificationForOrder(dynamic id, String status, dynamic dateVal) {
-    final timeStr = dateVal != null ? _formatDate(dateVal) : null;
+  _AppNotification? _notificationForOrder(dynamic id, String status, dynamic dateVal, {bool isIndo = true}) {
+    final timeStr = dateVal != null ? _formatDate(dateVal, isIndo: isIndo) : null;
     switch (status) {
       case 'mencari_mitra':
         return _AppNotification(
           icon: Icons.search_rounded,
           color: const Color(0xFFB45309),
-          title: 'Sedang Mencari Mitra',
-          message: 'Pesanan #$id sedang dicarikan mitra teknisi terbaik.',
+          title: isIndo ? 'Sedang Mencari Mitra' : 'Finding Partner',
+          message: isIndo
+              ? 'Pesanan #$id sedang dicarikan mitra teknisi terbaik.'
+              : 'Order #$id is looking for the best technician partner.',
           time: timeStr,
           unread: false,
           actionType: 'pesanan',
@@ -202,8 +208,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         return _AppNotification(
           icon: Icons.near_me_rounded,
           color: const Color(0xFF2563EB),
-          title: 'Mitra Menuju Lokasi',
-          message: 'Mitra untuk pesanan #$id sedang dalam perjalanan.',
+          title: isIndo ? 'Mitra Menuju Lokasi' : 'Partner En Route',
+          message: isIndo
+              ? 'Mitra untuk pesanan #$id sedang dalam perjalanan.'
+              : 'Partner for order #$id is on the way.',
           time: timeStr,
           unread: false,
           actionType: 'pesanan',
@@ -213,8 +221,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         return _AppNotification(
           icon: Icons.handyman_rounded,
           color: KetokColors.primary,
-          title: 'Pesanan Sedang Dikerjakan',
-          message: 'Mitra sedang mengerjakan pesanan #$id.',
+          title: isIndo ? 'Pesanan Sedang Dikerjakan' : 'Order in Progress',
+          message: isIndo
+              ? 'Mitra sedang mengerjakan pesanan #$id.'
+              : 'Partner is working on order #$id.',
           time: timeStr,
           unread: false,
           actionType: 'pesanan',
@@ -223,8 +233,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         return _AppNotification(
           icon: Icons.star_rounded,
           color: const Color(0xFF16A34A),
-          title: 'Pesanan Selesai',
-          message: 'Pesanan #$id telah selesai. Berikan ulasan Anda.',
+          title: isIndo ? 'Pesanan Selesai' : 'Order Completed',
+          message: isIndo
+              ? 'Pesanan #$id telah selesai. Berikan ulasan Anda.'
+              : 'Order #$id has been completed. Leave your review.',
           time: timeStr,
           unread: false,
           actionType: 'pesanan',
@@ -233,8 +245,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         return _AppNotification(
           icon: Icons.cancel_rounded,
           color: const Color(0xFFDC2626),
-          title: 'Pesanan Dibatalkan',
-          message: 'Pesanan #$id telah dibatalkan.',
+          title: isIndo ? 'Pesanan Dibatalkan' : 'Order Cancelled',
+          message: isIndo
+              ? 'Pesanan #$id telah dibatalkan.'
+              : 'Order #$id has been cancelled.',
           time: timeStr,
           unread: false,
           actionType: 'pesanan',
@@ -244,7 +258,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     }
   }
 
-  String _formatDate(dynamic dateVal) {
+  String _formatDate(dynamic dateVal, {bool isIndo = true}) {
     if (dateVal == null) return '';
     DateTime? dt;
     if (dateVal is DateTime) {
@@ -255,10 +269,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     if (dt == null) return '';
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inSeconds < 60) return 'Baru saja';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} mnt lalu';
-    if (diff.inHours < 24) return '${diff.inHours} jam lalu';
-    if (diff.inDays < 7) return '${diff.inDays} hr lalu';
+    if (diff.inSeconds < 60) return isIndo ? 'Baru saja' : 'Just now';
+    if (diff.inMinutes < 60) return isIndo ? '${diff.inMinutes} mnt lalu' : '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return isIndo ? '${diff.inHours} jam lalu' : '${diff.inHours}h ago';
+    if (diff.inDays < 7) return isIndo ? '${diff.inDays} hr lalu' : '${diff.inDays}d ago';
     return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}';
   }
 
@@ -293,6 +307,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
   }
 
   Future<void> _markAllAsRead() async {
+    final isIndo = mounted ? context.l10n.isIndonesian : true;
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
@@ -318,9 +333,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Semua notifikasi ditandai sudah dibaca.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(isIndo ? 'Semua notifikasi ditandai sudah dibaca.' : 'All notifications marked as read.'),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -328,7 +343,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal memperbarui notifikasi: $e'),
+            content: Text(isIndo ? 'Gagal memperbarui notifikasi: $e' : 'Failed to update notifications: $e'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -338,23 +353,26 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: KetokColors.background,
       appBar: AppBar(
-        title: const Text('Notifikasi'),
+        title: Text(l10n.notificationsTitle),
         backgroundColor: KetokColors.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
         actions: [
           IconButton(
             onPressed: _markAllAsRead,
             icon: const Icon(Icons.done_all_rounded),
-            tooltip: 'Tandai semua sudah dibaca',
+            tooltip: isIndo ? 'Tandai semua sudah dibaca' : 'Mark all as read',
           ),
           const SizedBox(width: 4),
         ],
@@ -375,7 +393,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                     OutlinedButton.icon(
                       onPressed: _loadNotifications,
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Coba Lagi'),
+                      label: Text(isIndo ? 'Coba Lagi' : 'Try Again'),
                     ),
                   ],
                 ),
@@ -484,7 +502,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Lihat Detail →',
+                                          isIndo ? 'Lihat Detail →' : 'View Details →',
                                           style: TextStyle(
                                             color: notification.color,
                                             fontSize: 12,

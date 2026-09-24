@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'jasa_kategori_screen.dart';
 
@@ -74,8 +75,30 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
         .toList();
   }
 
+  String _localizedCategoryName(String cat, bool isIndo) {
+    if (isIndo) return cat;
+    switch (cat.toLowerCase().trim()) {
+      case 'teknisi & perbaikan':
+        return 'Technician & Repair';
+      case 'kebersihan & laundry':
+        return 'Cleaning & Laundry';
+      case 'pertukangan & bangunan':
+        return 'Carpentry & Construction';
+      case 'elektronik & gadget':
+        return 'Electronics & Gadgets';
+      case 'gaya hidup & perawatan':
+        return 'Lifestyle & Care';
+      case 'logistik & lainnya':
+        return 'Logistics & Others';
+      default:
+        return cat;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
@@ -85,11 +108,11 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Semua Kategori',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Semua Kategori' : 'All Categories',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF1E293B),
@@ -99,7 +122,7 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Muat ulang',
+            tooltip: isIndo ? 'Muat ulang' : 'Refresh',
           ),
         ],
       ),
@@ -125,14 +148,16 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Gagal memuat kategori: ${snapshot.error}',
+                        isIndo
+                            ? 'Gagal memuat kategori: ${snapshot.error}'
+                            : 'Failed to load categories: ${snapshot.error}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: KetokColors.textMuted),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _refresh,
-                        child: const Text('Coba Lagi'),
+                        child: Text(isIndo ? 'Coba Lagi' : 'Try Again'),
                       ),
                     ],
                   ),
@@ -147,26 +172,28 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                   padding: const EdgeInsets.all(28),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
+                    children: [
+                      const Icon(
                         Icons.category_outlined,
                         size: 52,
                         color: Color(0xFFD1D5DB),
                       ),
-                      SizedBox(height: 14),
+                      const SizedBox(height: 14),
                       Text(
-                        'Belum Ada Kategori',
-                        style: TextStyle(
+                        isIndo ? 'Belum Ada Kategori' : 'No Categories Yet',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF1E293B),
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        'Kategori utama akan tampil di sini saat ditambahkan oleh admin.',
+                        isIndo
+                            ? 'Kategori utama akan tampil di sini saat ditambahkan oleh admin.'
+                            : 'Main categories will appear here once added by admin.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: KetokColors.textMuted),
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                     ],
                   ),
@@ -217,9 +244,9 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Kategori Layanan Ketok',
-                                style: TextStyle(
+                              Text(
+                                isIndo ? 'Kategori Layanan Ketok' : 'Ketok Service Categories',
+                                style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFF1E293B),
@@ -227,7 +254,9 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${categories.length} kategori utama tersedia untuk kebutuhan Anda',
+                                isIndo
+                                    ? '${categories.length} kategori utama tersedia untuk kebutuhan Anda'
+                                    : '${categories.length} main categories available for your needs',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: KetokColors.textMuted,
@@ -251,6 +280,8 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                     ),
                     itemBuilder: (context, index) {
                       final item = categories[index];
+                      final localizedName = _localizedCategoryName(item.name, isIndo);
+
                       return InkWell(
                         onTap: () => Navigator.push<void>(
                           context,
@@ -286,7 +317,7 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                               ),
                               const SizedBox(height: 7),
                               Text(
-                                item.name,
+                                localizedName,
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -300,7 +331,9 @@ class _SemuaKategoriScreenState extends State<SemuaKategoriScreen> {
                               if (item.subCount > 0) ...[
                                 const SizedBox(height: 3),
                                 Text(
-                                  '${item.subCount} layanan',
+                                  isIndo
+                                      ? '${item.subCount} layanan'
+                                      : '${item.subCount} services',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 10,

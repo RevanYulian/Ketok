@@ -165,11 +165,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
                   }
                   final tips = snapshot.data ?? [];
                   if (snapshot.hasError || tips.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                       child: Text(
-                        'Belum ada tips & artikel.',
-                        style: TextStyle(color: KetokColors.textMuted),
+                        context.l10n.isIndonesian
+                            ? 'Belum ada tips & artikel.'
+                            : 'No tips & articles yet.',
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                     );
                   }
@@ -221,18 +223,20 @@ class _BerandaScreenState extends State<BerandaScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                const Row(
+                                Row(
                                   children: [
                                     Text(
-                                      'Baca selengkapnya',
-                                      style: TextStyle(
+                                      context.l10n.isIndonesian
+                                          ? 'Baca selengkapnya'
+                                          : 'Read more',
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: KetokColors.primary,
                                       ),
                                     ),
-                                    SizedBox(width: 4),
-                                    Icon(
+                                    const SizedBox(width: 4),
+                                    const Icon(
                                       Icons.arrow_forward_rounded,
                                       size: 14,
                                       color: KetokColors.primary,
@@ -575,6 +579,7 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return ValueListenableBuilder<AppConfig?>(
       valueListenable: AppConfigService.instance.configNotifier,
       builder: (context, config, _) {
@@ -584,7 +589,7 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
 
         final banners = <Widget>[
           if (hasCustomBanner)
-            _buildImageBanner(bannerUrl)
+            _buildImageBanner(context, bannerUrl)
           else
             _buildGradientBanner(
               gradient: const LinearGradient(
@@ -592,10 +597,12 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              tag: 'PROMO SPESIAL',
+              tag: isIndo ? 'PROMO SPESIAL' : 'SPECIAL PROMO',
               tagColor: const Color(0xFF38BDF8),
-              title: 'Diskon 30% Layanan Pertama',
-              subtitle: 'Khusus pengguna baru Ketok. Tukang & teknisi profesional bergaransi.',
+              title: isIndo ? 'Diskon 30% Layanan Pertama' : '30% Off First Service',
+              subtitle: isIndo
+                  ? 'Khusus pengguna baru Ketok. Tukang & teknisi profesional bergaransi.'
+                  : 'Exclusive for new Ketok users. Guaranteed professional handymen & technicians.',
               icon: Icons.handyman_rounded,
             ),
           _buildGradientBanner(
@@ -604,10 +611,12 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            tag: 'LAYANAN CEPAT',
+            tag: isIndo ? 'LAYANAN CEPAT' : 'FAST SERVICE',
             tagColor: const Color(0xFF34D399),
-            title: 'Teknisi Siap Datang Cepat',
-            subtitle: 'Perbaikan darurat AC, pipa bocor & kelistrikan ditangani dalam hitungan jam.',
+            title: isIndo ? 'Teknisi Siap Datang Cepat' : 'Technicians Ready Quickly',
+            subtitle: isIndo
+                ? 'Perbaikan darurat AC, pipa bocor & kelistrikan ditangani dalam hitungan jam.'
+                : 'Emergency repairs for AC, pipe leaks & electricity handled within hours.',
             icon: Icons.flash_on_rounded,
           ),
           _buildGradientBanner(
@@ -616,10 +625,12 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            tag: 'GARANSI LAYANAN',
+            tag: isIndo ? 'GARANSI LAYANAN' : 'SERVICE GUARANTEE',
             tagColor: const Color(0xFFA5B4FC),
-            title: 'Tarif Pasti & Garansi Servis',
-            subtitle: 'Transparan tanpa biaya tersembunyi dengan jaminan servis hingga 30 hari.',
+            title: isIndo ? 'Tarif Pasti & Garansi Servis' : 'Fixed Rates & Service Warranty',
+            subtitle: isIndo
+                ? 'Transparan tanpa biaya tersembunyi dengan jaminan servis hingga 30 hari.'
+                : 'Transparent with no hidden fees and up to 30 days service warranty.',
             icon: Icons.verified_user_rounded,
           ),
         ];
@@ -666,7 +677,8 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
     );
   }
 
-  Widget _buildImageBanner(String url) {
+  Widget _buildImageBanner(BuildContext context, String url) {
+    final isIndo = context.l10n.isIndonesian;
     return InkWell(
       onTap: widget.onTap,
       borderRadius: BorderRadius.circular(18),
@@ -681,10 +693,12 @@ class _InfoBannerSectionState extends State<_InfoBannerSection> {
               gradient: const LinearGradient(
                 colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
               ),
-              tag: 'PROMO SPESIAL',
+              tag: isIndo ? 'PROMO SPESIAL' : 'SPECIAL PROMO',
               tagColor: const Color(0xFF38BDF8),
-              title: 'Diskon 30% Layanan Pertama',
-              subtitle: 'Khusus pengguna baru Ketok. Tukang & teknisi terpercaya.',
+              title: isIndo ? 'Diskon 30% Layanan Pertama' : '30% Off First Service',
+              subtitle: isIndo
+                  ? 'Khusus pengguna baru Ketok. Tukang & teknisi terpercaya.'
+                  : 'Exclusive for new Ketok users. Trusted handymen & technicians.',
               icon: Icons.handyman_rounded,
             ),
           ),
@@ -1019,9 +1033,9 @@ class _ServiceTile extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mulai dari',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.isIndonesian ? 'Mulai dari' : 'Starts from',
+                            style: const TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
@@ -1049,7 +1063,7 @@ class _ServiceTile extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Kunjungan: ${formatFixedPrice(service.visitPrice)}',
+                            '${context.l10n.isIndonesian ? 'Kunjungan' : 'Visit'}: ${formatFixedPrice(service.visitPrice)}',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,

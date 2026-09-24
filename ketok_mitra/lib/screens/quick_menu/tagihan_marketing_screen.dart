@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'quick_menu_shared.dart';
 
 class TagihanMarketingScreen extends StatefulWidget {
@@ -70,8 +71,9 @@ class _TagihanMarketingScreenState extends State<TagihanMarketingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return QuickMenuScaffold(
-      title: 'Tagihan Marketing',
+      title: isIndo ? 'Tagihan Marketing' : 'Commission Bills',
       icon: Icons.receipt_long_outlined,
       onRefresh: _loadInvoices,
       child: QuickMenuContent(
@@ -79,23 +81,24 @@ class _TagihanMarketingScreenState extends State<TagihanMarketingScreen> {
         errorMessage: _errorMessage,
         onRetry: _loadInvoices,
         child: _invoices.isEmpty
-            ? const QuickMenuEmptyState(
+            ? QuickMenuEmptyState(
                 icon: Icons.receipt_long_outlined,
-                title: 'Belum ada tagihan',
-                subtitle:
-                    'Data tagihan akan tampil setelah tersedia di database.',
+                title: isIndo ? 'Belum ada tagihan' : 'No bills yet',
+                subtitle: isIndo
+                    ? 'Data tagihan akan tampil setelah tersedia di database.'
+                    : 'Billing data will appear once available in the database.',
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 itemCount: _invoices.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (_, index) => _buildInvoice(_invoices[index]),
+                itemBuilder: (_, index) => _buildInvoice(_invoices[index], isIndo),
               ),
       ),
     );
   }
 
-  Widget _buildInvoice(Map<String, dynamic> invoice) {
+  Widget _buildInvoice(Map<String, dynamic> invoice, bool isIndo) {
     final paid = invoice['status_bayar'] == 'lunas';
     return QuickMenuCard(
       child: Row(
@@ -123,7 +126,7 @@ class _TagihanMarketingScreenState extends State<TagihanMarketingScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  formatQuickMenuDate(invoice['jadwal']),
+                  formatQuickMenuDate(invoice['jadwal'], isIndo),
                   style: const TextStyle(
                     color: KetokColors.onSurfaceVariant,
                     fontSize: 12,
@@ -131,7 +134,7 @@ class _TagihanMarketingScreenState extends State<TagihanMarketingScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  formatQuickMenuCurrency(invoice['jumlah_biaya']),
+                  formatQuickMenuCurrency(invoice['jumlah_biaya'], isIndo),
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ],
@@ -144,7 +147,7 @@ class _TagihanMarketingScreenState extends State<TagihanMarketingScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              paid ? 'Lunas' : 'Menunggu',
+              paid ? (isIndo ? 'Lunas' : 'Paid') : (isIndo ? 'Menunggu' : 'Pending'),
               style: TextStyle(
                 color: paid ? const Color(0xFF2E7D32) : const Color(0xFFC2410C),
                 fontSize: 11,

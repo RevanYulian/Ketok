@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../widgets/ketok_colors.dart';
 import '../widgets/profile_avatar.dart';
+import '../l10n/app_localizations.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -92,14 +93,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memilih foto: $e')),
+          SnackBar(content: Text(isIndo ? 'Gagal memilih foto: $e' : 'Failed to pick photo: $e')),
         );
       }
     }
   }
 
   void _showPhotoOptions() {
+    final isIndo = context.l10n.isIndonesian;
     showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -121,9 +124,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Ubah Foto Profil',
-                style: TextStyle(
+              Text(
+                isIndo ? 'Ubah Foto Profil' : 'Change Profile Photo',
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF0F172A),
@@ -132,7 +135,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               const SizedBox(height: 12),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF0F172A)),
-                title: const Text('Pilih dari Galeri', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: Text(isIndo ? 'Pilih dari Galeri' : 'Choose from Gallery', style: const TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickPhoto(ImageSource.gallery);
@@ -140,7 +143,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt_outlined, color: Color(0xFF0F172A)),
-                title: const Text('Ambil dari Kamera', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: Text(isIndo ? 'Ambil dari Kamera' : 'Take from Camera', style: const TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickPhoto(ImageSource.camera);
@@ -154,20 +157,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Future<void> _saveProfile() async {
+    final isIndo = context.l10n.isIndonesian;
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final phone = _phoneController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama lengkap tidak boleh kosong.')),
+        SnackBar(content: Text(isIndo ? 'Nama lengkap tidak boleh kosong.' : 'Full name cannot be empty.')),
       );
       return;
     }
 
     if (email.isEmpty || !email.contains('@') || !email.contains('.')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alamat email tidak valid.')),
+        SnackBar(content: Text(isIndo ? 'Alamat email tidak valid.' : 'Email address is invalid.')),
       );
       return;
     }
@@ -250,9 +254,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profil dan data berhasil diperbarui.'),
-          backgroundColor: Color(0xFF10B981),
+        SnackBar(
+          content: Text(isIndo ? 'Profil dan data berhasil diperbarui.' : 'Profile and details updated successfully.'),
+          backgroundColor: const Color(0xFF10B981),
         ),
       );
       Navigator.pop(context, true);
@@ -264,7 +268,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal memperbarui profil: $_errorMessage'),
+          content: Text(isIndo ? 'Gagal memperbarui profil: $_errorMessage' : 'Failed to update profile: $_errorMessage'),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -277,6 +281,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
@@ -286,11 +291,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Edit Profil',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Edit Profil' : 'Edit Profile',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF0F172A),
@@ -305,9 +310,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text(
-                    'Simpan',
-                    style: TextStyle(
+                : Text(
+                    isIndo ? 'Simpan' : 'Save',
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF1E293B),
@@ -382,9 +387,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   TextButton.icon(
                     onPressed: _showPhotoOptions,
                     icon: const Icon(Icons.camera_enhance_outlined, size: 16),
-                    label: const Text(
-                      'Ubah Foto Profil',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                    label: Text(
+                      isIndo ? 'Ubah Foto Profil' : 'Change Profile Photo',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                     ),
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF0F172A),
@@ -409,9 +414,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'INFORMASI DASAR',
-                          style: TextStyle(
+                        Text(
+                          isIndo ? 'INFORMASI DASAR' : 'BASIC INFORMATION',
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
@@ -419,9 +424,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Nama Lengkap',
-                          style: TextStyle(
+                        Text(
+                          isIndo ? 'Nama Lengkap' : 'Full Name',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF334155),
@@ -432,7 +437,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           controller: _nameController,
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.person_outline_rounded),
-                            hintText: 'Masukkan nama lengkap',
+                            hintText: isIndo ? 'Masukkan nama lengkap' : 'Enter full name',
                             filled: true,
                             fillColor: const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(
@@ -450,9 +455,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Alamat Email',
-                          style: TextStyle(
+                        Text(
+                          isIndo ? 'Alamat Email' : 'Email Address',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF334155),
@@ -464,7 +469,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.email_outlined),
-                            hintText: 'contoh@email.com',
+                            hintText: 'example@email.com',
                             filled: true,
                             fillColor: const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(
@@ -482,9 +487,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Nomor WhatsApp / Telepon',
-                          style: TextStyle(
+                        Text(
+                          isIndo ? 'Nomor WhatsApp / Telepon' : 'WhatsApp / Phone Number',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF334155),
@@ -496,7 +501,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.phone_outlined),
-                            hintText: 'Contoh: 081234567890',
+                            hintText: isIndo ? 'Contoh: 081234567890' : 'e.g. 081234567890',
                             filled: true,
                             fillColor: const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(
@@ -538,9 +543,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Simpan Perubahan',
-                              style: TextStyle(
+                          : Text(
+                              isIndo ? 'Simpan Perubahan' : 'Save Changes',
+                              style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
                               ),

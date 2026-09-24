@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 
 const _quickMenuBackground = Color(0xFFF8F9FB);
@@ -19,37 +20,41 @@ class QuickMenuScaffold extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: _quickMenuBackground,
-    appBar: AppBar(
+  Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
+    return Scaffold(
       backgroundColor: _quickMenuBackground,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.arrow_back_rounded),
-        tooltip: 'Kembali',
-      ),
-      title: Row(
-        children: [
-          Icon(icon, size: 21),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+      appBar: AppBar(
+        backgroundColor: _quickMenuBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: isIndo ? 'Kembali' : 'Back',
+        ),
+        title: Row(
+          children: [
+            Icon(icon, size: 21),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: isIndo ? 'Muat ulang' : 'Refresh',
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          onPressed: onRefresh,
-          icon: const Icon(Icons.refresh_rounded),
-          tooltip: 'Muat ulang',
-        ),
-      ],
-    ),
-    body: SafeArea(child: child),
-  );
+      body: SafeArea(child: child),
+    );
+  }
 }
 
 class QuickMenuCard extends StatelessWidget {
@@ -105,14 +110,16 @@ class QuickMenuEmptyState extends StatelessWidget {
   );
 }
 
-String formatServicePrice(dynamic value) {
-  if (value == null) return 'Harga menyesuaikan layanan';
+String formatServicePrice(dynamic value, {bool isIndo = true}) {
+  if (value == null) {
+    return isIndo ? 'Harga menyesuaikan layanan' : 'Price depends on service';
+  }
   final number = (value as num).round().toString();
   final formatted = number.replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
     (_) => '.',
   );
-  return 'Mulai Rp $formatted';
+  return isIndo ? 'Mulai Rp $formatted' : 'From Rp $formatted';
 }
 
 String formatFixedPrice(dynamic value) {

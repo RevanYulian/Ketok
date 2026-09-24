@@ -204,6 +204,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
   }
 
   void _showPartnerModal() {
+    final isIndo = context.l10n.isIndonesian;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -238,17 +239,19 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                   child: const Icon(Icons.handyman_rounded, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Ketok Mitra Teknisi',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                       Text(
-                        'Aplikasi khusus mitra penyedia jasa',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        isIndo
+                            ? 'Aplikasi khusus mitra penyedia jasa'
+                            : 'Dedicated app for service provider partners',
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                       ),
                     ],
                   ),
@@ -256,14 +259,31 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Keuntungan Bergabung Menjadi Mitra Ketok:',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            Text(
+              isIndo
+                  ? 'Keuntungan Bergabung Menjadi Mitra Ketok:'
+                  : 'Benefits of Joining as a Ketok Partner:',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 10),
-            _buildBenefitRow(Icons.schedule_rounded, 'Bebas atur jadwal dan wilayah kerja sesuai keinginan Anda.'),
-            _buildBenefitRow(Icons.people_outline_rounded, 'Terhubung langsung dengan ribuan pelanggan di Malang Raya.'),
-            _buildBenefitRow(Icons.payments_outlined, 'Penghasilan transparan dan dibayarkan langsung tanpa potongan rumit.'),
+            _buildBenefitRow(
+              Icons.schedule_rounded,
+              isIndo
+                  ? 'Bebas atur jadwal dan wilayah kerja sesuai keinginan Anda.'
+                  : 'Freely set your schedule and working area as you wish.',
+            ),
+            _buildBenefitRow(
+              Icons.people_outline_rounded,
+              isIndo
+                  ? 'Terhubung langsung dengan ribuan pelanggan di Malang Raya.'
+                  : 'Directly connect with thousands of customers across Greater Malang.',
+            ),
+            _buildBenefitRow(
+              Icons.payments_outlined,
+              isIndo
+                  ? 'Penghasilan transparan dan dibayarkan langsung tanpa potongan rumit.'
+                  : 'Transparent income paid directly without complicated deductions.',
+            ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -277,14 +297,20 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                   );
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Tautan download Ketok Mitra berhasil disalin!'),
-                      backgroundColor: Color(0xFF10B981),
+                    SnackBar(
+                      content: Text(
+                        isIndo
+                            ? 'Tautan download Ketok Mitra berhasil disalin!'
+                            : 'Ketok Mitra download link successfully copied!',
+                      ),
+                      backgroundColor: const Color(0xFF10B981),
                     ),
                   );
                 },
                 icon: const Icon(Icons.download_rounded),
-                label: const Text('Unduh Aplikasi Ketok Mitra'),
+                label: Text(
+                  isIndo ? 'Unduh Aplikasi Ketok Mitra' : 'Download Ketok Mitra App',
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF0F172A),
                   shape: RoundedRectangleBorder(
@@ -596,7 +622,9 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                   Text(
                     widget.phoneNumber.isNotEmpty
                         ? widget.phoneNumber
-                        : 'Nomor telepon belum diatur',
+                        : (context.l10n.isIndonesian
+                            ? 'Nomor telepon belum diatur'
+                            : 'Phone number not set'),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF64748B),
@@ -605,7 +633,9 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                   Text(
                     widget.userEmail.isNotEmpty
                         ? widget.userEmail
-                        : 'Email belum diatur',
+                        : (context.l10n.isIndonesian
+                            ? 'Email belum diatur'
+                            : 'Email not set'),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF64748B),
@@ -813,56 +843,61 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
     ),
   );
 
-  Widget _buildPartnerBanner() => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      color: const Color(0xFF0F172A),
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'PELUANG TEKNISI',
-          style: TextStyle(
-            color: Color(0xFF38BDF8),
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.6,
-          ),
-        ),
-        const SizedBox(height: 10),
-        const Text(
-          'Punya Keahlian Jasa?',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Daftar sebagai mitra teknisi di Ketok Mitra dan mulai terima orderan langsung dari warga terdekat.',
-          style: TextStyle(color: Color(0xFF94A3B8), height: 1.35, fontSize: 12.5),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: _showPartnerModal,
-          icon: const Icon(Icons.download_outlined, size: 18),
-          label: const Text('Unduh Ketok Mitra'),
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF0F172A),
-            minimumSize: const Size.fromHeight(42),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+  Widget _buildPartnerBanner() {
+    final isIndo = context.l10n.isIndonesian;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isIndo ? 'PELUANG TEKNISI' : 'TECHNICIAN OPPORTUNITY',
+            style: const TextStyle(
+              color: Color(0xFF38BDF8),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
             ),
           ),
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: 10),
+          Text(
+            isIndo ? 'Punya Keahlian Jasa?' : 'Have Service Skills?',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            isIndo
+                ? 'Daftar sebagai mitra teknisi di Ketok Mitra dan mulai terima orderan langsung dari warga terdekat.'
+                : 'Register as a technician partner on Ketok Mitra and start receiving orders directly from nearby residents.',
+            style: const TextStyle(color: Color(0xFF94A3B8), height: 1.35, fontSize: 12.5),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: _showPartnerModal,
+            icon: const Icon(Icons.download_outlined, size: 18),
+            label: Text(isIndo ? 'Unduh Ketok Mitra' : 'Download Ketok Mitra'),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF0F172A),
+              minimumSize: const Size.fromHeight(42),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ActiveBadge extends StatelessWidget {
@@ -873,9 +908,9 @@ class _ActiveBadge extends StatelessWidget {
       color: const Color(0xFFECFDF5),
       borderRadius: BorderRadius.circular(14),
     ),
-    child: const Text(
-      'Pengguna Aktif',
-      style: TextStyle(
+    child: Text(
+      context.l10n.isIndonesian ? 'Pengguna Aktif' : 'Active User',
+      style: const TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w700,
         color: Color(0xFF059669),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'jasa_detail_screen.dart';
 import 'quick_menu_shared.dart';
@@ -178,7 +179,9 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
             autofocus: true,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: 'Cari jasa, tukang, atau layanan...',
+              hintText: context.l10n.isIndonesian
+                  ? 'Cari jasa, tukang, atau layanan...'
+                  : 'Search services, technicians...',
               hintStyle: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 13.5,
@@ -207,7 +210,7 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
             onPressed: () => setState(() => _servicesFuture = _loadServices()),
             icon: const Icon(Icons.refresh_rounded, size: 22),
             color: const Color(0xFF64748B),
-            tooltip: 'Muat ulang',
+            tooltip: context.l10n.refresh,
           ),
         ],
       ),
@@ -215,6 +218,8 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
         child: FutureBuilder<List<_SearchService>>(
           future: _servicesFuture,
           builder: (context, snapshot) {
+            final l10n = context.l10n;
+            final isIndo = l10n.isIndonesian;
             final services = _filtered(snapshot.data ?? []);
             final suggestions = _query.isEmpty
                 ? <_SearchService>[]
@@ -222,7 +227,7 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
 
             return Column(
               children: [
-                _buildFilters(),
+                _buildFilters(context),
                 if (suggestions.isNotEmpty && _query.length < 3)
                   _SuggestionPanel(
                     suggestions: suggestions,
@@ -235,16 +240,16 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
                   child: snapshot.connectionState == ConnectionState.waiting
                       ? const Center(child: CircularProgressIndicator())
                       : snapshot.hasError
-                      ? const QuickMenuEmptyState(
+                      ? QuickMenuEmptyState(
                           icon: Icons.cloud_off_outlined,
-                          title: 'Pencarian belum tersedia',
-                          subtitle: 'Pastikan data layanan mitra sudah tersedia.',
+                          title: isIndo ? 'Pencarian belum tersedia' : 'Search not available',
+                          subtitle: isIndo ? 'Pastikan data layanan mitra sudah tersedia.' : 'Make sure partner service data is available.',
                         )
                       : services.isEmpty
-                      ? const QuickMenuEmptyState(
+                      ? QuickMenuEmptyState(
                           icon: Icons.search_off_rounded,
-                          title: 'Jasa tidak ditemukan',
-                          subtitle: 'Coba gunakan kata kunci lain.',
+                          title: isIndo ? 'Jasa tidak ditemukan' : 'Service not found',
+                          subtitle: isIndo ? 'Coba gunakan kata kunci lain.' : 'Try searching with different keywords.',
                         )
                       : ListView.separated(
                           physics: const BouncingScrollPhysics(),
@@ -265,12 +270,13 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
     );
   }
 
-  Widget _buildFilters() {
+  Widget _buildFilters(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     final filters = [
-      ('Semua', Icons.grid_view_rounded),
-      ('Terdekat', Icons.near_me_outlined),
-      ('Rating 4.5+', Icons.star_rounded),
-      ('Harga Termurah', Icons.sell_outlined),
+      (isIndo ? 'Semua' : 'All', 'Semua', Icons.grid_view_rounded),
+      (isIndo ? 'Terdekat' : 'Nearest', 'Terdekat', Icons.near_me_outlined),
+      ('Rating 4.5+', 'Rating 4.5+', Icons.star_rounded),
+      (isIndo ? 'Harga Termurah' : 'Lowest Price', 'Harga Termurah', Icons.sell_outlined),
     ];
 
     return Container(
@@ -285,9 +291,9 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
             final item = filters[index];
-            final isSelected = _sort == item.$1;
+            final isSelected = _sort == item.$2;
             return InkWell(
-              onTap: () => setState(() => _sort = item.$1),
+              onTap: () => setState(() => _sort = item.$2),
               borderRadius: BorderRadius.circular(20),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -313,10 +319,10 @@ class _CariJasaScreenState extends State<CariJasaScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      item.$2,
+                      item.$3,
                       size: 14,
                       color: isSelected
-                          ? (item.$1 == 'Rating 4.5+' ? const Color(0xFFFBBF24) : Colors.white)
+                          ? (item.$2 == 'Rating 4.5+' ? const Color(0xFFFBBF24) : Colors.white)
                           : const Color(0xFF64748B),
                     ),
                     const SizedBox(width: 6),
@@ -546,9 +552,9 @@ class _ResultCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mulai dari',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.isIndonesian ? 'Mulai dari' : 'Starting from',
+                            style: const TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
@@ -576,7 +582,9 @@ class _ResultCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Kunjungan: ${formatFixedPrice(service.visitPrice)}',
+                            context.l10n.isIndonesian
+                                ? 'Kunjungan: ${formatFixedPrice(service.visitPrice)}'
+                                : 'Visit: ${formatFixedPrice(service.visitPrice)}',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'tips_detail_screen.dart';
 
@@ -42,9 +43,12 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
       });
     } catch (error) {
       if (!mounted) return;
+      final isIndo = context.l10n.isIndonesian;
       setState(() {
         _loading = false;
-        _errorMessage = 'Gagal memuat tips & artikel: $error';
+        _errorMessage = isIndo
+            ? 'Gagal memuat tips & artikel: $error'
+            : 'Failed to load tips & articles: $error';
       });
     }
   }
@@ -58,12 +62,14 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
-        title: const Text(
-          'Tips & Artikel',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        title: Text(
+          isIndo ? 'Tips & Artikel' : 'Tips & Articles',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
@@ -82,7 +88,7 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: _loadAllTips,
-                      child: const Text('Coba Lagi'),
+                      child: Text(isIndo ? 'Coba Lagi' : 'Try Again'),
                     ),
                   ],
                 ),
@@ -91,10 +97,12 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
           : RefreshIndicator(
               onRefresh: _loadAllTips,
               child: _tips.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'Belum ada tips & artikel saat ini.',
-                        style: TextStyle(color: KetokColors.textMuted),
+                        isIndo
+                            ? 'Belum ada tips & artikel saat ini.'
+                            : 'No tips & articles available yet.',
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                     )
                   : ListView.separated(
@@ -103,7 +111,7 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final tip = _tips[index];
-                        final judul = tip['judul'] as String? ?? 'Tips';
+                        final judul = tip['judul'] as String? ?? (isIndo ? 'Tips' : 'Tip');
                         final ringkasan = tip['ringkasan'] as String? ?? '';
 
                         return InkWell(
@@ -167,18 +175,18 @@ class _TipsArtikelScreenState extends State<TipsArtikelScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                const Row(
+                                Row(
                                   children: [
                                     Text(
-                                      'Baca selengkapnya',
-                                      style: TextStyle(
+                                      isIndo ? 'Baca selengkapnya' : 'Read more',
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: KetokColors.primary,
                                       ),
                                     ),
-                                    SizedBox(width: 4),
-                                    Icon(
+                                    const SizedBox(width: 4),
+                                    const Icon(
                                       Icons.arrow_forward_rounded,
                                       size: 14,
                                       color: KetokColors.primary,

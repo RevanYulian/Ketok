@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'jasa_detail_screen.dart';
 import 'quick_menu_shared.dart';
@@ -114,46 +115,74 @@ class _JasaKategoriScreenState extends State<JasaKategoriScreen> {
     await _servicesFuture;
   }
 
+  String _localizedCategoryName(String cat, bool isIndo) {
+    if (isIndo) return cat;
+    switch (cat.toLowerCase().trim()) {
+      case 'teknisi & perbaikan':
+        return 'Technician & Repair';
+      case 'kebersihan & laundry':
+        return 'Cleaning & Laundry';
+      case 'pertukangan & bangunan':
+        return 'Carpentry & Construction';
+      case 'elektronik & gadget':
+        return 'Electronics & Gadgets';
+      case 'gaya hidup & perawatan':
+        return 'Lifestyle & Care';
+      case 'logistik & lainnya':
+        return 'Logistics & Others';
+      default:
+        return cat;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => QuickMenuScaffold(
-    title: widget.categoryName,
-    icon: widget.icon,
-    onRefresh: _refresh,
-    child: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _servicesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return _ErrorState(
-            message:
-                'Jasa belum dapat dimuat. Pastikan migration seed sudah dijalankan.',
-            onRetry: _refresh,
+  Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+    final displayTitle = _localizedCategoryName(widget.categoryName, isIndo);
+
+    return QuickMenuScaffold(
+      title: displayTitle,
+      icon: widget.icon,
+      onRefresh: _refresh,
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _servicesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return _ErrorState(
+              message: isIndo
+                  ? 'Jasa belum dapat dimuat. Pastikan koneksi internet aktif.'
+                  : 'Unable to load services. Please check your internet connection.',
+              onRetry: _refresh,
+            );
+          }
+          final services = snapshot.data ?? [];
+          if (services.isEmpty) {
+            return QuickMenuEmptyState(
+              icon: Icons.handyman_outlined,
+              title: isIndo ? 'Belum ada jasa' : 'No services yet',
+              subtitle: isIndo
+                  ? 'Jasa pada kategori ini akan muncul setelah tersedia.'
+                  : 'Services in this category will appear once available.',
+            );
+          }
+          return ListView.separated(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            itemCount: services.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) => _ServiceCard(
+              service: services[index],
+              categoryName: displayTitle,
+              icon: widget.icon,
+            ),
           );
-        }
-        final services = snapshot.data ?? [];
-        if (services.isEmpty) {
-          return const QuickMenuEmptyState(
-            icon: Icons.handyman_outlined,
-            title: 'Belum ada jasa',
-            subtitle: 'Jasa pada kategori ini akan muncul setelah tersedia.',
-          );
-        }
-        return ListView.separated(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-          itemCount: services.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, index) => _ServiceCard(
-            service: services[index],
-            categoryName: widget.categoryName,
-            icon: widget.icon,
-          ),
-        );
-      },
-    ),
-  );
+        },
+      ),
+    );
+  }
 }
 
 class _ErrorState extends StatelessWidget {
@@ -163,25 +192,29 @@ class _ErrorState extends StatelessWidget {
   const _ErrorState({required this.message, required this.onRetry});
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.cloud_off_outlined, size: 46, color: Colors.grey),
-          const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Coba Lagi'),
-          ),
-        ],
+  Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_outlined, size: 46, color: Colors.grey),
+            const SizedBox(height: 12),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(isIndo ? 'Coba Lagi' : 'Try Again'),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _ServiceCard extends StatelessWidget {
@@ -197,10 +230,15 @@ class _ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     final photoUrl = service['foto_url'] as String?;
-    final title = service['nama_jasa'] as String? ?? 'Jasa Ketok';
-    final company = service['mitra_nama'] as String? ?? 'Mitra Ketok';
-    final desc = service['deskripsi'] as String? ?? 'Layanan profesional dari mitra.';
+    final title = service['nama_jasa'] as String? ?? (isIndo ? 'Jasa Ketok' : 'Ketok Service');
+    final rawCompany = service['mitra_nama'] as String? ?? '';
+    final company = rawCompany.isEmpty || rawCompany == 'Mitra Ketok'
+        ? (isIndo ? 'Mitra Ketok' : 'Ketok Partner')
+        : rawCompany;
+    final desc = service['deskripsi'] as String? ??
+        (isIndo ? 'Layanan profesional dari mitra.' : 'Professional service from partner.');
     final price = service['harga_mulai'];
     final visitPrice = service['biaya_kunjungan'] ?? 50000;
 
@@ -365,9 +403,9 @@ class _ServiceCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mulai dari',
-                            style: TextStyle(
+                          Text(
+                            isIndo ? 'Mulai dari' : 'Starting from',
+                            style: const TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
@@ -375,7 +413,7 @@ class _ServiceCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 1),
                           Text(
-                            formatServicePrice(price),
+                            formatServicePrice(price, isIndo: isIndo),
                             style: const TextStyle(
                               fontSize: 16.5,
                               fontWeight: FontWeight.w800,
@@ -395,7 +433,7 @@ class _ServiceCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Kunjungan: ${formatFixedPrice(visitPrice)}',
+                            '${isIndo ? "Kunjungan" : "Visit"}: ${formatFixedPrice(visitPrice)}',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,

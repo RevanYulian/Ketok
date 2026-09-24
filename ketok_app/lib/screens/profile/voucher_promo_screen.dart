@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class VoucherPromoScreen extends StatefulWidget {
   const VoucherPromoScreen({super.key});
 
@@ -66,10 +68,17 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
   }
 
   Future<void> _claimNewVoucher() async {
+    final isIndo = context.l10n.isIndonesian;
     final code = _claimController.text.trim().toUpperCase();
     if (code.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Masukkan kode voucher terlebih dahulu.')),
+        SnackBar(
+          content: Text(
+            isIndo
+                ? 'Masukkan kode voucher terlebih dahulu.'
+                : 'Please enter voucher code first.',
+          ),
+        ),
       );
       return;
     }
@@ -78,14 +87,22 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
-      if (authUser == null) throw Exception('Sesi login tidak valid.');
+      if (authUser == null) {
+        throw Exception(
+          isIndo ? 'Sesi login tidak valid.' : 'Invalid login session.',
+        );
+      }
 
       final userRow = await client
           .from('users')
           .select('id_user')
           .eq('auth_uid', authUser.id)
           .maybeSingle();
-      if (userRow == null) throw Exception('Pengguna tidak ditemukan.');
+      if (userRow == null) {
+        throw Exception(
+          isIndo ? 'Pengguna tidak ditemukan.' : 'User not found.',
+        );
+      }
       final userId = userRow['id_user'] as int;
 
       // Check if voucher exists in master table
@@ -97,7 +114,11 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
           .maybeSingle();
 
       if (voucherRow == null) {
-        throw Exception('Kode voucher tidak ditemukan atau sudah tidak aktif.');
+        throw Exception(
+          isIndo
+              ? 'Kode voucher tidak ditemukan atau sudah tidak aktif.'
+              : 'Voucher code not found or is no longer active.',
+        );
       }
 
       final voucherId = voucherRow['id_voucher'] as int;
@@ -112,9 +133,17 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
 
       if (alreadyOwned != null) {
         if (alreadyOwned['status'] == 'aktif') {
-          throw Exception('Anda sudah memiliki voucher ini di akun Anda.');
+          throw Exception(
+            isIndo
+                ? 'Anda sudah memiliki voucher ini di akun Anda.'
+                : 'You already have this voucher in your account.',
+          );
         } else {
-          throw Exception('Voucher ini sudah pernah Anda gunakan sebelumnya.');
+          throw Exception(
+            isIndo
+                ? 'Voucher ini sudah pernah Anda gunakan sebelumnya.'
+                : 'You have already used this voucher previously.',
+          );
         }
       }
 
@@ -131,7 +160,11 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Selamat! Voucher $code berhasil diklaim ke akun Anda.'),
+            content: Text(
+              isIndo
+                  ? 'Selamat! Voucher $code berhasil diklaim ke akun Anda.'
+                  : 'Congratulations! Voucher $code claimed successfully.',
+            ),
             backgroundColor: const Color(0xFF10B981),
           ),
         );
@@ -169,6 +202,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     final vouchers = _filteredVouchers;
 
     return Scaffold(
@@ -180,11 +214,11 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Voucher & Promo Saya',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Voucher & Promo Saya' : 'My Vouchers & Promos',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF0F172A),
@@ -194,7 +228,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
           IconButton(
             onPressed: _loadVouchers,
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Muat ulang',
+            tooltip: isIndo ? 'Muat ulang' : 'Refresh',
           ),
         ],
       ),
@@ -226,18 +260,20 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Punya Kode Promo Tambahan?',
-                      style: TextStyle(
+                    Text(
+                      isIndo ? 'Punya Kode Promo Tambahan?' : 'Have an Additional Promo Code?',
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0F172A),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Klaim kode promo untuk menambahkan voucher ke koleksi akun Anda.',
-                      style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                    Text(
+                      isIndo
+                          ? 'Klaim kode promo untuk menambahkan voucher ke koleksi akun Anda.'
+                          : 'Claim promo code to add voucher to your account collection.',
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -247,7 +283,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                             controller: _claimController,
                             textCapitalization: TextCapitalization.characters,
                             decoration: InputDecoration(
-                              hintText: 'Contoh: KETOKHEMAT',
+                              hintText: isIndo ? 'Contoh: KETOKHEMAT' : 'e.g. KETOKHEMAT',
                               isDense: true,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 14,
@@ -285,9 +321,9 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Text(
-                                  'Klaim',
-                                  style: TextStyle(fontWeight: FontWeight.w700),
+                              : Text(
+                                  isIndo ? 'Klaim' : 'Claim',
+                                  style: const TextStyle(fontWeight: FontWeight.w700),
                                 ),
                         ),
                       ],
@@ -301,9 +337,9 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'VOUCHER YANG DIMILIKI',
-                    style: TextStyle(
+                  Text(
+                    isIndo ? 'VOUCHER YANG DIMILIKI' : 'OWNED VOUCHERS',
+                    style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.6,
@@ -311,7 +347,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                     ),
                   ),
                   Text(
-                    '${_userVouchers.where((v) => v['status'] == 'aktif').length} Tersedia',
+                    '${_userVouchers.where((v) => v['status'] == 'aktif').length} ${isIndo ? 'Tersedia' : 'Available'}',
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
@@ -324,11 +360,11 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
 
               Row(
                 children: [
-                  _buildFilterTab('Voucher Aktif', 'aktif'),
+                  _buildFilterTab(isIndo ? 'Voucher Aktif' : 'Active Vouchers', 'aktif'),
                   const SizedBox(width: 8),
-                  _buildFilterTab('Semua', 'semua'),
+                  _buildFilterTab(isIndo ? 'Semua' : 'All', 'semua'),
                   const SizedBox(width: 8),
-                  _buildFilterTab('Sudah Terpakai', 'terpakai'),
+                  _buildFilterTab(isIndo ? 'Sudah Terpakai' : 'Used', 'terpakai'),
                 ],
               ),
               const SizedBox(height: 14),
@@ -358,10 +394,10 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                       const SizedBox(height: 12),
                       Text(
                         _filter == 'aktif'
-                            ? 'Belum ada voucher aktif'
+                            ? (isIndo ? 'Belum ada voucher aktif' : 'No active vouchers yet')
                             : _filter == 'terpakai'
-                            ? 'Belum ada voucher yang terpakai'
-                            : 'Belum ada voucher di akun Anda',
+                            ? (isIndo ? 'Belum ada voucher yang terpakai' : 'No used vouchers yet')
+                            : (isIndo ? 'Belum ada voucher di akun Anda' : 'No vouchers in your account yet'),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 14,
@@ -370,10 +406,12 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Voucher yang Anda miliki otomatis dapat dipilih saat memesan jasa teknisi.',
+                      Text(
+                        isIndo
+                            ? 'Voucher yang Anda miliki otomatis dapat dipilih saat memesan jasa teknisi.'
+                            : 'Your vouchers can automatically be selected when ordering technician services.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+                        style: const TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
                       ),
                     ],
                   ),
@@ -390,7 +428,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                     final isAktif = pv['status'] == 'aktif';
 
                     final kode = v['kode_voucher'] as String? ?? 'PROMO';
-                    final judul = v['judul'] as String? ?? 'Diskon Spesial';
+                    final judul = v['judul'] as String? ?? (isIndo ? 'Diskon Spesial' : 'Special Discount');
                     final deskripsi = v['deskripsi'] as String? ?? '';
                     final tipeDiskon = v['tipe_diskon'] as String? ?? 'nominal';
                     final nilaiDiskon = (v['nilai_diskon'] as num?)?.toDouble() ?? 0;
@@ -398,9 +436,9 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
 
                     String diskonLabel = '';
                     if (tipeDiskon == 'persen') {
-                      diskonLabel = 'Diskon ${nilaiDiskon.toInt()}%';
+                      diskonLabel = '${isIndo ? 'Diskon' : 'Discount'} ${nilaiDiskon.toInt()}%';
                     } else {
-                      diskonLabel = 'Potongan Rp ${_formatCurrency(nilaiDiskon)}';
+                      diskonLabel = '${isIndo ? 'Potongan' : 'Discount'} Rp ${_formatCurrency(nilaiDiskon)}';
                     }
 
                     return Container(
@@ -452,7 +490,9 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        isAktif ? 'SUDAH DIMILIKI' : 'SUDAH TERPAKAI',
+                                        isAktif
+                                            ? (isIndo ? 'SUDAH DIMILIKI' : 'OWNED')
+                                            : (isIndo ? 'SUDAH TERPAKAI' : 'USED'),
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w800,
@@ -531,7 +571,7 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                                     ),
                                     if (minTrx > 0)
                                       Text(
-                                        'Min. Transaksi: Rp ${_formatCurrency(minTrx)}',
+                                        '${isIndo ? 'Min. Transaksi' : 'Min. Transaction'}: Rp ${_formatCurrency(minTrx)}',
                                         style: const TextStyle(
                                           fontSize: 10.5,
                                           color: Color(0xFF94A3B8),
@@ -549,9 +589,9 @@ class _VoucherPromoScreenState extends State<VoucherPromoScreen> {
                                       color: const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text(
-                                      'Terpakai',
-                                      style: TextStyle(
+                                    child: Text(
+                                      isIndo ? 'Terpakai' : 'Used',
+                                      style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF94A3B8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 
 enum TransactionType { pemasukan, pengeluaran }
 
@@ -99,22 +100,38 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    final months = [
-      '',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
+  String _formatDate(DateTime dt, bool isIndo) {
+    final months = isIndo
+        ? [
+            '',
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'Mei',
+            'Jun',
+            'Jul',
+            'Agu',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des',
+          ]
+        : [
+            '',
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+          ];
     final day = dt.day.toString().padLeft(2, '0');
     final month = months[dt.month];
     final year = dt.year;
@@ -124,6 +141,7 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
   }
 
   void _showTopUpDialog() {
+    final isIndo = context.l10n.isIndonesian;
     final amounts = [20000, 50000, 100000, 200000];
     showModalBottomSheet(
       context: context,
@@ -148,14 +166,16 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Top Up Saldo KetokPay',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            Text(
+              isIndo ? 'Top Up Saldo KetokPay' : 'KetokPay Balance Top Up',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Pilih nominal isi saldo instan untuk bertransaksi lebih cepat.',
-              style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+            Text(
+              isIndo
+                  ? 'Pilih nominal isi saldo instan untuk bertransaksi lebih cepat.'
+                  : 'Choose instant top-up amount for faster transactions.',
+              style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
             ),
             const SizedBox(height: 20),
             Wrap(
@@ -170,8 +190,8 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                         0,
                         KetokPayTransaction(
                           id: 'tx_${now.millisecondsSinceEpoch}',
-                          title: 'Top Up Saldo KetokPay',
-                          subtitle: 'Top Up Instan • ${_formatDate(now)}',
+                          title: isIndo ? 'Top Up Saldo KetokPay' : 'KetokPay Balance Top Up',
+                          subtitle: '${isIndo ? 'Top Up Instan' : 'Instant Top Up'} • ${_formatDate(now, isIndo)}',
                           amount: amt,
                           type: TransactionType.pemasukan,
                           date: now,
@@ -181,7 +201,11 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Top up Rp ${_formatCurrency(amt)} berhasil ditambahkan!'),
+                        content: Text(
+                          isIndo
+                              ? 'Top up Rp ${_formatCurrency(amt)} berhasil ditambahkan!'
+                              : 'Top up of Rp ${_formatCurrency(amt)} successfully added!',
+                        ),
                         backgroundColor: const Color(0xFF10B981),
                       ),
                     );
@@ -217,6 +241,7 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     final filtered = _filteredTransactions;
 
     return Scaffold(
@@ -228,11 +253,11 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Saldo KetokPay',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Saldo KetokPay' : 'KetokPay Balance',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF0F172A),
@@ -296,9 +321,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                           color: const Color(0xFF38BDF8).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text(
-                          'AKTIF',
-                          style: TextStyle(
+                        child: Text(
+                          isIndo ? 'AKTIF' : 'ACTIVE',
+                          style: const TextStyle(
                             color: Color(0xFF38BDF8),
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -308,9 +333,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  const Text(
-                    'Saldo Tersedia',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                  Text(
+                    isIndo ? 'Saldo Tersedia' : 'Available Balance',
+                    style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -348,9 +373,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Pemasukan',
-                                    style: TextStyle(
+                                  Text(
+                                    isIndo ? 'Pemasukan' : 'Income',
+                                    style: const TextStyle(
                                       color: Color(0xFF94A3B8),
                                       fontSize: 10.5,
                                     ),
@@ -393,9 +418,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Pengeluaran',
-                                    style: TextStyle(
+                                  Text(
+                                    isIndo ? 'Pengeluaran' : 'Expense',
+                                    style: const TextStyle(
                                       color: Color(0xFF94A3B8),
                                       fontSize: 10.5,
                                     ),
@@ -424,7 +449,7 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _showTopUpDialog,
                       icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('Isi Saldo (Top Up)'),
+                      label: Text(isIndo ? 'Isi Saldo (Top Up)' : 'Top Up Balance'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFF0F172A),
@@ -444,9 +469,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'MUTASI SALDO KETOKPAY',
-                  style: TextStyle(
+                Text(
+                  isIndo ? 'MUTASI SALDO KETOKPAY' : 'KETOKPAY BALANCE MUTATIONS',
+                  style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
@@ -454,7 +479,7 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                   ),
                 ),
                 Text(
-                  '${_transactions.length} Transaksi',
+                  '${_transactions.length} ${isIndo ? 'Transaksi' : 'Transactions'}',
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -469,19 +494,19 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
             Row(
               children: [
                 _buildFilterChip(
-                  label: 'Semua',
+                  label: isIndo ? 'Semua' : 'All',
                   value: 'semua',
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
-                  label: 'Pemasukan',
+                  label: isIndo ? 'Pemasukan' : 'Income',
                   value: 'pemasukan',
                   icon: Icons.south_west_rounded,
                   activeColor: const Color(0xFF059669),
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
-                  label: 'Pengeluaran',
+                  label: isIndo ? 'Pengeluaran' : 'Expense',
                   value: 'pengeluaran',
                   icon: Icons.north_east_rounded,
                   activeColor: const Color(0xFFE11D48),
@@ -510,10 +535,10 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                     const SizedBox(height: 10),
                     Text(
                       _selectedFilter == 'pemasukan'
-                          ? 'Belum ada pemasukan saldo'
+                          ? (isIndo ? 'Belum ada pemasukan saldo' : 'No income history yet')
                           : _selectedFilter == 'pengeluaran'
-                          ? 'Belum ada pengeluaran saldo'
-                          : 'Belum ada riwayat mutasi',
+                          ? (isIndo ? 'Belum ada pengeluaran saldo' : 'No expense history yet')
+                          : (isIndo ? 'Belum ada riwayat mutasi' : 'No mutation history yet'),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -521,10 +546,12 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Transaksi yang terjadi akan tercatat secara otomatis di sini.',
+                    Text(
+                      isIndo
+                          ? 'Transaksi yang terjadi akan tercatat secara otomatis di sini.'
+                          : 'Recorded transactions will appear automatically here.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
                     ),
                   ],
                 ),
@@ -627,7 +654,9 @@ class _MetodePembayaranScreenState extends State<MetodePembayaranScreen> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                tx.status,
+                                tx.status == 'Berhasil'
+                                    ? (isIndo ? 'Berhasil' : 'Success')
+                                    : tx.status,
                                 style: const TextStyle(
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w700,

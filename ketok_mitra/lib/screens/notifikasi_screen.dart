@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 import 'verifikasi_ktp_screen.dart';
@@ -65,14 +66,22 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
           final rawText = (row['judul'] as String? ?? '').trim();
           final parsed = _parseNotification(rawText);
 
+          DateTime? dt;
+          final createdVal = row['dibuat_pada'];
+          if (createdVal is DateTime) {
+            dt = createdVal.toLocal();
+          } else if (createdVal is String) {
+            dt = DateTime.tryParse(createdVal)?.toLocal();
+          }
+
           notifications.add(
             _AppNotification(
               id: row['id_notif'] as int?,
               icon: parsed.icon,
               color: parsed.color,
-              title: parsed.title,
-              message: rawText,
-              time: row['dibuat_pada'] != null ? _formatDate(row['dibuat_pada']) : null,
+              getTitle: parsed.getTitle,
+              getMessage: parsed.getMessage,
+              createdAt: dt,
               unread: isUnread,
               actionType: parsed.actionType,
             ),
@@ -101,11 +110,13 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
       if (!profileComplete) {
         notifications.add(
-          const _AppNotification(
+          _AppNotification(
             icon: Icons.assignment_ind_outlined,
-            color: Color(0xFFC2410C),
-            title: 'Profil Belum Lengkap',
-            message: 'Lengkapi profil agar akun Anda dapat menerima pekerjaan.',
+            color: const Color(0xFFC2410C),
+            getTitle: (isIndo) => isIndo ? 'Profil Belum Lengkap' : 'Profile Incomplete',
+            getMessage: (isIndo) => isIndo
+                ? 'Lengkapi profil agar akun Anda dapat menerima pekerjaan.'
+                : 'Complete your profile so your account can receive jobs.',
           ),
         );
       } else if (verifStatus == 'ditolak') {
@@ -113,20 +124,26 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
           _AppNotification(
             icon: Icons.cancel_rounded,
             color: const Color(0xFFDC2626),
-            title: 'Verifikasi KTP Ditolak',
-            message: verifNote != null && verifNote.isNotEmpty
-                ? 'Catatan admin: $verifNote. Silakan unggah ulang foto KTP yang valid.'
-                : 'Dokumen KTP Anda ditolak oleh admin. Silakan periksa dan unggah ulang.',
+            getTitle: (isIndo) => isIndo ? 'Verifikasi KTP Ditolak' : 'ID Card Verification Rejected',
+            getMessage: (isIndo) => verifNote != null && verifNote.isNotEmpty
+                ? (isIndo
+                    ? 'Catatan admin: $verifNote. Silakan unggah ulang foto KTP yang valid.'
+                    : 'Admin note: $verifNote. Please re-upload a valid ID card.')
+                : (isIndo
+                    ? 'Dokumen KTP Anda ditolak oleh admin. Silakan periksa dan unggah ulang.'
+                    : 'Your ID card was rejected by admin. Please review and re-upload.'),
             actionType: 'verifikasi_ktp',
           ),
         );
       } else if (verifStatus == 'menunggu') {
         notifications.add(
-          const _AppNotification(
+          _AppNotification(
             icon: Icons.hourglass_top_rounded,
-            color: Color(0xFFB45309),
-            title: 'Menunggu Persetujuan Admin',
-            message: 'Dokumen KTP & profil Anda sedang dalam antrean verifikasi oleh tim admin.',
+            color: const Color(0xFFB45309),
+            getTitle: (isIndo) => isIndo ? 'Menunggu Persetujuan Admin' : 'Awaiting Admin Approval',
+            getMessage: (isIndo) => isIndo
+                ? 'Dokumen KTP & profil Anda sedang dalam antrean verifikasi oleh tim admin.'
+                : 'Your ID card & profile are currently queued for verification by the admin team.',
             actionType: 'verifikasi_ktp',
           ),
         );
@@ -143,12 +160,15 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
       for (final order in orders) {
         final status = order['status'] as String?;
         if (status == 'menuju_lokasi' || status == 'diproses') {
+          final orderId = order['id_pesanan'];
           notifications.add(
             _AppNotification(
               icon: Icons.assignment_outlined,
               color: KetokColors.darkPrimary,
-              title: 'Pesanan Sedang Berjalan',
-              message: 'Pesanan #${order['id_pesanan']} perlu segera ditindaklanjuti.',
+              getTitle: (isIndo) => isIndo ? 'Pesanan Sedang Berjalan' : 'Order In Progress',
+              getMessage: (isIndo) => isIndo
+                  ? 'Pesanan #$orderId perlu segera ditindaklanjuti.'
+                  : 'Order #$orderId requires your immediate action.',
             ),
           );
         }
@@ -156,11 +176,13 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
       if (notifications.isEmpty) {
         notifications.add(
-          const _AppNotification(
+          _AppNotification(
             icon: Icons.check_circle_outline_rounded,
-            color: Color(0xFF15803D),
-            title: 'Semua Sudah Diperiksa',
-            message: 'Belum ada notifikasi baru untuk Anda.',
+            color: const Color(0xFF15803D),
+            getTitle: (isIndo) => isIndo ? 'Semua Sudah Diperiksa' : 'All Caught Up',
+            getMessage: (isIndo) => isIndo
+                ? 'Belum ada notifikasi baru untuk Anda.'
+                : 'There are no new notifications for you right now.',
           ),
         );
       }
@@ -179,88 +201,105 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     }
   }
 
-  _NotificationStyle _parseNotification(String raw) {
+  _NotificationParsed _parseNotification(String raw) {
     final lower = raw.toLowerCase();
 
     if (lower.contains('verifikasi') && (lower.contains('tolak') || lower.contains('ditolak'))) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.cancel_rounded,
-        color: Color(0xFFDC2626),
-        title: 'Verifikasi KTP Ditolak',
+        color: const Color(0xFFDC2626),
+        getTitle: (isIndo) => isIndo ? 'Verifikasi KTP Ditolak' : 'ID Card Verification Rejected',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your ID card verification was rejected. Please review and re-upload.',
         actionType: 'verifikasi_ktp',
       );
     }
-    if (lower.contains('verifikasi') && (lower.contains('setuju') || lower.contains('disetujui') || lower.contains('terverifikasi'))) {
-      return const _NotificationStyle(
+    if (lower.contains('verifikasi') &&
+        (lower.contains('setuju') || lower.contains('disetujui') || lower.contains('terverifikasi'))) {
+      return _NotificationParsed(
         icon: Icons.verified_rounded,
-        color: Color(0xFF16A34A),
-        title: 'Verifikasi KTP Disetujui',
+        color: const Color(0xFF16A34A),
+        getTitle: (isIndo) => isIndo ? 'Verifikasi KTP Disetujui' : 'ID Card Verification Approved',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your ID card has been verified. You can now accept incoming customer orders.',
       );
     }
     if (lower.contains('kemitraan') && (lower.contains('tolak') || lower.contains('ditolak'))) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.error_rounded,
-        color: Color(0xFFDC2626),
-        title: 'Pengajuan Kemitraan Ditolak',
+        color: const Color(0xFFDC2626),
+        getTitle: (isIndo) => isIndo ? 'Pengajuan Kemitraan Ditolak' : 'Partnership Application Declined',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your partner registration request has been rejected by administrator.',
       );
     }
     if (lower.contains('kemitraan') && (lower.contains('setuju') || lower.contains('disetujui'))) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.check_circle_rounded,
-        color: Color(0xFF16A34A),
-        title: 'Pengajuan Kemitraan Disetujui',
+        color: const Color(0xFF16A34A),
+        getTitle: (isIndo) => isIndo ? 'Pengajuan Kemitraan Disetujui' : 'Partnership Application Approved',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Congratulations! Your partner registration has been approved.',
       );
     }
     if (lower.contains('suspend')) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.block_rounded,
-        color: Color(0xFFEA580C),
-        title: 'Akun Disuspend',
+        color: const Color(0xFFEA580C),
+        getTitle: (isIndo) => isIndo ? 'Akun Disuspend' : 'Account Suspended',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your account has been temporarily suspended. Please contact support.',
       );
     }
     if (lower.contains('blokir') || lower.contains('diblokir')) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.gavel_rounded,
-        color: Color(0xFFDC2626),
-        title: 'Akun Diblokir',
+        color: const Color(0xFFDC2626),
+        getTitle: (isIndo) => isIndo ? 'Akun Diblokir' : 'Account Blocked',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your partner account has been blocked by administration.',
       );
     }
     if (lower.contains('diaktifkan') || (lower.contains('status akun') && lower.contains('aktif'))) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.check_circle_rounded,
-        color: Color(0xFF16A34A),
-        title: 'Akun Diaktifkan',
+        color: const Color(0xFF16A34A),
+        getTitle: (isIndo) => isIndo ? 'Akun Diaktifkan' : 'Account Activated',
+        getMessage: (isIndo) => isIndo
+            ? raw
+            : 'Your partner account is active and ready to take jobs.',
       );
     }
     if (lower.contains('pesanan')) {
-      return const _NotificationStyle(
+      return _NotificationParsed(
         icon: Icons.handyman_rounded,
         color: KetokColors.darkPrimary,
-        title: 'Info Pesanan',
+        getTitle: (isIndo) => isIndo ? 'Info Pesanan' : 'Order Information',
+        getMessage: (isIndo) => raw,
       );
     }
-    return const _NotificationStyle(
+    return _NotificationParsed(
       icon: Icons.campaign_rounded,
-      color: Color(0xFF0284C7),
-      title: 'Pengumuman Admin',
+      color: const Color(0xFF0284C7),
+      getTitle: (isIndo) => isIndo ? 'Pengumuman Admin' : 'Admin Announcement',
+      getMessage: (isIndo) => raw,
     );
   }
 
-  String _formatDate(dynamic dateVal) {
-    if (dateVal == null) return '';
-    DateTime? dt;
-    if (dateVal is DateTime) {
-      dt = dateVal.toLocal();
-    } else if (dateVal is String) {
-      dt = DateTime.tryParse(dateVal)?.toLocal();
-    }
+  String _formatRelativeTime(DateTime? dt, bool isIndo) {
     if (dt == null) return '';
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inSeconds < 60) return 'Baru saja';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} mnt lalu';
-    if (diff.inHours < 24) return '${diff.inHours} jam lalu';
-    if (diff.inDays < 7) return '${diff.inDays} hr lalu';
+    if (diff.inSeconds < 60) return isIndo ? 'Baru saja' : 'Just now';
+    if (diff.inMinutes < 60) return isIndo ? '${diff.inMinutes} mnt lalu' : '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return isIndo ? '${diff.inHours} jam lalu' : '${diff.inHours}h ago';
+    if (diff.inDays < 7) return isIndo ? '${diff.inDays} hr lalu' : '${diff.inDays}d ago';
     return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}';
   }
 
@@ -295,6 +334,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
   }
 
   Future<void> _markAllAsRead() async {
+    final l10n = context.l10n;
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
@@ -319,13 +359,25 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Semua notifikasi ditandai sudah dibaca.')),
+          SnackBar(
+            content: Text(
+              l10n.isIndonesian
+                  ? 'Semua notifikasi ditandai sudah dibaca.'
+                  : 'All notifications marked as read.',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui notifikasi: $e')),
+          SnackBar(
+            content: Text(
+              l10n.isIndonesian
+                  ? 'Gagal memperbarui notifikasi: $e'
+                  : 'Failed to update notifications: $e',
+            ),
+          ),
         );
       }
     }
@@ -333,162 +385,188 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: KetokColors.bgColor,
       appBar: AppBar(
-        title: const Text('Notifikasi'),
+        title: Text(isIndo ? 'Notifikasi' : 'Notifications'),
         backgroundColor: KetokColors.bgColor,
         surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
             onPressed: _markAllAsRead,
             icon: const Icon(Icons.done_all_rounded),
-            tooltip: 'Tandai semua sudah dibaca',
+            tooltip: isIndo ? 'Tandai semua sudah dibaca' : 'Mark all as read',
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-          ? Center(child: Text(_errorMessage!))
-          : RefreshIndicator(
-              onRefresh: _loadNotifications,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: _notifications.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (_, index) {
-                  final notification = _notifications[index];
-                  final isActionable = notification.actionType != null;
-
-                  return Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _handleNotificationTap(notification, index),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: notification.unread
-                                ? notification.color.withOpacity(0.5)
-                                : KetokColors.borderColor,
-                          ),
-                          boxShadow: notification.unread
-                              ? [
-                                  BoxShadow(
-                                    color: notification.color.withOpacity(0.08),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  )
-                                ]
-                              : null,
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.cloud_off_rounded, size: 48, color: KetokColors.onSurfaceVariant),
+                        const SizedBox(height: 12),
+                        Text(_errorMessage!, textAlign: TextAlign.center),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: _loadNotifications,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(l10n.retry),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: notification.color.withOpacity(0.12),
-                              child: Icon(
-                                notification.icon,
-                                color: notification.color,
+                      ],
+                    ),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadNotifications,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _notifications.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (_, index) {
+                      final notification = _notifications[index];
+                      final isActionable = notification.actionType != null;
+                      final title = notification.getTitle(isIndo);
+                      final message = notification.getMessage(isIndo);
+                      final timeStr = _formatRelativeTime(notification.createdAt, isIndo);
+
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _handleNotificationTap(notification, index),
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: notification.unread
+                                    ? notification.color.withValues(alpha: 0.5)
+                                    : KetokColors.borderColor,
                               ),
+                              boxShadow: notification.unread
+                                  ? [
+                                      BoxShadow(
+                                        color: notification.color.withValues(alpha: 0.08),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      )
+                                    ]
+                                  : null,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: notification.color.withValues(alpha: 0.12),
+                                  child: Icon(
+                                    notification.icon,
+                                    color: notification.color,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          notification.title,
-                                          style: TextStyle(
-                                            fontWeight: notification.unread
-                                                ? FontWeight.w800
-                                                : FontWeight.w600,
-                                            color: const Color(0xFF030813),
-                                            fontSize: 14,
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              title,
+                                              style: TextStyle(
+                                                fontWeight: notification.unread
+                                                    ? FontWeight.w800
+                                                    : FontWeight.w600,
+                                                color: const Color(0xFF030813),
+                                                fontSize: 14,
+                                              ),
+                                            ),
                                           ),
+                                          if (timeStr.isNotEmpty) ...[
+                                            Text(
+                                              timeStr,
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: Color(0xFF94A3B8),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                          ],
+                                          if (notification.unread)
+                                            Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                color: notification.color,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        message,
+                                        style: TextStyle(
+                                          color: notification.unread
+                                              ? const Color(0xFF1F2937)
+                                              : KetokColors.onSurfaceVariant,
+                                          fontSize: 13,
+                                          height: 1.35,
                                         ),
                                       ),
-                                      if (notification.time != null && notification.time!.isNotEmpty) ...[
-                                        Text(
-                                          notification.time!,
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Color(0xFF94A3B8),
-                                          ),
+                                      if (isActionable) ...[
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              notification.actionType == 'verifikasi_ktp'
+                                                  ? (isIndo ? 'Buka Formulir KTP →' : 'Open ID Form →')
+                                                  : (isIndo ? 'Lihat Detail →' : 'View Details →'),
+                                              style: TextStyle(
+                                                color: notification.color,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(width: 6),
                                       ],
-                                      if (notification.unread)
-                                        Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: notification.color,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
                                     ],
                                   ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    notification.message,
-                                    style: TextStyle(
-                                      color: notification.unread
-                                          ? const Color(0xFF1F2937)
-                                          : KetokColors.onSurfaceVariant,
-                                      fontSize: 13,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                  if (isActionable) ...[
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          notification.actionType == 'verifikasi_ktp'
-                                              ? 'Buka Formulir KTP →'
-                                              : 'Lihat Detail →',
-                                          style: TextStyle(
-                                            color: notification.color,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                      );
+                    },
+                  ),
+                ),
     );
   }
 }
 
-class _NotificationStyle {
+class _NotificationParsed {
   final IconData icon;
   final Color color;
-  final String title;
+  final String Function(bool isIndo) getTitle;
+  final String Function(bool isIndo) getMessage;
   final String? actionType;
 
-  const _NotificationStyle({
+  const _NotificationParsed({
     required this.icon,
     required this.color,
-    required this.title,
+    required this.getTitle,
+    required this.getMessage,
     this.actionType,
   });
 }
@@ -497,9 +575,9 @@ class _AppNotification {
   final int? id;
   final IconData icon;
   final Color color;
-  final String title;
-  final String message;
-  final String? time;
+  final String Function(bool isIndo) getTitle;
+  final String Function(bool isIndo) getMessage;
+  final DateTime? createdAt;
   final bool unread;
   final String? actionType;
 
@@ -507,9 +585,9 @@ class _AppNotification {
     this.id,
     required this.icon,
     required this.color,
-    required this.title,
-    required this.message,
-    this.time,
+    required this.getTitle,
+    required this.getMessage,
+    this.createdAt,
     this.unread = false,
     this.actionType,
   });
@@ -518,9 +596,9 @@ class _AppNotification {
     int? id,
     IconData? icon,
     Color? color,
-    String? title,
-    String? message,
-    String? time,
+    String Function(bool isIndo)? getTitle,
+    String Function(bool isIndo)? getMessage,
+    DateTime? createdAt,
     bool? unread,
     String? actionType,
   }) {
@@ -528,9 +606,9 @@ class _AppNotification {
       id: id ?? this.id,
       icon: icon ?? this.icon,
       color: color ?? this.color,
-      title: title ?? this.title,
-      message: message ?? this.message,
-      time: time ?? this.time,
+      getTitle: getTitle ?? this.getTitle,
+      getMessage: getMessage ?? this.getMessage,
+      createdAt: createdAt ?? this.createdAt,
       unread: unread ?? this.unread,
       actionType: actionType ?? this.actionType,
     );

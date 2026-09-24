@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../app.dart';
 import 'quick_menu_shared.dart';
 
@@ -42,14 +43,20 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
   String get _serviceName =>
       widget.service['nama_jasa'] as String? ?? 'Jasa Ketok';
 
-  String _formatDate(DateTime dt) {
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
+  String _formatDate(DateTime dt, [bool isIndo = true]) {
+    final months = isIndo
+        ? const [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+          ]
+        : const [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+          ];
     final minuteStr = dt.minute.toString().padLeft(2, '0');
     final hourStr = dt.hour.toString().padLeft(2, '0');
-    return '${dt.day} ${months[dt.month - 1]} ${dt.year} • $hourStr:$minuteStr WIB';
+    final tz = isIndo ? 'WIB' : 'UTC+7';
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year} • $hourStr:$minuteStr $tz';
   }
 
   Future<void> _processPaymentAndSubmitOrder() async {
@@ -211,69 +218,75 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: const BoxDecoration(
-                color: Color(0xFFECFDF5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle_rounded,
-                size: 48,
-                color: Color(0xFF059669),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              isLunas ? 'Pembayaran Berhasil!' : 'Pesanan Berhasil Dibuat!',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Nomor Pesanan: #KTK-$orderId\n'
-              '${isLunas ? "Pembayaran Anda sebesar ${formatFixedPrice(widget.finalVisitPrice)} berhasil dikonfirmasi. Mitra teknisi akan meluncur sesuai jadwal yang Anda pilih." : "Pesanan Anda telah diteruskan ke mitra teknisi. Silakan bayar sesuai metode yang Anda pilih."}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF475569), height: 1.4),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: FilledButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  // Kembali ke halaman utama
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const KetokMainScreen()),
-                    (route) => false,
-                  );
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+      builder: (ctx) {
+        final l10n = context.l10n;
+        final isIndo = l10n.isIndonesian;
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFECFDF5),
+                  shape: BoxShape.circle,
                 ),
-                child: const Text('Kembali ke Beranda'),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  size: 48,
+                  color: Color(0xFF059669),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 18),
+              Text(
+                isLunas
+                    ? (isIndo ? 'Pembayaran Berhasil!' : 'Payment Successful!')
+                    : (isIndo ? 'Pesanan Berhasil Dibuat!' : 'Order Placed Successfully!'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${isIndo ? "Nomor Pesanan:" : "Order Number:"} #KTK-$orderId\n'
+                '${isLunas ? (isIndo ? "Pembayaran Anda sebesar ${formatFixedPrice(widget.finalVisitPrice)} berhasil dikonfirmasi. Mitra teknisi akan meluncur sesuai jadwal yang Anda pilih." : "Your payment of ${formatFixedPrice(widget.finalVisitPrice)} is confirmed. Partner technician will arrive according to your chosen schedule.") : (isIndo ? "Pesanan Anda telah diteruskan ke mitra teknisi. Silakan bayar sesuai metode yang Anda pilih." : "Your order has been forwarded to partner technician. Please proceed with payment based on your chosen method.")}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF475569), height: 1.4),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 46,
+                child: FilledButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    // Kembali ke halaman utama
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const KetokMainScreen()),
+                      (route) => false,
+                    );
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(isIndo ? 'Kembali ke Beranda' : 'Back to Home'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -288,6 +301,9 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
@@ -297,11 +313,11 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Pembayaran',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+        title: Text(
+          isIndo ? 'Pembayaran' : 'Payment',
+          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
       ),
@@ -311,15 +327,15 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
             ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
               children: [
-                _buildOrderOverviewCard(),
+                _buildOrderOverviewCard(isIndo),
                 const SizedBox(height: 18),
-                _sectionTitle('METODE PEMBAYARAN'),
-                _buildPaymentMethodSection(),
+                _sectionTitle(isIndo ? 'METODE PEMBAYARAN' : 'PAYMENT METHOD'),
+                _buildPaymentMethodSection(isIndo),
                 const SizedBox(height: 18),
-                _sectionTitle('RINGKASAN PEMBAYARAN'),
-                _buildPaymentSummaryCard(),
+                _sectionTitle(isIndo ? 'RINGKASAN PEMBAYARAN' : 'PAYMENT SUMMARY'),
+                _buildPaymentSummaryCard(isIndo),
                 const SizedBox(height: 14),
-                _buildSafetyBadge(),
+                _buildSafetyBadge(isIndo),
               ],
             ),
             Positioned(
@@ -339,8 +355,10 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
                     : const Icon(Icons.verified_user_rounded),
                 label: Text(
                   _loading
-                      ? 'Memproses Pesanan...'
-                      : 'Bayar ${formatFixedPrice(widget.finalVisitPrice)} & Konfirmasi',
+                      ? (isIndo ? 'Memproses Pesanan...' : 'Processing Order...')
+                      : (isIndo
+                          ? 'Bayar ${formatFixedPrice(widget.finalVisitPrice)} & Konfirmasi'
+                          : 'Pay ${formatFixedPrice(widget.finalVisitPrice)} & Confirm'),
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -371,7 +389,7 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
     ),
   );
 
-  Widget _buildOrderOverviewCard() => QuickMenuCard(
+  Widget _buildOrderOverviewCard(bool isIndo) => QuickMenuCard(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -421,7 +439,7 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                _formatDate(widget.schedule),
+                _formatDate(widget.schedule, isIndo),
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
@@ -455,16 +473,18 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
     ),
   );
 
-  Widget _buildPaymentMethodSection() => QuickMenuCard(
+  Widget _buildPaymentMethodSection(bool isIndo) => QuickMenuCard(
     child: Column(
       children: [
         // 1. Saldo KetokPay
         _buildMethodItem(
           id: 'ketokpay',
-          title: 'Saldo KetokPay',
-          subtitle: 'Saldo Anda: ${formatFixedPrice(_saldoKetokPay)}',
+          title: isIndo ? 'Saldo KetokPay' : 'KetokPay Balance',
+          subtitle: isIndo
+              ? 'Saldo Anda: ${formatFixedPrice(_saldoKetokPay)}'
+              : 'Your balance: ${formatFixedPrice(_saldoKetokPay)}',
           icon: Icons.account_balance_wallet_rounded,
-          badge: 'Cepat & Bebas Admin',
+          badge: isIndo ? 'Cepat & Bebas Admin' : 'Fast & Zero Fee',
           badgeColor: const Color(0xFF059669),
         ),
         const Divider(height: 18, color: Color(0xFFF1F5F9)),
@@ -473,7 +493,7 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
         _buildMethodItem(
           id: 'bca_va',
           title: 'BCA Virtual Account',
-          subtitle: 'Verifikasi instan 24 jam',
+          subtitle: isIndo ? 'Verifikasi instan 24 jam' : 'Instant 24/7 verification',
           icon: Icons.account_balance_rounded,
         ),
         const Divider(height: 18, color: Color(0xFFF1F5F9)),
@@ -499,8 +519,10 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
         // 5. Tunai / COD
         _buildMethodItem(
           id: 'tunai',
-          title: 'Tunai di Tempat (COD)',
-          subtitle: 'Bayar langsung ke teknisi setelah tiba',
+          title: isIndo ? 'Tunai di Tempat (COD)' : 'Cash on Delivery (COD)',
+          subtitle: isIndo
+              ? 'Bayar langsung ke teknisi setelah tiba'
+              : 'Pay directly to technician upon arrival',
           icon: Icons.handshake_outlined,
         ),
       ],
@@ -607,7 +629,7 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
     );
   }
 
-  Widget _buildPaymentSummaryCard() {
+  Widget _buildPaymentSummaryCard(bool isIndo) {
     final hasDiscount = widget.discountAmount > 0;
     final voucherCode =
         widget.selectedVoucher?['voucher']?['kode_voucher'] as String?;
@@ -616,7 +638,7 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
       child: Column(
         children: [
           _summaryRow(
-            'Biaya Kunjungan Dasar',
+            isIndo ? 'Biaya Kunjungan Dasar' : 'Base Visit Fee',
             formatFixedPrice(widget.visitPriceRaw),
           ),
           if (hasDiscount) ...[
@@ -625,7 +647,9 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    'Diskon Voucher (${voucherCode ?? "Promo"})',
+                    isIndo
+                        ? 'Diskon Voucher (${voucherCode ?? "Promo"})'
+                        : 'Voucher Discount (${voucherCode ?? "Promo"})',
                     style: const TextStyle(
                       color: Color(0xFF059669),
                       fontWeight: FontWeight.w600,
@@ -645,14 +669,18 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
             ),
           ],
           const SizedBox(height: 8),
-          _summaryRow('Biaya Layanan Sistem', 'Gratis', valueColor: const Color(0xFF059669)),
+          _summaryRow(
+            isIndo ? 'Biaya Layanan Sistem' : 'Platform Service Fee',
+            isIndo ? 'Gratis' : 'Free',
+            valueColor: const Color(0xFF059669),
+          ),
           const Divider(height: 22, color: Color(0xFFF1F5F9)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total Pembayaran',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              Text(
+                isIndo ? 'Total Pembayaran' : 'Total Payment',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
               Text(
                 formatFixedPrice(widget.finalVisitPrice),
@@ -687,20 +715,22 @@ class _JasaPembayaranScreenState extends State<JasaPembayaranScreen> {
     ],
   );
 
-  Widget _buildSafetyBadge() => Container(
+  Widget _buildSafetyBadge(bool isIndo) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
       color: const Color(0xFFF1F5F9),
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
-      children: const [
-        Icon(Icons.shield_outlined, size: 18, color: Color(0xFF64748B)),
-        SizedBox(width: 8),
+      children: [
+        const Icon(Icons.shield_outlined, size: 18, color: Color(0xFF64748B)),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
-            'Transaksi Anda dilindungi sistem garansi Ketok. Biaya teknisi aman sampai pengerjaan selesai.',
-            style: TextStyle(fontSize: 11, color: Color(0xFF475569), height: 1.3),
+            isIndo
+                ? 'Transaksi Anda dilindungi sistem garansi Ketok. Biaya teknisi aman sampai pengerjaan selesai.'
+                : 'Your booking is secured by Ketok warranty. Technician fee is held safely until service is completed.',
+            style: const TextStyle(fontSize: 11, color: Color(0xFF475569), height: 1.3),
           ),
         ),
       ],

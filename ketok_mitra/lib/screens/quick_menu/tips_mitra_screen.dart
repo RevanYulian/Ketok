@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
+import '../../l10n/app_localizations.dart';
 import 'quick_menu_shared.dart';
 
 class TipsMitraScreen extends StatefulWidget {
@@ -49,8 +50,9 @@ class _TipsMitraScreenState extends State<TipsMitraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return QuickMenuScaffold(
-      title: 'Tips Mitra',
+      title: isIndo ? 'Tips Mitra' : 'Partner Tips',
       icon: Icons.lightbulb_outline,
       onRefresh: _loadTips,
       child: QuickMenuContent(
@@ -58,22 +60,24 @@ class _TipsMitraScreenState extends State<TipsMitraScreen> {
         errorMessage: _errorMessage,
         onRetry: _loadTips,
         child: _tips.isEmpty
-            ? const QuickMenuEmptyState(
+            ? QuickMenuEmptyState(
                 icon: Icons.lightbulb_outline,
-                title: 'Belum ada tips',
-                subtitle: 'Tips ringan untuk mitra akan muncul di sini.',
+                title: isIndo ? 'Belum ada tips' : 'No tips yet',
+                subtitle: isIndo
+                    ? 'Tips ringan untuk mitra akan muncul di sini.'
+                    : 'Helpful tips for partners will appear here.',
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 itemCount: _tips.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (_, index) => _buildTip(_tips[index]),
+                itemBuilder: (_, index) => _buildTip(_tips[index], isIndo),
               ),
       ),
     );
   }
 
-  Widget _buildTip(Map<String, dynamic> tip) {
+  Widget _buildTip(Map<String, dynamic> tip, bool isIndo) {
     return QuickMenuCard(
       padding: EdgeInsets.zero,
       child: ExpansionTile(
@@ -88,7 +92,7 @@ class _TipsMitraScreenState extends State<TipsMitraScreen> {
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         subtitle: Text(
-          tip['dibuat_pada'] != null ? formatQuickMenuDate(tip['dibuat_pada']) : tip['ringkasan'] as String,
+          tip['dibuat_pada'] != null ? formatQuickMenuDate(tip['dibuat_pada'], isIndo) : tip['ringkasan'] as String,
           style: const TextStyle(fontSize: 12),
         ),
         children: [

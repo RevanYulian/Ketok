@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'jasa_detail_screen.dart';
 import 'quick_menu_shared.dart';
@@ -173,6 +174,8 @@ class _JasaPopulerScreenState extends State<JasaPopulerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
@@ -182,11 +185,11 @@ class _JasaPopulerScreenState extends State<JasaPopulerScreen> {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-        title: const Text(
-          'Jasa Populer',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Jasa Populer' : 'Popular Services',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Color(0xFF1E293B),
@@ -196,7 +199,7 @@ class _JasaPopulerScreenState extends State<JasaPopulerScreen> {
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Muat ulang',
+            tooltip: isIndo ? 'Muat ulang' : 'Refresh',
           ),
         ],
       ),
@@ -222,14 +225,16 @@ class _JasaPopulerScreenState extends State<JasaPopulerScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Gagal memuat jasa populer: ${snapshot.error}',
+                        isIndo
+                            ? 'Gagal memuat jasa populer: ${snapshot.error}'
+                            : 'Failed to load popular services: ${snapshot.error}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: KetokColors.textMuted),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _refresh,
-                        child: const Text('Coba Lagi'),
+                        child: Text(isIndo ? 'Coba Lagi' : 'Try Again'),
                       ),
                     ],
                   ),
@@ -244,26 +249,28 @@ class _JasaPopulerScreenState extends State<JasaPopulerScreen> {
                   padding: const EdgeInsets.all(28),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(
+                    children: [
+                      const Icon(
                         Icons.star_outline_rounded,
                         size: 52,
                         color: Color(0xFFD1D5DB),
                       ),
-                      SizedBox(height: 14),
+                      const SizedBox(height: 14),
                       Text(
-                        'Belum Ada Jasa Populer',
-                        style: TextStyle(
+                        isIndo ? 'Belum Ada Jasa Populer' : 'No Popular Services Yet',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF1E293B),
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        'Layanan dari mitra akan ditampilkan di sini saat tersedia.',
+                        isIndo
+                            ? 'Layanan dari mitra akan ditampilkan di sini saat tersedia.'
+                            : 'Services from partners will be shown here when available.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: KetokColors.textMuted),
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                     ],
                   ),
@@ -307,6 +314,8 @@ class _PopularServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -419,7 +428,9 @@ class _PopularServiceCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  service.company,
+                                  service.company.isEmpty || service.company == 'Mitra Ketok'
+                                      ? (isIndo ? 'Mitra Ketok' : 'Ketok Partner')
+                                      : service.company,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
@@ -459,9 +470,9 @@ class _PopularServiceCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mulai dari',
-                            style: TextStyle(
+                          Text(
+                            isIndo ? 'Mulai dari' : 'Starting from',
+                            style: const TextStyle(
                               fontSize: 10.5,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
@@ -469,7 +480,7 @@ class _PopularServiceCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 1),
                           Text(
-                            formatServicePrice(service.price),
+                            formatServicePrice(service.price, isIndo: isIndo),
                             style: const TextStyle(
                               fontSize: 16.5,
                               fontWeight: FontWeight.w800,
@@ -489,7 +500,7 @@ class _PopularServiceCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Kunjungan: ${formatFixedPrice(service.visitPrice)}',
+                            '${isIndo ? "Kunjungan" : "Visit"}: ${formatFixedPrice(service.visitPrice)}',
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,

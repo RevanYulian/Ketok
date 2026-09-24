@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import '../chat_screen.dart';
 import 'jasa_booking_screen.dart';
@@ -68,237 +69,249 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
   String get _visitPrice => formatFixedPrice(widget.service['biaya_kunjungan'] ?? 50000);
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: _detailBackground,
-    appBar: AppBar(
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
+    return Scaffold(
       backgroundColor: _detailBackground,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.arrow_back_rounded),
-        tooltip: 'Kembali',
-      ),
-      title: const Text(
-        'Detail Layanan',
-        style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
-      ),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.share_outlined),
-          tooltip: 'Bagikan layanan',
+      appBar: AppBar(
+        backgroundColor: _detailBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
-      ],
-    ),
-    body: SafeArea(
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHero(),
-                const SizedBox(height: 16),
-                Text(
-                  _name,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _description,
-                  style: const TextStyle(
-                    color: KetokColors.textMuted,
-                    height: 1.35,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _buildPriceCard(),
-                const SizedBox(height: 24),
-                FutureBuilder<Map<String, dynamic>>(
-                  future: _mitraDataFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: Text(
-                          'Gagal memuat profil mitra: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      );
-                    }
-                    if (!snapshot.hasData) return const SizedBox();
-                    
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Profil Mitra'),
-                        const SizedBox(height: 8),
-                        _buildMitraProfile(snapshot.data!['profile'] as Map<String, dynamic>),
-                        const SizedBox(height: 24),
-                      ],
-                    );
-                  }
-                ),
-
-                _buildSectionTitle('Alur Pengerjaan'),
-                const SizedBox(height: 8),
-                _buildSteps(),
-                const SizedBox(height: 24),
-
-                FutureBuilder<Map<String, dynamic>>(
-                  future: _mitraDataFuture,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.hasError) return const SizedBox();
-                    final data = snapshot.data!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Jadwal & Jam Kerja'),
-                        const SizedBox(height: 8),
-                        _buildSchedule(data['schedule'] as List<dynamic>),
-                        const SizedBox(height: 24),
-                        
-                        _buildSectionTitle('Sertifikasi & Dokumen'),
-                        const SizedBox(height: 8),
-                        _buildCertificates(data['certificates'] as List<dynamic>),
-                        const SizedBox(height: 24),
-                      ],
-                    );
-                  }
-                ),
-                _buildSectionTitle('Ulasan Pelanggan'),
-                const SizedBox(height: 4),
-                const Text(
-                  'Rating layanan dari pengguna Ketok',
-                  style: TextStyle(color: KetokColors.textMuted, fontSize: 12),
-                ),
-                const SizedBox(height: 10),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _reviewsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final reviews = snapshot.data ?? [];
-                    if (reviews.isEmpty) {
-                      return const Text(
-                        'Belum ada ulasan untuk jasa ini.',
-                        style: TextStyle(color: KetokColors.textMuted, fontStyle: FontStyle.italic),
-                      );
-                    }
-                    return Column(
-                      children: reviews.map((r) {
-                        final pesanan = r['pesanan'] as Map;
-                        final user = pesanan['users'] as Map;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: _ReviewCard(
-                            name: user['nama'] ?? 'Pelanggan',
-                            text: r['komentar'] ?? 'Tidak ada komentar',
-                            rating: r['rating'] as int? ?? 5,
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
+        title: Text(
+          isIndo ? 'Detail Layanan' : 'Service Details',
+          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.share_outlined),
+            tooltip: isIndo ? 'Bagikan layanan' : 'Share service',
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              decoration: BoxDecoration(
-                color: _detailBackground,
-                border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
-              ),
-              child: Row(
-                children: [
-                Expanded(
-                  flex: 1,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      String mitraName = 'Mitra Ketok';
-                      String? photoUrl;
-                      try {
-                        final data = await _mitraDataFuture;
-                        final profile = data['profile'] as Map<String, dynamic>?;
-                        if (profile != null) {
-                          if (profile['nama'] != null) {
-                            mitraName = profile['nama'] as String;
-                          }
-                          if (profile['foto_profil'] != null) {
-                            photoUrl = profile['foto_profil'] as String;
-                          }
-                        }
-                      } catch (_) {}
-
-                      if (!context.mounted) return;
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatScreen(
-                            initialMitraName: mitraName,
-                            initialMitraPhotoUrl: photoUrl,
-                            initialServiceName: _name,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.chat_bubble_outline_rounded),
-                    label: const Text('Chat'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF171717),
-                      side: const BorderSide(color: Color(0xFF171717)),
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: FilledButton.icon(
-                    onPressed: () => _showBookingConfirmation(context),
-                    icon: const Icon(Icons.handyman_outlined),
-                    label: const Text('Panggil & Cek'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF171717),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
         ],
       ),
-    ),
-  );
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHero(isIndo),
+                  const SizedBox(height: 16),
+                  Text(
+                    _name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _description,
+                    style: const TextStyle(
+                      color: KetokColors.textMuted,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _buildPriceCard(isIndo),
+                  const SizedBox(height: 24),
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: _mitraDataFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: Text(
+                            isIndo
+                                ? 'Gagal memuat profil mitra: ${snapshot.error}'
+                                : 'Failed to load partner profile: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+                      if (!snapshot.hasData) return const SizedBox();
 
-  Widget _buildHero() => Container(
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle(isIndo ? 'Profil Mitra' : 'Partner Profile'),
+                          const SizedBox(height: 8),
+                          _buildMitraProfile(snapshot.data!['profile'] as Map<String, dynamic>, isIndo),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    },
+                  ),
+
+                  _buildSectionTitle(isIndo ? 'Alur Pengerjaan' : 'Work Process'),
+                  const SizedBox(height: 8),
+                  _buildSteps(isIndo),
+                  const SizedBox(height: 24),
+
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: _mitraDataFuture,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.hasError) return const SizedBox();
+                      final data = snapshot.data!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle(isIndo ? 'Jadwal & Jam Kerja' : 'Schedule & Working Hours'),
+                          const SizedBox(height: 8),
+                          _buildSchedule(data['schedule'] as List<dynamic>, isIndo),
+                          const SizedBox(height: 24),
+
+                          _buildSectionTitle(isIndo ? 'Sertifikasi & Dokumen' : 'Certifications & Documents'),
+                          const SizedBox(height: 8),
+                          _buildCertificates(data['certificates'] as List<dynamic>, isIndo),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    },
+                  ),
+                  _buildSectionTitle(isIndo ? 'Ulasan Pelanggan' : 'Customer Reviews'),
+                  const SizedBox(height: 4),
+                  Text(
+                    isIndo
+                        ? 'Rating layanan dari pengguna Ketok'
+                        : 'Service ratings from Ketok users',
+                    style: const TextStyle(color: KetokColors.textMuted, fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _reviewsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final reviews = snapshot.data ?? [];
+                      if (reviews.isEmpty) {
+                        return Text(
+                          isIndo
+                              ? 'Belum ada ulasan untuk jasa ini.'
+                              : 'No reviews for this service yet.',
+                          style: const TextStyle(color: KetokColors.textMuted, fontStyle: FontStyle.italic),
+                        );
+                      }
+                      return Column(
+                        children: reviews.map((r) {
+                          final pesanan = r['pesanan'] as Map;
+                          final user = pesanan['users'] as Map;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: _ReviewCard(
+                              name: user['nama'] ?? (isIndo ? 'Pelanggan' : 'Customer'),
+                              text: r['komentar'] ?? (isIndo ? 'Tidak ada komentar' : 'No written review'),
+                              rating: r['rating'] as int? ?? 5,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                decoration: const BoxDecoration(
+                  color: _detailBackground,
+                  border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          String mitraName = isIndo ? 'Mitra Ketok' : 'Ketok Partner';
+                          String? photoUrl;
+                          try {
+                            final data = await _mitraDataFuture;
+                            final profile = data['profile'] as Map<String, dynamic>?;
+                            if (profile != null) {
+                              if (profile['nama'] != null) {
+                                mitraName = profile['nama'] as String;
+                              }
+                              if (profile['foto_profil'] != null) {
+                                photoUrl = profile['foto_profil'] as String;
+                              }
+                            }
+                          } catch (_) {}
+
+                          if (!context.mounted) return;
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                initialMitraName: mitraName,
+                                initialMitraPhotoUrl: photoUrl,
+                                initialServiceName: _name,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.chat_bubble_outline_rounded),
+                        label: const Text('Chat'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF171717),
+                          side: const BorderSide(color: Color(0xFF171717)),
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: () => _showBookingConfirmation(context),
+                        icon: const Icon(Icons.handyman_outlined),
+                        label: Text(isIndo ? 'Panggil & Cek' : 'Book Technician'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF171717),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHero(bool isIndo) => Container(
     height: 190,
     width: double.infinity,
     decoration: BoxDecoration(
@@ -340,10 +353,10 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
           bottom: 12,
           child: _HeroBadge(
             icon: Icons.verified_rounded,
-            label: 'Garansi layanan',
+            label: isIndo ? 'Garansi layanan' : 'Service warranty',
           ),
         ),
-        Positioned(
+        const Positioned(
           right: 12,
           bottom: 12,
           child: _HeroBadge(icon: Icons.star_rounded, label: '4.9 Rating'),
@@ -352,7 +365,7 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
     ),
   );
 
-  Widget _buildPriceCard() => Container(
+  Widget _buildPriceCard(bool isIndo) => Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
@@ -366,10 +379,10 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
           children: [
             const Icon(Icons.payments_outlined, color: KetokColors.primary),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Kisaran Harga',
-                style: TextStyle(color: KetokColors.textMuted),
+                isIndo ? 'Kisaran Harga' : 'Price Range',
+                style: const TextStyle(color: KetokColors.textMuted),
               ),
             ),
             Text(
@@ -386,10 +399,10 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
           children: [
             const Icon(Icons.directions_car_filled_outlined, color: KetokColors.primary),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Biaya Kunjungan',
-                style: TextStyle(color: KetokColors.textMuted),
+                isIndo ? 'Biaya Kunjungan' : 'Visit Fee',
+                style: const TextStyle(color: KetokColors.textMuted),
               ),
             ),
             Text(
@@ -402,7 +415,7 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
     ),
   );
 
-  Widget _buildMitraProfile(Map<String, dynamic> profile) {
+  Widget _buildMitraProfile(Map<String, dynamic> profile, bool isIndo) {
     return QuickMenuCard(
       child: Row(
         children: [
@@ -417,11 +430,14 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile['nama'] ?? 'Mitra Ketok',
+                  profile['nama'] ?? (isIndo ? 'Mitra Ketok' : 'Ketok Partner'),
                   style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                 ),
                 const SizedBox(height: 2),
-                const Text('Mitra Terverifikasi', style: TextStyle(color: KetokColors.primary, fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(
+                  isIndo ? 'Mitra Terverifikasi' : 'Verified Partner',
+                  style: const TextStyle(color: KetokColors.primary, fontSize: 12, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),
@@ -430,11 +446,16 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
     );
   }
 
-  Widget _buildSchedule(List<dynamic> schedules) {
+  Widget _buildSchedule(List<dynamic> schedules, bool isIndo) {
     if (schedules.isEmpty) {
-      return const Text('Jadwal belum diatur.', style: TextStyle(color: KetokColors.textMuted));
+      return Text(
+        isIndo ? 'Jadwal belum diatur.' : 'No schedule configured.',
+        style: const TextStyle(color: KetokColors.textMuted),
+      );
     }
-    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    final days = isIndo
+        ? const ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+        : const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     return QuickMenuCard(
       child: Column(
         children: schedules.map((s) {
@@ -456,9 +477,12 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
     );
   }
 
-  Widget _buildCertificates(List<dynamic> certificates) {
+  Widget _buildCertificates(List<dynamic> certificates, bool isIndo) {
     if (certificates.isEmpty) {
-      return const Text('Belum ada sertifikasi.', style: TextStyle(color: KetokColors.textMuted));
+      return Text(
+        isIndo ? 'Belum ada sertifikasi.' : 'No certifications yet.',
+        style: const TextStyle(color: KetokColors.textMuted),
+      );
     }
     return Column(
       children: certificates.map((c) {
@@ -492,13 +516,13 @@ class _JasaDetailScreenState extends State<JasaDetailScreen> {
     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
   );
 
-  Widget _buildSteps() => QuickMenuCard(
+  Widget _buildSteps(bool isIndo) => QuickMenuCard(
     child: Column(
-      children: const [
-        _Step(number: '1', title: 'Pilih Paket & Jadwal'),
-        _Step(number: '2', title: 'Teknisi Datang ke Lokasi'),
-        _Step(number: '3', title: 'Pengecekan & Pengerjaan'),
-        _Step(number: '4', title: 'Pembayaran & Garansi'),
+      children: [
+        _Step(number: '1', title: isIndo ? 'Pilih Paket & Jadwal' : 'Select Package & Schedule'),
+        _Step(number: '2', title: isIndo ? 'Teknisi Datang ke Lokasi' : 'Technician Arrives at Location'),
+        _Step(number: '3', title: isIndo ? 'Pengecekan & Pengerjaan' : 'Inspection & Service'),
+        _Step(number: '4', title: isIndo ? 'Pembayaran & Garansi' : 'Payment & Warranty'),
       ],
     ),
   );

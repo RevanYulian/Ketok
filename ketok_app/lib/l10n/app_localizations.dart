@@ -40,6 +40,7 @@ class AppLocalizations {
   String get success => isIndonesian ? 'Berhasil' : 'Success';
   String get error => isIndonesian ? 'Terjadi Kesalahan' : 'An error occurred';
   String get loading => isIndonesian ? 'Memuat...' : 'Loading...';
+  String get notificationsTitle => isIndonesian ? 'Notifikasi' : 'Notifications';
 
   // Bottom Navigation
   String get navHome => isIndonesian ? 'Beranda' : 'Home';

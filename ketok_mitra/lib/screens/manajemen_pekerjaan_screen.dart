@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 import '../widgets/ketok_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class ManajemenPekerjaanScreen extends StatefulWidget {
   final String? initialSection;
@@ -29,7 +30,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
   final List<TextEditingController> _scheduleStarts = List.generate(7, (_) => TextEditingController());
   final List<TextEditingController> _scheduleEnds = List.generate(7, (_) => TextEditingController());
 
-  static const _days = [
+  static const _daysId = [
     'Senin',
     'Selasa',
     'Rabu',
@@ -37,6 +38,15 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
     'Jumat',
     'Sabtu',
     'Minggu',
+  ];
+  static const _daysEn = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
   @override
@@ -154,16 +164,19 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
     );
     final isUploading = ValueNotifier<bool>(false);
     final fotoUrl = ValueNotifier<String?>(item?['foto_url'] as String?);
+    final isIndo = context.l10n.isIndonesian;
 
     await _formDialog(
-      title: item == null ? 'Tambah Layanan' : 'Ubah Layanan',
+      title: item == null 
+          ? (isIndo ? 'Tambah Layanan' : 'Add Service') 
+          : (isIndo ? 'Ubah Layanan' : 'Edit Service'),
       fields: [
         ValueListenableBuilder<int?>(
           valueListenable: categoryId,
           builder: (context, value, child) => DropdownButtonFormField<int>(
             initialValue: value,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Layanan'),
+            decoration: InputDecoration(labelText: isIndo ? 'Layanan' : 'Service Category'),
             items: _categories
                 .map(
                   (row) => DropdownMenuItem<int>(
@@ -177,12 +190,12 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
         ),
         TextField(
           controller: namaJasa,
-          decoration: const InputDecoration(labelText: 'Nama Jasa Spesifik'),
+          decoration: InputDecoration(labelText: isIndo ? 'Nama Jasa Spesifik' : 'Specific Service Name'),
         ),
         TextField(
           controller: deskripsi,
           maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Deskripsi Singkat'),
+          decoration: InputDecoration(labelText: isIndo ? 'Deskripsi Singkat' : 'Brief Description'),
         ),
         Container(
           padding: const EdgeInsets.all(12),
@@ -192,14 +205,16 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: const Color(0xFF7DD3FC)),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.info_outline_rounded, color: Color(0xFF0284C7)),
-              SizedBox(width: 10),
+              const Icon(Icons.info_outline_rounded, color: Color(0xFF0284C7)),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Cukup masukkan kisaran harga. Harga akhir ditentukan setelah Anda tiba di lokasi dan memeriksa kendaraan. Jika batal, Anda tetap mendapat Biaya Kunjungan Rp 50.000.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF075985), height: 1.35),
+                  isIndo
+                      ? 'Cukup masukkan kisaran harga. Harga akhir ditentukan setelah Anda tiba di lokasi dan memeriksa kendaraan. Jika batal, Anda tetap mendapat Biaya Kunjungan Rp 50.000.'
+                      : 'Simply provide an estimated price range. Final price is determined after inspecting vehicle on site. If cancelled, you still receive a Visit Fee of IDR 50,000.',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF075985), height: 1.35),
                 ),
               ),
             ],
@@ -209,8 +224,8 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
           controller: start,
           keyboardType: TextInputType.number,
           inputFormatters: [ThousandsSeparatorInputFormatter()],
-          decoration: const InputDecoration(
-            labelText: 'Kisaran Harga Bawah',
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Kisaran Harga Bawah' : 'Min Price Range',
             prefixText: 'Rp ',
           ),
         ),
@@ -218,8 +233,8 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
           controller: end,
           keyboardType: TextInputType.number,
           inputFormatters: [ThousandsSeparatorInputFormatter()],
-          decoration: const InputDecoration(
-            labelText: 'Kisaran Harga Atas (Opsional)',
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Kisaran Harga Atas (Opsional)' : 'Max Price Range (Optional)',
             prefixText: 'Rp ',
           ),
         ),
@@ -227,8 +242,8 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
           controller: visit,
           keyboardType: TextInputType.number,
           inputFormatters: [ThousandsSeparatorInputFormatter()],
-          decoration: const InputDecoration(
-            labelText: 'Biaya Kunjungan',
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Biaya Kunjungan' : 'Visit Fee',
             prefixText: 'Rp ',
           ),
         ),
@@ -240,7 +255,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
             builder: (context, url, child) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Foto Layanan (Opsional)', style: TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
+                Text(isIndo ? 'Foto Layanan (Opsional)' : 'Service Photo (Optional)', style: const TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
                 const SizedBox(height: 8),
                 if (url != null && url.isNotEmpty)
                   Container(
@@ -283,7 +298,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                               fotoUrl.value = uploadedUrl;
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal unggah foto: $e')));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isIndo ? 'Gagal unggah foto: $e' : 'Failed to upload photo: $e')));
                               }
                             } finally {
                               isUploading.value = false;
@@ -292,7 +307,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                           icon: uploading 
                               ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) 
                               : const Icon(Icons.edit_outlined, size: 16),
-                          label: Text(uploading ? 'Mengunggah...' : 'Ganti Foto'),
+                          label: Text(uploading ? (isIndo ? 'Mengunggah...' : 'Uploading...') : (isIndo ? 'Ganti Foto' : 'Change Photo')),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -300,7 +315,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                         onPressed: uploading ? null : () => fotoUrl.value = null,
                         style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent),
                         icon: const Icon(Icons.delete_outline_rounded, size: 16),
-                        label: const Text('Hapus'),
+                        label: Text(isIndo ? 'Hapus' : 'Delete'),
                       ),
                     ],
                   )
@@ -330,7 +345,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                           fotoUrl.value = uploadedUrl;
                         } catch (e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal unggah foto: $e')));
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isIndo ? 'Gagal unggah foto: $e' : 'Failed to upload photo: $e')));
                           }
                         } finally {
                           isUploading.value = false;
@@ -339,7 +354,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                       icon: uploading 
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) 
                           : const Icon(Icons.add_photo_alternate_outlined),
-                      label: Text(uploading ? 'Mengunggah...' : 'Unggah Foto'),
+                      label: Text(uploading ? (isIndo ? 'Mengunggah...' : 'Uploading...') : (isIndo ? 'Unggah Foto' : 'Upload Photo')),
                     ),
                   ),
               ],
@@ -434,18 +449,25 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
         }
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jadwal kerja berhasil disimpan.')));
+        final isIndo = context.l10n.isIndonesian;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isIndo ? 'Jadwal kerja berhasil disimpan.' : 'Work schedule saved successfully.'),
+        ));
       }
       await _loadData();
     } catch (error) {
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         setState(() => _loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isIndo ? 'Terjadi kesalahan: $error' : 'An error occurred: $error'),
+        ));
       }
     }
   }
 
   Future<void> _saveCertificate({Map<String, dynamic>? item}) async {
+    final isIndo = context.l10n.isIndonesian;
     final name = TextEditingController(text: item?['nama_sertifikasi'] ?? '');
     final number = TextEditingController(
       text: item?['nomor_sertifikasi'] ?? '',
@@ -455,19 +477,21 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
     final documentUrl = ValueNotifier<String?>(item?['dokumen_url'] as String?);
     final isUploading = ValueNotifier<bool>(false);
     await _formDialog(
-      title: item == null ? 'Tambah Sertifikasi' : 'Ubah Sertifikasi',
+      title: item == null 
+          ? (isIndo ? 'Tambah Sertifikasi' : 'Add Certification') 
+          : (isIndo ? 'Ubah Sertifikasi' : 'Edit Certification'),
       fields: [
         TextField(
           controller: name,
-          decoration: const InputDecoration(labelText: 'Nama sertifikasi'),
+          decoration: InputDecoration(labelText: isIndo ? 'Nama sertifikasi' : 'Certification name'),
         ),
         TextField(
           controller: number,
-          decoration: const InputDecoration(labelText: 'Nomor sertifikasi'),
+          decoration: InputDecoration(labelText: isIndo ? 'Nomor sertifikasi' : 'Certificate number'),
         ),
         TextField(
           controller: issuer,
-          decoration: const InputDecoration(labelText: 'Penerbit'),
+          decoration: InputDecoration(labelText: isIndo ? 'Penerbit' : 'Issuer'),
         ),
         TextField(
           controller: expiry,
@@ -486,9 +510,9 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                   '${picked.day.toString().padLeft(2, '0')}';
             }
           },
-          decoration: const InputDecoration(
-            labelText: 'Berlaku sampai (Opsional)',
-            suffixIcon: Icon(Icons.calendar_today_outlined),
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Berlaku sampai (Opsional)' : 'Valid until (Optional)',
+            suffixIcon: const Icon(Icons.calendar_today_outlined),
           ),
         ),
         ValueListenableBuilder<bool>(
@@ -498,7 +522,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
             builder: (context, docUrl, child) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Dokumen Sertifikat', style: TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
+                Text(isIndo ? 'Dokumen Sertifikat' : 'Certificate Document', style: const TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
                 const SizedBox(height: 8),
                 if (docUrl != null && docUrl.isNotEmpty)
                   Container(
@@ -539,14 +563,16 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                         documentUrl.value = url;
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal unggah: $e')));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isIndo ? 'Gagal unggah: $e' : 'Failed to upload: $e')));
                         }
                       } finally {
                         isUploading.value = false;
                       }
                     },
                     icon: uploading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.upload_file_rounded),
-                    label: Text(uploading ? 'Mengunggah...' : (docUrl != null ? 'Ganti Dokumen' : 'Unggah Dokumen')),
+                    label: Text(uploading 
+                        ? (isIndo ? 'Mengunggah...' : 'Uploading...') 
+                        : (docUrl != null ? (isIndo ? 'Ganti Dokumen' : 'Change Document') : (isIndo ? 'Unggah Dokumen' : 'Upload Document'))),
                   ),
                 ),
               ],
@@ -592,6 +618,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
     required List<Widget> fields,
     required Future<void> Function() onSave,
   }) async {
+    final isIndo = context.l10n.isIndonesian;
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -624,7 +651,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
             style: TextButton.styleFrom(
               foregroundColor: KetokColors.onSurfaceVariant,
             ),
-            child: const Text('Batal'),
+            child: Text(isIndo ? 'Batal' : 'Cancel'),
           ),
           FilledButton(
             onPressed: () async {
@@ -634,7 +661,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
               } catch (error) {
                 if (dialogContext.mounted) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    SnackBar(content: Text('Gagal menyimpan: $error')),
+                    SnackBar(content: Text(isIndo ? 'Gagal menyimpan: $error' : 'Failed to save: $error')),
                   );
                 }
               }
@@ -646,7 +673,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Simpan'),
+            child: Text(isIndo ? 'Simpan' : 'Save'),
           ),
         ],
       ),
@@ -659,9 +686,10 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
       await _loadData();
     } catch (error) {
       if (mounted) {
+        final isIndo = context.l10n.isIndonesian;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Gagal menghapus: $error')));
+        ).showSnackBar(SnackBar(content: Text(isIndo ? 'Gagal menghapus: $error' : 'Failed to delete: $error')));
       }
     }
   }
@@ -679,24 +707,13 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
   double _parsePrice(String value) =>
       double.parse(value.replaceAll('.', '').replaceAll(',', '.'));
 
-  TimeOfDay _timeFromText(String value) {
-    final parts = value.split(':');
-    return TimeOfDay(
-      hour: int.tryParse(parts.first) ?? 8,
-      minute: int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0,
-    );
-  }
-
-  String _formatTime(TimeOfDay value) =>
-      '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
-
   String _formatPrice(dynamic value) {
     if (value == null) return '-';
     final amount = (value as num).round().toString();
     return 'Rp ${amount.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => '.')}';
   }
 
-  Widget _buildScheduleSection() {
+  Widget _buildScheduleSection(bool isIndo) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -726,16 +743,16 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: KetokColors.darkPrimary.withOpacity(0.1),
+                      color: KetokColors.darkPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.event_available_outlined, color: KetokColors.darkPrimary, size: 20),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Jadwal & Jam Kerja',
-                      style: TextStyle(
+                      isIndo ? 'Jadwal & Jam Kerja' : 'Schedule & Working Hours',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1E293B),
@@ -750,9 +767,11 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kosongkan jam jika Anda tutup pada hari tersebut. Format waktu 24 jam.',
-                    style: TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant),
+                  Text(
+                    isIndo
+                        ? 'Kosongkan jam jika Anda tutup pada hari tersebut. Format waktu 24 jam.'
+                        : 'Leave hours empty if closed on that day. 24-hour time format.',
+                    style: const TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant),
                   ),
                   const SizedBox(height: 16),
                   for (int i = 0; i < 7; i++)
@@ -761,9 +780,9 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                       child: Row(
                         children: [
                           SizedBox(
-                            width: 70,
+                            width: 80,
                             child: Text(
-                              _days[i],
+                              isIndo ? _daysId[i] : _daysEn[i],
                               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                             ),
                           ),
@@ -772,10 +791,10 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                               controller: _scheduleStarts[i],
                               keyboardType: TextInputType.number,
                               inputFormatters: [TimeAutoFormatInputFormatter()],
-                              decoration: const InputDecoration(
-                                labelText: 'Mulai',
+                              decoration: InputDecoration(
+                                labelText: isIndo ? 'Mulai' : 'Start',
                                 hintText: '08:00',
-                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               ),
                             ),
                           ),
@@ -788,10 +807,10 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                               controller: _scheduleEnds[i],
                               keyboardType: TextInputType.number,
                               inputFormatters: [TimeAutoFormatInputFormatter()],
-                              decoration: const InputDecoration(
-                                labelText: 'Selesai',
+                              decoration: InputDecoration(
+                                labelText: isIndo ? 'Selesai' : 'End',
                                 hintText: '17:00',
-                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               ),
                             ),
                           ),
@@ -804,7 +823,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                     child: FilledButton.icon(
                       onPressed: _saveAllSchedules,
                       icon: const Icon(Icons.save_rounded, size: 18),
-                      label: const Text('Simpan Jadwal'),
+                      label: Text(isIndo ? 'Simpan Jadwal' : 'Save Schedule'),
                     ),
                   ),
                 ],
@@ -821,8 +840,9 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
     IconData icon,
     List<Map<String, dynamic>> items,
     VoidCallback onAdd,
-    Widget Function(Map<String, dynamic>) tile,
-  ) {
+    Widget Function(Map<String, dynamic>) tile, {
+    required bool isIndo,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -852,7 +872,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: KetokColors.darkPrimary.withOpacity(0.1),
+                      color: KetokColors.darkPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: KetokColors.darkPrimary, size: 20),
@@ -875,7 +895,7 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                       foregroundColor: Colors.white,
                     ),
                     icon: const Icon(Icons.add_rounded, size: 20),
-                    tooltip: 'Tambah',
+                    tooltip: isIndo ? 'Tambah' : 'Add',
                   ),
                 ],
               ),
@@ -885,21 +905,21 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                 child: Column(
                   children: [
-                    Icon(Icons.inbox_outlined, size: 40, color: KetokColors.onSurfaceVariant.withOpacity(0.5)),
+                    Icon(Icons.inbox_outlined, size: 40, color: KetokColors.onSurfaceVariant.withValues(alpha: 0.5)),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Belum ada data',
-                      style: TextStyle(
+                    Text(
+                      isIndo ? 'Belum ada data' : 'No data yet',
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: KetokColors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Ketuk tombol + untuk menambahkan',
+                      isIndo ? 'Ketuk tombol + untuk menambahkan' : 'Tap + button to add',
                       style: TextStyle(
                         fontSize: 12,
-                        color: KetokColors.onSurfaceVariant.withOpacity(0.7),
+                        color: KetokColors.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -920,9 +940,10 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: KetokColors.bgColor,
-      appBar: AppBar(title: const Text('Manajemen Pekerjaan')),
+      appBar: AppBar(title: Text(isIndo ? 'Manajemen Pekerjaan' : 'Work Management')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -939,10 +960,11 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                 children: [
                   if (_showSection('services'))
                     _section(
-                      'Layanan & Tarif',
+                      isIndo ? 'Layanan & Tarif' : 'Services & Rates',
                       Icons.build_circle_outlined,
                       _services,
                       () => _saveService(),
+                      isIndo: isIndo,
                       (item) => Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
@@ -977,12 +999,12 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                                   Text(
                                     item['nama_jasa']?.toString().isNotEmpty == true 
                                         ? '${item['nama_jasa']}' 
-                                        : '${_categoryName(item['katagori_id'])}',
+                                        : _categoryName(item['katagori_id']),
                                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Kisaran: ${_formatPrice(item['tarif_mulai'])} ${item['tarif_selesai'] != null ? '- ${_formatPrice(item['tarif_selesai'])}' : ''}\\nKunjungan: ${_formatPrice(item['biaya_kunjungan'] ?? 50000)}',
+                                    '${isIndo ? "Kisaran" : "Range"}: ${_formatPrice(item['tarif_mulai'])} ${item['tarif_selesai'] != null ? '- ${_formatPrice(item['tarif_selesai'])}' : ''}\n${isIndo ? "Kunjungan" : "Visit"}: ${_formatPrice(item['biaya_kunjungan'] ?? 50000)}',
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
@@ -1016,13 +1038,14 @@ class _ManajemenPekerjaanScreenState extends State<ManajemenPekerjaanScreen> {
                       ),
                     ),
                   if (_showSection('schedule'))
-                    _buildScheduleSection(),
+                    _buildScheduleSection(isIndo),
                   if (_showSection('certificate'))
                     _section(
-                      'Sertifikasi & Dokumen',
+                      isIndo ? 'Sertifikasi & Dokumen' : 'Certifications & Documents',
                       Icons.verified_user_outlined,
                       _certificates,
                       () => _saveCertificate(),
+                      isIndo: isIndo,
                       (item) => Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),

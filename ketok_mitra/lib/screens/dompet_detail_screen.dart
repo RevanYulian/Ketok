@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 
 class DompetDetailScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
           'status_bayar': invoice?['status_bayar'],
           'jumlah_biaya': amount,
           'jadwal': order['jadwal'],
-          'category_name': category?['nama_katagori'] ?? 'Layanan Ketok',
+          'category_name': category?['nama_katagori'],
         });
         if (order['status'] == 'selesai' &&
             invoice?['status_bayar'] == 'lunas') {
@@ -99,10 +100,11 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: KetokColors.bgColor,
       appBar: AppBar(
-        title: const Text('Detail Dompet'),
+        title: Text(isIndo ? 'Detail Dompet' : 'Wallet Details'),
         backgroundColor: KetokColors.bgColor,
         surfaceTintColor: Colors.transparent,
       ),
@@ -124,9 +126,9 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Total pendapatan selesai',
-                          style: TextStyle(color: Colors.white70),
+                        Text(
+                          isIndo ? 'Total pendapatan selesai' : 'Total completed earnings',
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -141,27 +143,33 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 22),
-                  const Text(
-                    'Riwayat transaksi',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  Text(
+                    isIndo ? 'Riwayat transaksi' : 'Transaction history',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 10),
                   if (_transactions.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: Center(child: Text('Belum ada transaksi.')),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Text(
+                          isIndo ? 'Belum ada transaksi.' : 'No transactions yet.',
+                        ),
+                      ),
                     )
                   else
-                    ..._transactions.map(_buildTransaction),
+                    ..._transactions.map((tx) => _buildTransaction(tx, isIndo)),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildTransaction(Map<String, dynamic> transaction) {
+  Widget _buildTransaction(Map<String, dynamic> transaction, bool isIndo) {
     final completed = transaction['status'] == 'selesai';
     final date = DateTime.tryParse(transaction['jadwal']?.toString() ?? '');
+    final categoryName = transaction['category_name'] as String? ??
+        (isIndo ? 'Layanan Ketok' : 'Ketok Service');
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -189,12 +197,14 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  transaction['category_name'] as String,
+                  categoryName,
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  date == null ? 'Tanggal tidak tersedia' : _dateLabel(date),
+                  date == null
+                      ? (isIndo ? 'Tanggal tidak tersedia' : 'Date not available')
+                      : _dateLabel(date),
                   style: const TextStyle(
                     fontSize: 12,
                     color: KetokColors.onSurfaceVariant,
@@ -202,8 +212,10 @@ class _DompetDetailScreenState extends State<DompetDetailScreen> {
                 ),
                 Text(
                   completed
-                      ? 'Pendapatan masuk'
-                      : 'Pesanan ${transaction['status']}',
+                      ? (isIndo ? 'Pendapatan masuk' : 'Earnings received')
+                      : (isIndo
+                          ? 'Pesanan ${transaction['status']}'
+                          : 'Order ${transaction['status']}'),
                   style: const TextStyle(
                     fontSize: 12,
                     color: KetokColors.onSurfaceVariant,

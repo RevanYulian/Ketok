@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../widgets/ketok_colors.dart';
+import '../l10n/app_localizations.dart';
 import 'ktp_camera_stub.dart'
     if (dart.library.html) 'ktp_camera_web.dart';
 
@@ -305,15 +306,17 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
           _errorMessage = null;
         });
         if (mounted) {
+          final isIndo = context.l10n.isIndonesian;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Foto KTP dari kamera berhasil diambil!'),
-              backgroundColor: Color(0xFF16A34A),
+            SnackBar(
+              content: Text(isIndo ? 'Foto KTP dari kamera berhasil diambil!' : 'ID Card photo captured from camera successfully!'),
+              backgroundColor: const Color(0xFF16A34A),
             ),
           );
         }
       } catch (err) {
-        setState(() => _errorMessage = 'Gagal memproses foto kamera: $err');
+        final isIndo = mounted ? context.l10n.isIndonesian : true;
+        setState(() => _errorMessage = isIndo ? 'Gagal memproses foto kamera: $err' : 'Failed to process camera photo: $err');
       }
     }
   }
@@ -330,10 +333,11 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
             _errorMessage = null;
           });
           if (mounted) {
+            final isIndo = context.l10n.isIndonesian;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Foto KTP dari kamera berhasil diambil!'),
-                backgroundColor: Color(0xFF16A34A),
+              SnackBar(
+                content: Text(isIndo ? 'Foto KTP dari kamera berhasil diambil!' : 'ID Card photo captured from camera successfully!'),
+                backgroundColor: const Color(0xFF16A34A),
               ),
             );
           }
@@ -367,36 +371,38 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = 'Gagal memilih gambar: $e');
+        final isIndo = context.l10n.isIndonesian;
+        setState(() => _errorMessage = isIndo ? 'Gagal memilih gambar: $e' : 'Failed to pick image: $e');
       }
     }
   }
 
   Future<void> _uploadAndSubmit() async {
+    final isIndo = context.l10n.isIndonesian;
     final businessName = _businessNameController.text.trim();
     final nik = _nikController.text.trim();
 
     if (businessName.isEmpty) {
-      setState(() => _errorMessage = 'Nama usaha / nama bengkel wajib diisi.');
+      setState(() => _errorMessage = isIndo ? 'Nama usaha / nama bengkel wajib diisi.' : 'Business / workshop name is required.');
       return;
     }
     if (_selectedProvince == null ||
         _selectedCity == null ||
         _selectedDistrict == null ||
         _selectedVillage == null) {
-      setState(() => _errorMessage = 'Lengkapi seluruh data wilayah operasional Anda.');
+      setState(() => _errorMessage = isIndo ? 'Lengkapi seluruh data wilayah operasional Anda.' : 'Please complete all operational area details.');
       return;
     }
     if (nik.isEmpty) {
-      setState(() => _errorMessage = 'Nomor Induk Kependudukan (NIK) wajib diisi.');
+      setState(() => _errorMessage = isIndo ? 'Nomor Induk Kependudukan (NIK) wajib diisi.' : 'ID Card Number (NIK) is required.');
       return;
     }
     if (nik.length != 16 || int.tryParse(nik) == null) {
-      setState(() => _errorMessage = 'NIK harus berupa 16 digit angka.');
+      setState(() => _errorMessage = isIndo ? 'NIK harus berupa 16 digit angka.' : 'NIK must be a 16-digit number.');
       return;
     }
     if (_selectedPhoto == null && (_fotoKtpUrl == null || _fotoKtpUrl!.isEmpty)) {
-      setState(() => _errorMessage = 'Silakan pilih foto fisik KTP Anda terlebih dahulu.');
+      setState(() => _errorMessage = isIndo ? 'Silakan pilih foto fisik KTP Anda terlebih dahulu.' : 'Please select your physical ID card photo first.');
       return;
     }
 
@@ -408,7 +414,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
-      if (authUser == null) throw Exception('Sesi login tidak ditemukan.');
+      if (authUser == null) throw Exception(isIndo ? 'Sesi login tidak ditemukan.' : 'Login session not found.');
 
       var ktpUrl = _fotoKtpUrl;
 
@@ -483,9 +489,11 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dokumen identitas usaha & KTP berhasil dikirim untuk diverifikasi.'),
-          backgroundColor: Color(0xFF16A34A),
+        SnackBar(
+          content: Text(isIndo
+              ? 'Dokumen identitas usaha & KTP berhasil dikirim untuk diverifikasi.'
+              : 'Business identity & ID card documents sent successfully for verification.'),
+          backgroundColor: const Color(0xFF16A34A),
         ),
       );
     } catch (e) {
@@ -498,7 +506,9 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     final isLocked = _statusVerifikasi == 'menunggu' || _statusVerifikasi == 'terverifikasi';
 
     return Scaffold(
@@ -510,9 +520,9 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: KetokColors.darkPrimary),
           onPressed: () => Navigator.pop(context, true),
         ),
-        title: const Text(
-          'Verifikasi Identitas Usaha & KTP',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Verifikasi Identitas Usaha & KTP' : 'Business Identity & ID Verification',
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: KetokColors.darkPrimary,
@@ -530,7 +540,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStatusBanner(),
+                  _buildStatusBanner(isIndo),
                   const SizedBox(height: 16),
 
                   if (_errorMessage != null) ...[
@@ -570,26 +580,28 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.storefront_outlined, size: 18, color: KetokColors.darkPrimary),
-                            SizedBox(width: 8),
+                            const Icon(Icons.storefront_outlined, size: 18, color: KetokColors.darkPrimary),
+                            const SizedBox(width: 8),
                             Text(
-                              'IDENTITAS USAHA & WILAYAH',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: KetokColors.darkPrimary),
+                              isIndo ? 'IDENTITAS USAHA & WILAYAH' : 'BUSINESS & REGION IDENTITY',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: KetokColors.darkPrimary),
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
 
-                        const Text(
-                          'Nama Usaha / Bengkel Mitra',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                        Text(
+                          isIndo ? 'Nama Usaha / Bengkel Mitra' : 'Partner Business / Workshop Name',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Nama toko, bengkel, atau brand usaha jasa Anda.',
-                          style: TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
+                        Text(
+                          isIndo
+                              ? 'Nama toko, bengkel, atau brand usaha jasa Anda.'
+                              : 'Name of your shop, workshop, or service business brand.',
+                          style: const TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
                         ),
                         const SizedBox(height: 8),
                         TextField(
@@ -597,7 +609,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                           enabled: !isLocked && !_saving,
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                           decoration: InputDecoration(
-                            hintText: 'Cth: Budi Servis Elektronik',
+                            hintText: isIndo ? 'Cth: Budi Servis Elektronik' : 'e.g. Budi Electronic Service',
                             filled: true,
                             fillColor: isLocked ? const Color(0xFFF9FAFB) : Colors.white,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -617,20 +629,22 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        const Text(
-                          'Wilayah Jangkauan Operasional',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                        Text(
+                          isIndo ? 'Wilayah Jangkauan Operasional' : 'Operational Service Coverage Area',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Tentukan domisili wilayah tempat Anda siap menerima panggilan.',
-                          style: TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
+                        Text(
+                          isIndo
+                              ? 'Tentukan domisili wilayah tempat Anda siap menerima panggilan.'
+                              : 'Set your primary location where you are available for service requests.',
+                          style: const TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
                         ),
                         const SizedBox(height: 10),
 
                         // Dropdown Provinsi
                         _buildDropdownField(
-                          label: 'Provinsi',
+                          label: isIndo ? 'Provinsi' : 'Province',
                           value: _selectedProvince,
                           items: _provinces,
                           enabled: !isLocked && !_saving,
@@ -640,7 +654,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
 
                         // Dropdown Kota/Kabupaten
                         _buildDropdownField(
-                          label: 'Kota / Kabupaten',
+                          label: isIndo ? 'Kota / Kabupaten' : 'City / Regency',
                           value: _selectedCity,
                           items: _cities,
                           enabled: !isLocked && !_saving && _selectedProvince != null,
@@ -650,7 +664,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
 
                         // Dropdown Kecamatan
                         _buildDropdownField(
-                          label: 'Kecamatan',
+                          label: isIndo ? 'Kecamatan' : 'District',
                           value: _selectedDistrict,
                           items: _districts,
                           enabled: !isLocked && !_saving && _selectedCity != null,
@@ -660,7 +674,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
 
                         // Dropdown Kelurahan
                         _buildDropdownField(
-                          label: 'Kelurahan / Desa',
+                          label: isIndo ? 'Kelurahan / Desa' : 'Sub-district / Village',
                           value: _selectedVillage,
                           items: _villages,
                           enabled: !isLocked && !_saving && _selectedDistrict != null,
@@ -684,26 +698,28 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.badge_outlined, size: 18, color: KetokColors.darkPrimary),
-                            SizedBox(width: 8),
+                            const Icon(Icons.badge_outlined, size: 18, color: KetokColors.darkPrimary),
+                            const SizedBox(width: 8),
                             Text(
-                              'IDENTITAS PRIBADI (KTP)',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: KetokColors.darkPrimary),
+                              isIndo ? 'IDENTITAS PRIBADI (KTP)' : 'PERSONAL IDENTITY (ID CARD)',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: KetokColors.darkPrimary),
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
 
-                        const Text(
-                          'Nomor Induk Kependudukan (NIK)',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                        Text(
+                          isIndo ? 'Nomor Induk Kependudukan (NIK)' : 'ID Number (NIK)',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Pastikan NIK 16 digit sesuai dengan fisik KTP asli Anda.',
-                          style: TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
+                        Text(
+                          isIndo
+                              ? 'Pastikan NIK 16 digit sesuai dengan fisik KTP asli Anda.'
+                              : 'Ensure 16-digit ID number matches your original physical ID card.',
+                          style: const TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
                         ),
                         const SizedBox(height: 8),
                         TextField(
@@ -714,7 +730,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 1.2),
                           decoration: InputDecoration(
                             counterText: '',
-                            hintText: 'Cth: 357301xxxxxxxxxx',
+                            hintText: isIndo ? 'Cth: 357301xxxxxxxxxx' : 'e.g. 357301xxxxxxxxxx',
                             filled: true,
                             fillColor: isLocked ? const Color(0xFFF9FAFB) : Colors.white,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -734,14 +750,16 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        const Text(
-                          'Foto KTP Asli',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                        Text(
+                          isIndo ? 'Foto KTP Asli' : 'Original ID Card Photo',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Foto KTP harus jelas, terbaca, tidak terpotong, dan tidak silau.',
-                          style: TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
+                        Text(
+                          isIndo
+                              ? 'Foto KTP harus jelas, terbaca, tidak terpotong, dan tidak silau.'
+                              : 'ID photo must be clear, readable, not cropped, and without glare.',
+                          style: const TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
                         ),
                         const SizedBox(height: 14),
 
@@ -767,8 +785,8 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                                           child: CircularProgressIndicator(strokeWidth: 2, color: KetokColors.darkPrimary),
                                         );
                                       },
-                                      errorBuilder: (_, _, _) => const Center(
-                                        child: Text('Gagal memuat foto KTP', style: TextStyle(fontSize: 11)),
+                                      errorBuilder: (_, _, _) => Center(
+                                        child: Text(isIndo ? 'Gagal memuat foto KTP' : 'Failed to load ID card photo', style: const TextStyle(fontSize: 11)),
                                       ),
                                     ),
                             ),
@@ -784,7 +802,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed: _saving ? null : () => _pickImage(ImageSource.camera),
                                   icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                                  label: const Text('Ambil Foto Kamera', style: TextStyle(fontSize: 12)),
+                                  label: Text(isIndo ? 'Ambil Foto Kamera' : 'Take Camera Photo', style: const TextStyle(fontSize: 12)),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: KetokColors.darkPrimary,
                                     side: const BorderSide(color: KetokColors.borderColor),
@@ -798,7 +816,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed: _saving ? null : () => _pickImage(ImageSource.gallery),
                                   icon: const Icon(Icons.photo_library_outlined, size: 16),
-                                  label: const Text('Pilih dari Galeri', style: TextStyle(fontSize: 12)),
+                                  label: Text(isIndo ? 'Pilih dari Galeri' : 'Choose from Gallery', style: const TextStyle(fontSize: 12)),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: KetokColors.darkPrimary,
                                     side: const BorderSide(color: KetokColors.borderColor),
@@ -836,8 +854,8 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                               )
                             : Text(
                                 _statusVerifikasi == 'ditolak'
-                                    ? 'Kirim Ulang Dokumen Verifikasi'
-                                    : 'Kirim Dokumen Verifikasi',
+                                    ? (isIndo ? 'Kirim Ulang Dokumen Verifikasi' : 'Resubmit Verification Documents')
+                                    : (isIndo ? 'Kirim Dokumen Verifikasi' : 'Submit Verification Documents'),
                                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                               ),
                       ),
@@ -856,6 +874,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
     required bool enabled,
     required ValueChanged<String?> onChanged,
   }) {
+    final isIndo = context.l10n.isIndonesian;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -874,7 +893,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: items.contains(value) ? value : null,
-              hint: Text('Pilih $label', style: const TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
+              hint: Text(isIndo ? 'Pilih $label' : 'Select $label', style: const TextStyle(fontSize: 12, color: KetokColors.onSurfaceVariant)),
               isExpanded: true,
               style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A), fontWeight: FontWeight.w500),
               icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: KetokColors.onSurfaceVariant),
@@ -892,7 +911,7 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
     );
   }
 
-  Widget _buildStatusBanner() {
+  Widget _buildStatusBanner(bool isIndo) {
     switch (_statusVerifikasi) {
       case 'terverifikasi':
         return Container(
@@ -903,22 +922,24 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFFBBF7D0)),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.verified_rounded, size: 24, color: Color(0xFF16A34A)),
-              SizedBox(width: 12),
+              const Icon(Icons.verified_rounded, size: 24, color: Color(0xFF16A34A)),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Identitas Usaha & KTP Terverifikasi',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF15803D)),
+                      isIndo ? 'Identitas Usaha & KTP Terverifikasi' : 'Business Identity & ID Verified',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF15803D)),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Data usaha dan dokumen KTP Anda telah disetujui oleh admin Ketok. Seluruh fitur pekerjaan telah aktif.',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF166534)),
+                      isIndo
+                          ? 'Data usaha dan dokumen KTP Anda telah disetujui oleh admin Ketok. Seluruh fitur pekerjaan telah aktif.'
+                          : 'Your business details and ID document have been approved by Ketok admin. All work features are now active.',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF166534)),
                     ),
                   ],
                 ),
@@ -936,22 +957,24 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFFFDE68A)),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.hourglass_top_rounded, size: 24, color: Color(0xFFD97706)),
-              SizedBox(width: 12),
+              const Icon(Icons.hourglass_top_rounded, size: 24, color: Color(0xFFD97706)),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Menunggu Verifikasi Admin',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB45309)),
+                      isIndo ? 'Menunggu Verifikasi Admin' : 'Awaiting Admin Verification',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB45309)),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Dokumen usaha & KTP telah terkirim dan sedang ditinjau. Menu manajemen pekerjaan akan aktif begitu disetujui.',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF92400E)),
+                      isIndo
+                          ? 'Dokumen usaha & KTP telah terkirim dan sedang ditinjau. Menu manajemen pekerjaan akan aktif begitu disetujui.'
+                          : 'Business documents & ID have been submitted and are under review. Work management will be unlocked once approved.',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF92400E)),
                     ),
                   ],
                 ),
@@ -977,15 +1000,17 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Verifikasi Ditolak',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB91C1C)),
+                    Text(
+                      isIndo ? 'Verifikasi Ditolak' : 'Verification Rejected',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB91C1C)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _catatanVerifikasi != null && _catatanVerifikasi!.isNotEmpty
-                          ? 'Alasan: $_catatanVerifikasi'
-                          : 'Dokumen Anda belum sesuai. Silakan periksa data usaha dan unggah ulang foto yang jelas.',
+                          ? (isIndo ? 'Alasan: $_catatanVerifikasi' : 'Reason: $_catatanVerifikasi')
+                          : (isIndo
+                              ? 'Dokumen Anda belum sesuai. Silakan periksa data usaha dan unggah ulang foto yang jelas.'
+                              : 'Your documents were not accepted. Please review your business information and re-upload clear photos.'),
                       style: const TextStyle(fontSize: 11, color: Color(0xFF991B1B)),
                     ),
                   ],
@@ -1004,22 +1029,24 @@ class _VerifikasiKtpScreenState extends State<VerifikasiKtpScreen> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: KetokColors.borderColor),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.badge_outlined, size: 24, color: KetokColors.darkPrimary),
-              SizedBox(width: 12),
+              const Icon(Icons.badge_outlined, size: 24, color: KetokColors.darkPrimary),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Belum Terverifikasi',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: KetokColors.darkPrimary),
+                      isIndo ? 'Belum Terverifikasi' : 'Not Verified',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: KetokColors.darkPrimary),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Lengkapi nama usaha, wilayah operasional, dan foto KTP untuk mengajukan verifikasi akun mitra.',
-                      style: TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
+                      isIndo
+                          ? 'Lengkapi nama usaha, wilayah operasional, dan foto KTP untuk mengajukan verifikasi akun mitra.'
+                          : 'Complete business name, operational area, and ID card photo to submit partner account verification.',
+                      style: const TextStyle(fontSize: 11, color: KetokColors.onSurfaceVariant),
                     ),
                   ],
                 ),

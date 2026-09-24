@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import 'cari_jasa_screen.dart';
 
@@ -9,17 +10,16 @@ class TipsDetailScreen extends StatelessWidget {
 
   const TipsDetailScreen({super.key, required this.tip});
 
-  String _formatDate(dynamic dateVal) {
-    if (dateVal == null) return 'Edukasi Ketok';
+  String _formatDate(dynamic dateVal, {bool isIndo = true}) {
+    if (dateVal == null) return isIndo ? 'Edukasi Ketok' : 'Ketok Insights';
     try {
       final dt = DateTime.parse(dateVal.toString());
-      const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
-      ];
+      final months = isIndo
+          ? ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+          : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
     } catch (_) {
-      return 'Edukasi Ketok';
+      return isIndo ? 'Edukasi Ketok' : 'Ketok Insights';
     }
   }
 
@@ -50,17 +50,18 @@ class TipsDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final judul = tip['judul'] as String? ?? 'Tips Perawatan';
+    final isIndo = context.l10n.isIndonesian;
+    final judul = tip['judul'] as String? ?? (isIndo ? 'Tips Perawatan' : 'Maintenance Tips');
     final ringkasan = tip['ringkasan'] as String? ?? '';
-    final dateStr = _formatDate(tip['dibuat_pada']);
+    final dateStr = _formatDate(tip['dibuat_pada'], isIndo: isIndo);
     final tipIcon = _iconForTip(judul);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
-        title: const Text(
-          'Detail Tips & Artikel',
-          style: TextStyle(
+        title: Text(
+          isIndo ? 'Detail Tips & Artikel' : 'Tip & Article Details',
+          style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: Color(0xFF1E293B),
@@ -79,14 +80,18 @@ class TipsDetailScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share_outlined, size: 20),
             color: const Color(0xFF1E293B),
-            tooltip: 'Bagikan Tips',
+            tooltip: isIndo ? 'Bagikan Tips' : 'Share Tip',
             onPressed: () {
               Clipboard.setData(ClipboardData(text: '$judul\n\n$ringkasan\n\nTips via Ketok App'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Teks tips berhasil disalin ke papan klip.'),
+                SnackBar(
+                  content: Text(
+                    isIndo
+                        ? 'Teks tips berhasil disalin ke papan klip.'
+                        : 'Tip text copied to clipboard.',
+                  ),
                   backgroundColor: KetokColors.primary,
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
@@ -107,9 +112,9 @@ class TipsDetailScreen extends StatelessWidget {
                     color: KetokColors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'PANDUAN & TIPS',
-                    style: TextStyle(
+                  child: Text(
+                    isIndo ? 'PANDUAN & TIPS' : 'GUIDE & TIPS',
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: KetokColors.primary,
@@ -126,9 +131,9 @@ class TipsDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                const Text(
-                  '2 Menit Baca',
-                  style: TextStyle(
+                Text(
+                  isIndo ? '2 Menit Baca' : '2 Min Read',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: KetokColors.textMuted,
                   ),
@@ -184,22 +189,24 @@ class TipsDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Solusi Praktis Rumah Tangga',
-                          style: TextStyle(
+                          isIndo ? 'Solusi Praktis Rumah Tangga' : 'Practical Home Solutions',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        SizedBox(height: 3),
+                        const SizedBox(height: 3),
                         Text(
-                          'Dirangkum oleh teknisi profesional untuk penanganan yang tepat dan aman.',
-                          style: TextStyle(
+                          isIndo
+                              ? 'Dirangkum oleh teknisi profesional untuk penanganan yang tepat dan aman.'
+                              : 'Curated by professional technicians for safe and proper handling.',
+                          style: const TextStyle(
                             color: Color(0xFFCBD5E1),
                             fontSize: 11.5,
                             height: 1.35,
@@ -232,13 +239,13 @@ class TipsDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.article_outlined, size: 20, color: KetokColors.primary),
-                      SizedBox(width: 8),
+                      const Icon(Icons.article_outlined, size: 20, color: KetokColors.primary),
+                      const SizedBox(width: 8),
                       Text(
-                        'Ringkasan & Langkah Penanganan',
-                        style: TextStyle(
+                        isIndo ? 'Ringkasan & Langkah Penanganan' : 'Summary & Action Steps',
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF1E293B),
@@ -267,19 +274,21 @@ class TipsDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xFFBBF7D0)),
                     ),
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.check_circle_outline_rounded,
                           color: Color(0xFF16A34A),
                           size: 20,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Pemeriksaan rutin dapat mencegah kerusakan lebih parah dan menghemat biaya perawatan jangka panjang.',
-                            style: TextStyle(
+                            isIndo
+                                ? 'Pemeriksaan rutin dapat mencegah kerusakan lebih parah dan menghemat biaya perawatan jangka panjang.'
+                                : 'Routine inspection helps prevent severe damage and saves long-term repair costs.',
+                            style: const TextStyle(
                               fontSize: 12.5,
                               color: Color(0xFF166534),
                               height: 1.4,
@@ -306,18 +315,20 @@ class TipsDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kendala belum terselesaikan?',
-                    style: TextStyle(
+                  Text(
+                    isIndo ? 'Kendala belum terselesaikan?' : 'Issue still unresolved?',
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF1E293B),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Panggil teknisi atau tukang ahli terdekat langsung dari aplikasi Ketok.',
-                    style: TextStyle(
+                  Text(
+                    isIndo
+                        ? 'Panggil teknisi atau tukang ahli terdekat langsung dari aplikasi Ketok.'
+                        : 'Call a nearby expert technician or handyman directly from Ketok app.',
+                    style: const TextStyle(
                       fontSize: 13,
                       color: KetokColors.textMuted,
                       height: 1.4,
@@ -337,9 +348,9 @@ class TipsDetailScreen extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.handyman_outlined, size: 18),
-                      label: const Text(
-                        'Cari Teknisi Terkait',
-                        style: TextStyle(
+                      label: Text(
+                        isIndo ? 'Cari Teknisi Terkait' : 'Find Related Technician',
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),

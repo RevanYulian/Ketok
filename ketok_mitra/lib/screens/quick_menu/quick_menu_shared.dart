@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 Future<Map<String, dynamic>?> showMitraOfferDialog(
   BuildContext context,
   Map<String, dynamic> order,
 ) async {
+  final isIndo = context.l10n.isIndonesian;
   final priceController = TextEditingController(
     text: (order['offer_price'] ?? order['price'] ?? '').toString(),
   );
@@ -16,7 +18,7 @@ Future<Map<String, dynamic>?> showMitraOfferDialog(
   final result = await showDialog<Map<String, dynamic>>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Ajukan Penawaran'),
+      title: Text(isIndo ? 'Ajukan Penawaran' : 'Submit Offer'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -24,8 +26,8 @@ Future<Map<String, dynamic>?> showMitraOfferDialog(
             TextField(
               controller: priceController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Harga penawaran',
+              decoration: InputDecoration(
+                labelText: isIndo ? 'Harga penawaran' : 'Offer price',
                 prefixText: 'Rp ',
               ),
             ),
@@ -33,9 +35,11 @@ Future<Map<String, dynamic>?> showMitraOfferDialog(
             TextField(
               controller: detailController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Yang Anda tawarkan',
-                hintText: 'Contoh: termasuk pengecekan dan garansi 7 hari',
+              decoration: InputDecoration(
+                labelText: isIndo ? 'Yang Anda tawarkan' : 'What you offer',
+                hintText: isIndo
+                    ? 'Contoh: termasuk pengecekan dan garansi 7 hari'
+                    : 'e.g. includes inspection and 7-day warranty',
               ),
             ),
           ],
@@ -44,7 +48,7 @@ Future<Map<String, dynamic>?> showMitraOfferDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Batal'),
+          child: Text(isIndo ? 'Batal' : 'Cancel'),
         ),
         FilledButton(
           onPressed: () {
@@ -57,7 +61,7 @@ Future<Map<String, dynamic>?> showMitraOfferDialog(
               'detail': detailController.text.trim(),
             });
           },
-          child: const Text('Kirim Penawaran'),
+          child: Text(isIndo ? 'Kirim Penawaran' : 'Send Offer'),
         ),
       ],
     ),
@@ -83,6 +87,7 @@ class QuickMenuScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Scaffold(
       backgroundColor: KetokColors.bgColor,
       appBar: AppBar(
@@ -92,7 +97,7 @@ class QuickMenuScaffold extends StatelessWidget {
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: isIndo ? 'Kembali' : 'Back',
         ),
         title: Row(
           children: [
@@ -108,7 +113,7 @@ class QuickMenuScaffold extends StatelessWidget {
           IconButton(
             onPressed: onRefresh,
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Muat ulang',
+            tooltip: isIndo ? 'Muat ulang' : 'Refresh',
           ),
         ],
       ),
@@ -154,7 +159,9 @@ class QuickMenuErrorState extends StatelessWidget {
   });
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -172,7 +179,7 @@ class QuickMenuErrorState extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Coba Lagi'),
+              label: Text(isIndo ? 'Coba Lagi' : 'Retry'),
             ),
           ],
         ),
@@ -273,28 +280,17 @@ Future<int> loadMitraCategoryId(SupabaseClient client, int mitraId) async {
 String quickMenuError(Object error) =>
     error.toString().replaceFirst('Exception: ', '');
 
-String formatQuickMenuDate(dynamic value) {
+String formatQuickMenuDate(dynamic value, [bool isIndo = true]) {
   final date = DateTime.tryParse(value?.toString() ?? '');
   if (date == null) return '-';
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'Mei',
-    'Jun',
-    'Jul',
-    'Agu',
-    'Sep',
-    'Okt',
-    'Nov',
-    'Des',
-  ];
+  final months = isIndo
+      ? ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return '${date.day} ${months[date.month - 1]} ${date.year}';
 }
 
-String formatQuickMenuCurrency(dynamic value) {
-  if (value == null) return 'Belum ditentukan';
+String formatQuickMenuCurrency(dynamic value, [bool isIndo = true]) {
+  if (value == null) return isIndo ? 'Belum ditentukan' : 'Not specified';
   final number = (value as num).round().toString();
   final formatted = number.replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),

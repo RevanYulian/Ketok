@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../widgets/ketok_colors.dart';
 import '../profile/alamat_tersimpan_screen.dart';
 import 'jasa_pembayaran_screen.dart';
@@ -223,17 +224,17 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(
+                  child: Text(
+                    context.l10n.cancel,
+                    style: const TextStyle(
                       color: Color(0xFF64748B),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                const Text(
-                  'Pilih Jam Kunjungan',
-                  style: TextStyle(
+                Text(
+                  context.l10n.isIndonesian ? 'Pilih Jam Kunjungan' : 'Select Visit Time',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF0F172A),
@@ -249,9 +250,9 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                     });
                     Navigator.pop(ctx);
                   },
-                  child: const Text(
-                    'Terapkan',
-                    style: TextStyle(
+                  child: Text(
+                    context.l10n.apply,
+                    style: const TextStyle(
                       color: Color(0xFF0F172A),
                       fontWeight: FontWeight.w800,
                     ),
@@ -305,9 +306,9 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Pilih Alamat Tersimpan',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                Text(
+                  context.l10n.isIndonesian ? 'Pilih Alamat Tersimpan' : 'Select Saved Address',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 TextButton.icon(
                   onPressed: () async {
@@ -321,7 +322,7 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                     _loadSavedAddresses();
                   },
                   icon: const Icon(Icons.settings_outlined, size: 16),
-                  label: const Text('Kelola'),
+                  label: Text(context.l10n.isIndonesian ? 'Kelola' : 'Manage'),
                 ),
               ],
             ),
@@ -343,9 +344,11 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Belum ada alamat tersimpan di akun Anda.',
-                        style: TextStyle(color: KetokColors.textMuted),
+                      Text(
+                        context.l10n.isIndonesian
+                            ? 'Belum ada alamat tersimpan di akun Anda.'
+                            : 'No saved addresses in your account.',
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton.icon(
@@ -360,7 +363,7 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                           _loadSavedAddresses();
                         },
                         icon: const Icon(Icons.add_location_alt_outlined, size: 16),
-                        label: const Text('Tambah Alamat Baru'),
+                        label: Text(context.l10n.isIndonesian ? 'Tambah Alamat Baru' : 'Add New Address'),
                       ),
                     ],
                   ),
@@ -815,75 +818,89 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFFF8F9FB),
-    appBar: AppBar(
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+
+    return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.arrow_back_rounded),
-        tooltip: 'Kembali',
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9FB),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: isIndo ? 'Kembali' : 'Back',
+        ),
+        title: Text(
+          isIndo ? 'Pesan Jasa' : 'Book Service',
+          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+        ),
+        centerTitle: true,
       ),
-      title: const Text(
-        'Pesan Jasa',
-        style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
-      ),
-      centerTitle: true,
-    ),
-    body: SafeArea(
-      child: Stack(
-        children: [
-          ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            children: [
-              _buildServiceSummary(),
-              const SizedBox(height: 20),
-              _sectionTitle(Icons.location_on_outlined, 'Lokasi Pengerjaan'),
-              _buildLocationCard(),
-              const SizedBox(height: 20),
-              _sectionTitle(
-                Icons.calendar_today_outlined,
-                'Jadwal Kedatangan Teknisi',
-              ),
-              _buildScheduleCard(),
-              const SizedBox(height: 20),
-              _sectionTitle(Icons.edit_note_rounded, 'Catatan Tambahan (Opsional)'),
-              _buildNoteCard(),
-              const SizedBox(height: 20),
-              _sectionTitle(Icons.confirmation_num_outlined, 'Voucher & Promo Diskon'),
-              _buildVoucherCard(),
-              const SizedBox(height: 20),
-              _sectionTitle(
-                Icons.payments_outlined,
-                'Rincian Biaya Transparan',
-              ),
-              _buildCostCard(),
-            ],
-          ),
-          Positioned(
-            left: 10,
-            right: 10,
-            bottom: 10,
-            child: FilledButton.icon(
-              onPressed: _goToPaymentStep,
-              icon: const Icon(Icons.arrow_forward_rounded),
-              label: const Text('Lanjut ke Pembayaran'),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF171717),
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              children: [
+                _buildServiceSummary(),
+                const SizedBox(height: 20),
+                _sectionTitle(
+                  Icons.location_on_outlined,
+                  isIndo ? 'Lokasi Pengerjaan' : 'Service Location',
+                ),
+                _buildLocationCard(isIndo),
+                const SizedBox(height: 20),
+                _sectionTitle(
+                  Icons.calendar_today_outlined,
+                  isIndo ? 'Jadwal Kedatangan Teknisi' : 'Technician Arrival Schedule',
+                ),
+                _buildScheduleCard(),
+                const SizedBox(height: 20),
+                _sectionTitle(
+                  Icons.edit_note_rounded,
+                  isIndo ? 'Catatan Tambahan (Opsional)' : 'Additional Notes (Optional)',
+                ),
+                _buildNoteCard(isIndo),
+                const SizedBox(height: 20),
+                _sectionTitle(
+                  Icons.confirmation_num_outlined,
+                  isIndo ? 'Voucher & Promo Diskon' : 'Voucher & Promo Discounts',
+                ),
+                _buildVoucherCard(isIndo),
+                const SizedBox(height: 20),
+                _sectionTitle(
+                  Icons.payments_outlined,
+                  isIndo ? 'Rincian Biaya Transparan' : 'Transparent Cost Breakdown',
+                ),
+                _buildCostCard(isIndo),
+              ],
+            ),
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: 10,
+              child: FilledButton.icon(
+                onPressed: _goToPaymentStep,
+                icon: const Icon(Icons.arrow_forward_rounded),
+                label: Text(isIndo ? 'Lanjut ke Pembayaran' : 'Proceed to Payment'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF171717),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _buildServiceSummary() => QuickMenuCard(
     child: Row(
@@ -943,16 +960,16 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
     ),
   );
 
-  Widget _buildLocationCard() => QuickMenuCard(
+  Widget _buildLocationCard(bool isIndo) => QuickMenuCard(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'Alamat Pengerjaan',
-                style: TextStyle(
+                isIndo ? 'Alamat Pengerjaan' : 'Service Address',
+                style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 14,
                   color: Color(0xFF0F172A),
@@ -970,18 +987,18 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: const Color(0xFFBAE6FD)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.bookmark_outline_rounded,
                       size: 14,
                       color: Color(0xFF0284C7),
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
-                      'Pilih Tersimpan',
-                      style: TextStyle(
+                      isIndo ? 'Pilih Tersimpan' : 'Select Saved',
+                      style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0284C7),
@@ -996,10 +1013,12 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
         const SizedBox(height: 14),
         TextField(
           controller: _labelController,
-          decoration: const InputDecoration(
-            labelText: 'Label Alamat (Contoh: Rumah, Kantor, Kost)',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.label_outline_rounded, size: 20),
+          decoration: InputDecoration(
+            labelText: isIndo
+                ? 'Label Alamat (Contoh: Rumah, Kantor, Kost)'
+                : 'Address Label (e.g. Home, Office, Apt)',
+            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.label_outline_rounded, size: 20),
           ),
         ),
         const SizedBox(height: 12),
@@ -1008,10 +1027,10 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
             Expanded(
               child: TextField(
                 controller: _receiverController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Penerima / Kontak',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person_outline_rounded, size: 20),
+                decoration: InputDecoration(
+                  labelText: isIndo ? 'Nama Penerima / Kontak' : 'Recipient / Contact Name',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
                 ),
               ),
             ),
@@ -1020,10 +1039,10 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
               child: TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'No. WhatsApp / HP',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone_outlined, size: 20),
+                decoration: InputDecoration(
+                  labelText: isIndo ? 'No. WhatsApp / HP' : 'WhatsApp / Phone No.',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.phone_outlined, size: 20),
                 ),
               ),
             ),
@@ -1033,30 +1052,34 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
         TextField(
           controller: _addressController,
           maxLines: 2,
-          decoration: const InputDecoration(
-            labelText: 'Alamat Lengkap',
-            hintText: 'Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.home_outlined, size: 20),
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Alamat Lengkap' : 'Full Address',
+            hintText: isIndo
+                ? 'Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan'
+                : 'Street name, unit number, district, city',
+            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.home_outlined, size: 20),
           ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _notesController,
-          decoration: const InputDecoration(
-            labelText: 'Patokan / Catatan Alamat (Opsional)',
-            hintText: 'Contoh: Pagar hitam, samping masjid',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.info_outline_rounded, size: 20),
+          decoration: InputDecoration(
+            labelText: isIndo ? 'Patokan / Catatan Alamat (Opsional)' : 'Landmark / Address Notes (Optional)',
+            hintText: isIndo ? 'Contoh: Pagar hitam, samping masjid' : 'e.g. Black gate, next to convenience store',
+            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.info_outline_rounded, size: 20),
           ),
         ),
         const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           dense: true,
-          title: const Text(
-            'Simpan alamat ini ke daftar Alamat Tersimpan saya',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          title: Text(
+            isIndo
+                ? 'Simpan alamat ini ke daftar Alamat Tersimpan saya'
+                : 'Save this address to my Saved Addresses',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           ),
           value: _saveAddressToAccount,
           onChanged: (val) => setState(() => _saveAddressToAccount = val),
@@ -1089,18 +1112,20 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
     ),
   );
 
-  Widget _buildNoteCard() => QuickMenuCard(
+  Widget _buildNoteCard(bool isIndo) => QuickMenuCard(
     child: TextField(
       controller: _noteController,
       maxLines: 3,
-      decoration: const InputDecoration(
-        labelText: 'Catatan tambahan',
-        hintText: 'Tuliskan detail kendala atau rincian layanan',
+      decoration: InputDecoration(
+        labelText: isIndo ? 'Catatan tambahan' : 'Additional notes',
+        hintText: isIndo
+            ? 'Tuliskan detail kendala atau rincian layanan'
+            : 'Describe the issue or service requirements',
       ),
     ),
   );
 
-  Widget _buildVoucherCard() {
+  Widget _buildVoucherCard(bool isIndo) {
     final hasVoucher = _selectedVoucher != null;
     final v = _selectedVoucher?['voucher'] as Map<String, dynamic>?;
 
@@ -1137,8 +1162,8 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                   children: [
                     Text(
                       hasVoucher
-                          ? (v?['judul'] as String? ?? 'Voucher Terpasang')
-                          : 'Gunakan Voucher Diskon',
+                          ? (v?['judul'] as String? ?? (isIndo ? 'Voucher Terpasang' : 'Voucher Applied'))
+                          : (isIndo ? 'Gunakan Voucher Diskon' : 'Apply Discount Voucher'),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -1150,10 +1175,16 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                     const SizedBox(height: 2),
                     Text(
                       hasVoucher
-                          ? 'Hemat ${formatFixedPrice(_discountAmount)} • Kode: ${v?['kode_voucher']}'
+                          ? (isIndo
+                              ? 'Hemat ${formatFixedPrice(_discountAmount)} • Kode: ${v?['kode_voucher']}'
+                              : 'Save ${formatFixedPrice(_discountAmount)} • Code: ${v?['kode_voucher']}')
                           : (_userVouchers.isNotEmpty
-                              ? '${_userVouchers.length} voucher aktif tersedia di akun Anda'
-                              : 'Pilih voucher untuk hemat biaya kunjungan'),
+                              ? (isIndo
+                                  ? '${_userVouchers.length} voucher aktif tersedia di akun Anda'
+                                  : '${_userVouchers.length} active vouchers available')
+                              : (isIndo
+                                  ? 'Pilih voucher untuk hemat biaya kunjungan'
+                                  : 'Select a voucher to save on visit fees')),
                       style: const TextStyle(
                         fontSize: 11.5,
                         color: Color(0xFF64748B),
@@ -1164,7 +1195,9 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                hasVoucher ? 'Ubah' : 'Pilih',
+                hasVoucher
+                    ? (isIndo ? 'Ubah' : 'Change')
+                    : (isIndo ? 'Pilih' : 'Select'),
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1184,14 +1217,14 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
     );
   }
 
-  Widget _buildCostCard() {
+  Widget _buildCostCard(bool isIndo) {
     final hasDiscount = _discountAmount > 0;
     return QuickMenuCard(
       child: Column(
         children: [
-          _costRow('Kisaran Biaya Layanan', _price),
+          _costRow(isIndo ? 'Kisaran Biaya Layanan' : 'Estimated Service Fee', _price),
           const SizedBox(height: 8),
-          _costRow('Biaya Kunjungan / Pengecekan', _visitPrice),
+          _costRow(isIndo ? 'Biaya Kunjungan / Pengecekan' : 'Visit / Inspection Fee', _visitPrice),
           if (hasDiscount) ...[
             const SizedBox(height: 8),
             Row(
@@ -1206,7 +1239,9 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Diskon Promo (${_selectedVoucher!['voucher']['kode_voucher']})',
+                        isIndo
+                            ? 'Diskon Promo (${_selectedVoucher!['voucher']['kode_voucher']})'
+                            : 'Promo Discount (${_selectedVoucher!['voucher']['kode_voucher']})',
                         style: const TextStyle(
                           color: Color(0xFF059669),
                           fontWeight: FontWeight.w700,
@@ -1230,10 +1265,10 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
           const Divider(height: 22),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Total Biaya Kunjungan',
-                  style: TextStyle(fontWeight: FontWeight.w800),
+                  isIndo ? 'Total Biaya Kunjungan' : 'Total Visit Fee',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
               Column(
@@ -1261,9 +1296,11 @@ class _JasaBookingScreenState extends State<JasaBookingScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Biaya ini adalah ongkos kunjungan awal teknisi. Biaya perbaikan & suku cadang akan dikonfirmasi transparan setelah pengecekan di lokasi.',
-            style: TextStyle(fontSize: 11, color: KetokColors.textMuted),
+          Text(
+            isIndo
+                ? 'Biaya ini adalah ongkos kunjungan awal teknisi. Biaya perbaikan & suku cadang akan dikonfirmasi transparan setelah pengecekan di lokasi.'
+                : 'This is the initial technician call-out fee. Repair and spare part costs will be confirmed transparently after inspection on site.',
+            style: const TextStyle(fontSize: 11, color: KetokColors.textMuted),
             textAlign: TextAlign.justify,
           ),
         ],

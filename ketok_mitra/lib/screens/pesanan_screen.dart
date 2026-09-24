@@ -147,24 +147,39 @@ class _PesananScreenState extends State<PesananScreen> {
     return 'Rp $formatted';
   }
 
-  String _formatDate(dynamic value) {
+  String _formatDate(dynamic value, [bool isIndo = true]) {
     if (value == null) return '-';
     final date = DateTime.tryParse(value.toString());
     if (date == null) return value.toString();
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Agu',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des',
-    ];
+    final months = isIndo
+        ? const [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'Mei',
+            'Jun',
+            'Jul',
+            'Agu',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des',
+          ]
+        : const [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+          ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
@@ -325,7 +340,7 @@ class _PesananScreenState extends State<PesananScreen> {
       statusColor: _statusColor(status),
       reference: active
           ? '${l10n.navOrders} #${order['id_pesanan']}'
-          : _formatDate(order['jadwal']),
+          : _formatDate(order['jadwal'], l10n.isIndonesian),
       title: order['category_name'] as String,
       customer: order['customer_name'] as String,
       price: _formatPrice(context, order['price']),

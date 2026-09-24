@@ -60,6 +60,18 @@ class KetokOrder {
       }[status] ??
       'Menunggu konfirmasi';
 
+  String localizedStatusLabel(bool isIndonesian) {
+    if (isIndonesian) return statusLabel;
+    return {
+      'menuju_lokasi': 'Partner on the way',
+      'diproses': 'Processing',
+      'dikerjakan': 'In progress',
+      'selesai': 'Completed',
+      'dibatalkan': 'Cancelled',
+    }[status] ??
+    'Awaiting confirmation';
+  }
+
   factory KetokOrder.fromMap(
     Map<String, dynamic> row,
     Map<int, String> mitraNames, {

@@ -180,6 +180,7 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final statusColor = order.status == 'selesai'
         ? KetokColors.success
         : order.status == 'dibatalkan'
@@ -212,7 +213,7 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  order.statusLabel,
+                  order.localizedStatusLabel(l10n.isIndonesian),
                   style: TextStyle(
                     color: statusColor,
                     fontWeight: FontWeight.w700,
@@ -281,8 +282,8 @@ class _OrderCard extends StatelessWidget {
               children: [
                 Text(
                   order.approvalStatus == 'disetujui' || order.status == 'selesai'
-                      ? 'Total Biaya'
-                      : 'Biaya Kunjungan',
+                      ? (l10n.isIndonesian ? 'Total Biaya' : 'Total Cost')
+                      : (l10n.isIndonesian ? 'Biaya Kunjungan' : 'Call-out Fee'),
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
                 const Spacer(),
@@ -306,14 +307,16 @@ class _OrderCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: Color(0xFF64748B)),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline, size: 16, color: Color(0xFF64748B)),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Estimasi Biaya: Menunggu teknisi memeriksa kondisi di lokasi.',
-                        style: TextStyle(fontSize: 11, color: Color(0xFF475569)),
+                        l10n.isIndonesian
+                            ? 'Estimasi Biaya: Menunggu teknisi memeriksa kondisi di lokasi.'
+                            : 'Cost Estimate: Waiting for technician inspection on site.',
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
                       ),
                     ),
                   ],
@@ -339,10 +342,10 @@ class _OrderCard extends StatelessWidget {
                           color: Color(0xFFD97706),
                         ),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Estimasi Biaya Masuk',
-                            style: TextStyle(
+                            l10n.isIndonesian ? 'Estimasi Biaya Masuk' : 'Cost Estimation Received',
+                            style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 13,
                               color: Color(0xFF92400E),
@@ -360,9 +363,11 @@ class _OrderCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Mitra telah mengirimkan rincian estimasi biaya (jasa & sparepart). Buka halaman detail untuk meninjau dan memberi persetujuan.',
-                      style: TextStyle(fontSize: 11.5, color: Color(0xFF78350F), height: 1.3),
+                    Text(
+                      l10n.isIndonesian
+                          ? 'Mitra telah mengirimkan rincian estimasi biaya (jasa & sparepart). Buka halaman detail untuk meninjau dan memberi persetujuan.'
+                          : 'Partner technician has submitted cost estimation (service & parts). Open details to review and approve.',
+                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF78350F), height: 1.3),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -389,9 +394,11 @@ class _OrderCard extends StatelessWidget {
                           ),
                         ),
                         icon: const Icon(Icons.assignment_outlined, size: 16),
-                        label: const Text(
-                          'Lihat Detail Estimasi & Konfirmasi',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                        label: Text(
+                          l10n.isIndonesian
+                              ? 'Lihat Detail Estimasi & Konfirmasi'
+                              : 'View Estimation Details & Confirm',
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                         ),
                       ),
                     ),
@@ -425,19 +432,19 @@ class _OrderCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFF059669)),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Estimasi Biaya Disetujui',
-                          style: TextStyle(
+                          l10n.isIndonesian ? 'Estimasi Biaya Disetujui' : 'Cost Estimation Approved',
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF065F46),
                           ),
                         ),
                       ),
-                      const Text(
-                        'Lihat Rincian',
-                        style: TextStyle(
+                      Text(
+                        l10n.isIndonesian ? 'Lihat Rincian' : 'View Details',
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF059669),
@@ -476,19 +483,19 @@ class _OrderCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.cancel_rounded, size: 16, color: Color(0xFFDC2626)),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Estimasi Biaya Ditolak',
-                          style: TextStyle(
+                          l10n.isIndonesian ? 'Estimasi Biaya Ditolak' : 'Cost Estimation Rejected',
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF991B1B),
                           ),
                         ),
                       ),
-                      const Text(
-                        'Lihat Rincian',
-                        style: TextStyle(
+                      Text(
+                        l10n.isIndonesian ? 'Lihat Rincian' : 'View Details',
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFFDC2626),
@@ -520,7 +527,10 @@ class _OrderCard extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
-                    label: const Text('Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                    label: Text(
+                      l10n.navChat,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF171717),
                       side: const BorderSide(color: Color(0xFF171717)),
@@ -552,9 +562,15 @@ class _OrderCard extends StatelessWidget {
                     label: Text(
                       order.status == 'selesai'
                           ? (order.hasReviewed
-                              ? 'Ulasan (★ ${order.rating}) • Detail'
-                              : 'Beri Rating & Ulasan')
-                          : 'Detail Pesanan',
+                              ? (l10n.isIndonesian
+                                  ? 'Ulasan (★ ${order.rating}) • Detail'
+                                  : 'Review (★ ${order.rating}) • Details')
+                              : (l10n.isIndonesian
+                                  ? 'Beri Rating & Ulasan'
+                                  : 'Leave Rating & Review'))
+                          : (l10n.isIndonesian
+                              ? 'Detail Pesanan'
+                              : 'Order Details'),
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -583,18 +599,23 @@ class _OrderCard extends StatelessWidget {
 class _BackendNotice extends StatelessWidget {
   const _BackendNotice();
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: const Color(0xFFFFF4D6),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Text(
-      'Menampilkan pesanan contoh. Hubungkan tabel Supabase untuk data langsung.',
-      style: TextStyle(fontSize: 12),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4D6),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        l10n.isIndonesian
+            ? 'Menampilkan pesanan contoh. Hubungkan tabel Supabase untuk data langsung.'
+            : 'Showing sample orders. Connect Supabase table for live data.',
+        style: const TextStyle(fontSize: 12),
+      ),
+    );
+  }
 }
 
 class _EmptyOrders extends StatelessWidget {

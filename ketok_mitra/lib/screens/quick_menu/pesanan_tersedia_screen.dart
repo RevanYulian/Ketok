@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../widgets/ketok_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../pesanan_detail_screen.dart';
 import 'quick_menu_shared.dart';
 
@@ -99,8 +100,9 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
     return QuickMenuScaffold(
-      title: 'Pesanan Tersedia',
+      title: isIndo ? 'Pesanan Tersedia' : 'Available Orders',
       icon: Icons.inventory_2_outlined,
       onRefresh: _loadOrders,
       child: QuickMenuContent(
@@ -108,22 +110,24 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
         errorMessage: _errorMessage,
         onRetry: _loadOrders,
         child: _orders.isEmpty
-            ? const QuickMenuEmptyState(
+            ? QuickMenuEmptyState(
                 icon: Icons.inventory_2_outlined,
-                title: 'Belum ada pesanan tersedia',
-                subtitle: 'Pesanan baru untuk Anda akan muncul di sini.',
+                title: isIndo ? 'Belum ada pesanan tersedia' : 'No available orders yet',
+                subtitle: isIndo
+                    ? 'Pesanan baru untuk Anda akan muncul di sini.'
+                    : 'New orders for you will appear here.',
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 itemCount: _orders.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
-                itemBuilder: (_, index) => _buildOrderCard(_orders[index]),
+                itemBuilder: (_, index) => _buildOrderCard(_orders[index], isIndo),
               ),
       ),
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order) {
+  Widget _buildOrderCard(Map<String, dynamic> order, bool isIndo) {
     return QuickMenuCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +144,7 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
                 ),
               ),
               Text(
-                formatQuickMenuCurrency(order['price']),
+                formatQuickMenuCurrency(order['price'], isIndo),
                 style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   color: KetokColors.darkPrimary,
@@ -155,9 +159,9 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
           ),
           _detail(
             Icons.location_on_outlined,
-            order['lokasi'] as String? ?? 'Lokasi belum tersedia',
+            order['lokasi'] as String? ?? (isIndo ? 'Lokasi belum tersedia' : 'Location not available'),
           ),
-          _detail(Icons.event_outlined, formatQuickMenuDate(order['jadwal'])),
+          _detail(Icons.event_outlined, formatQuickMenuDate(order['jadwal'], isIndo)),
           if ((order['catatan'] as String?)?.isNotEmpty == true)
             _detail(Icons.notes_rounded, order['catatan'] as String),
           const SizedBox(height: 14),
@@ -166,7 +170,7 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => _openDetail(order),
-                  child: const Text('Cek Detail'),
+                  child: Text(isIndo ? 'Cek Detail' : 'Check Details'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -177,9 +181,9 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
                     backgroundColor: KetokColors.darkPrimary,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text(
-                    'Kirim Estimasi',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  child: Text(
+                    isIndo ? 'Kirim Estimasi' : 'Send Estimate',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
