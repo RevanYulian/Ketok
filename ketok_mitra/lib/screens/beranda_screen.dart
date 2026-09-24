@@ -801,24 +801,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      l10n.greetingPartner,
-                      style: const TextStyle(color: _onSurfaceVariant),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      width: 20,
-                      height: 20,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: _surfaceLow,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Text('✓', style: TextStyle(fontSize: 12)),
-                    ),
-                  ],
+                Text(
+                  l10n.greetingPartner,
+                  style: const TextStyle(color: _onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
