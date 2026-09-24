@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/ketok_order_repository.dart';
 import '../widgets/ketok_colors.dart';
 import 'app.dart';
@@ -256,7 +257,9 @@ class _ChatScreenState extends State<ChatScreen> {
           controller: _searchController,
           onChanged: (value) => setState(() => _searchQuery = value),
           decoration: InputDecoration(
-            hintText: 'Cari mitra atau pesanan',
+            hintText: context.l10n.isIndonesian
+                ? 'Cari mitra atau pesanan'
+                : 'Search partner or order',
             prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _searchQuery.isEmpty
                 ? null
@@ -278,10 +281,12 @@ class _ChatScreenState extends State<ChatScreen> {
         const SizedBox(height: 12),
         Expanded(
           child: conversations.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
-                    'Percakapan tidak ditemukan.',
-                    style: TextStyle(color: KetokColors.textMuted),
+                    context.l10n.isIndonesian
+                        ? 'Percakapan tidak ditemukan.'
+                        : 'No conversations found.',
+                    style: const TextStyle(color: KetokColors.textMuted),
                   ),
                 )
               : RefreshIndicator(
@@ -540,7 +545,9 @@ class _ChatScreenState extends State<ChatScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendMessage(conversations),
               decoration: InputDecoration(
-                hintText: 'Tulis pesan untuk mitra...',
+                hintText: context.l10n.isIndonesian
+                    ? 'Tulis pesan untuk mitra...'
+                    : 'Type a message for partner...',
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(

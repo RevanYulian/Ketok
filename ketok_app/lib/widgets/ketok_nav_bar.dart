@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import 'ketok_colors.dart';
 
 class KetokNavItem {
@@ -17,40 +18,41 @@ class KetokNavItem {
 class KetokNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final List<KetokNavItem> items;
-
-  static const _defaultItems = [
-    KetokNavItem(
-      selectedIcon: Icons.home_rounded,
-      unselectedIcon: Icons.home_outlined,
-      label: 'Beranda',
-    ),
-    KetokNavItem(
-      selectedIcon: Icons.assignment_rounded,
-      unselectedIcon: Icons.assignment_outlined,
-      label: 'Pesanan',
-    ),
-    KetokNavItem(
-      selectedIcon: Icons.chat_bubble_rounded,
-      unselectedIcon: Icons.chat_bubble_outline_rounded,
-      label: 'Chat',
-    ),
-    KetokNavItem(
-      selectedIcon: Icons.person_rounded,
-      unselectedIcon: Icons.person_outline_rounded,
-      label: 'Profil',
-    ),
-  ];
+  final List<KetokNavItem>? items;
 
   const KetokNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
-    this.items = _defaultItems,
+    this.items,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final navItems = items ?? [
+      KetokNavItem(
+        selectedIcon: Icons.home_rounded,
+        unselectedIcon: Icons.home_outlined,
+        label: l10n.navHome,
+      ),
+      KetokNavItem(
+        selectedIcon: Icons.assignment_rounded,
+        unselectedIcon: Icons.assignment_outlined,
+        label: l10n.navOrders,
+      ),
+      KetokNavItem(
+        selectedIcon: Icons.chat_bubble_rounded,
+        unselectedIcon: Icons.chat_bubble_outline_rounded,
+        label: l10n.navChat,
+      ),
+      KetokNavItem(
+        selectedIcon: Icons.person_rounded,
+        unselectedIcon: Icons.person_outline_rounded,
+        label: l10n.navProfile,
+      ),
+    ];
+
     return Container(
       decoration: BoxDecoration(
         color: KetokColors.surface,
@@ -71,9 +73,9 @@ class KetokNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(
-              items.length,
+              navItems.length,
               (index) => _KetokNavItem(
-                item: items[index],
+                item: navItems[index],
                 isSelected: currentIndex == index,
                 onTap: () => onTap(index),
               ),

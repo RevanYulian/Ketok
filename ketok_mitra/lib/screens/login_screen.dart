@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'beranda_screen.dart';
+import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
+import '../services/locale_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,11 +68,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    final l10n = context.l10n;
     final identifier = _identifierController.text.trim();
     final password = _passwordController.text;
 
     if (identifier.isEmpty || password.isEmpty) {
-      _showMessage('Username/email dan kata sandi wajib diisi.', isError: true);
+      _showMessage(
+        l10n.isIndonesian
+            ? 'Username/email dan kata sandi wajib diisi.'
+            : 'Username/email and password are required.',
+        isError: true,
+      );
       return;
     }
 
@@ -78,13 +86,18 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final email = await _resolveEmail(identifier);
       if (email == null) {
-        _showMessage('Akun tidak ditemukan.', isError: true);
+        _showMessage(
+          l10n.isIndonesian ? 'Akun tidak ditemukan.' : 'Account not found.',
+          isError: true,
+        );
         return;
       }
 
       await _supabase.auth.signInWithPassword(email: email, password: password);
       
-      _showMessage('Login berhasil!');
+      _showMessage(
+        l10n.isIndonesian ? 'Login berhasil!' : 'Login successful!',
+      );
 
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -94,28 +107,41 @@ class _LoginScreenState extends State<LoginScreen> {
     } on AuthException catch (e) {
       _showMessage(e.message, isError: true);
     } catch (e) {
-      _showMessage('Gagal login: $e', isError: true);
+      _showMessage(
+        l10n.isIndonesian ? 'Gagal login: $e' : 'Login failed: $e',
+        isError: true,
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _handleRegister() async {
+    final l10n = context.l10n;
     final nama = _namaController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
     if (nama.isEmpty || email.isEmpty || password.isEmpty) {
-      _showMessage('Semua kolom wajib diisi.', isError: true);
+      _showMessage(
+        l10n.isIndonesian ? 'Semua kolom wajib diisi.' : 'All fields are required.',
+        isError: true,
+      );
       return;
     }
     if (password != confirmPassword) {
-      _showMessage('Konfirmasi kata sandi tidak cocok.', isError: true);
+      _showMessage(
+        l10n.isIndonesian ? 'Konfirmasi kata sandi tidak cocok.' : 'Password confirmation does not match.',
+        isError: true,
+      );
       return;
     }
     if (password.length < 6) {
-      _showMessage('Kata sandi minimal 6 karakter.', isError: true);
+      _showMessage(
+        l10n.isIndonesian ? 'Kata sandi minimal 6 karakter.' : 'Password must be at least 6 characters.',
+        isError: true,
+      );
       return;
     }
 
@@ -129,7 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final authUid = authResponse.user?.id;
       if (authUid == null) {
         _showMessage(
-          'Pendaftaran diproses. Cek email untuk verifikasi (jika diaktifkan).',
+          l10n.isIndonesian
+              ? 'Pendaftaran diproses. Cek email untuk verifikasi (jika diaktifkan).'
+              : 'Registration processed. Check email for verification (if enabled).',
         );
         return;
       }
@@ -147,46 +175,62 @@ class _LoginScreenState extends State<LoginScreen> {
         // Error spesifik dari database -- paling sering karena kolom
         // 'auth_uid' belum dibuat, atau RLS memblokir insert.
         _showMessage(
-          'Akun auth berhasil dibuat, TAPI gagal simpan ke tabel users: '
-          '${e.message} (code: ${e.code})',
+          l10n.isIndonesian
+              ? 'Akun auth berhasil dibuat, TAPI gagal simpan ke tabel users: ${e.message} (code: ${e.code})'
+              : 'Auth account created, BUT failed to save user profile: ${e.message} (code: ${e.code})',
           isError: true,
         );
         return;
       }
 
-      _showMessage('Registrasi berhasil! Silakan login.');
+      _showMessage(
+        l10n.isIndonesian
+            ? 'Registrasi berhasil! Silakan login.'
+            : 'Registration successful! Please login.',
+      );
       setState(() => _isLogin = true);
     } on AuthException catch (e) {
       if (e.message.toLowerCase().contains('already registered') || e.message.toLowerCase().contains('already in use')) {
-        _showMessage('Email sudah terdaftar di Ketok App. Silakan gunakan tab Login untuk masuk, lalu Anda bisa mendaftar sebagai Mitra di dalam aplikasi.', isError: true);
+        _showMessage(
+          l10n.isIndonesian
+              ? 'Email sudah terdaftar di Ketok App. Silakan gunakan tab Login untuk masuk, lalu Anda bisa mendaftar sebagai Mitra di dalam aplikasi.'
+              : 'Email is already registered on Ketok App. Please use Login tab to enter.',
+          isError: true,
+        );
         return;
       }
       _showMessage(e.message, isError: true);
     } catch (e) {
-      _showMessage('Gagal mendaftar: $e', isError: true);
+      _showMessage(
+        l10n.isIndonesian ? 'Gagal mendaftar: $e' : 'Registration failed: $e',
+        isError: true,
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _handleForgotPassword() async {
+    final l10n = context.l10n;
     final controller = TextEditingController();
     final email = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Lupa Kata Sandi'),
+        title: Text(l10n.forgotPassword),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'Masukkan email kamu'),
+          decoration: InputDecoration(
+            hintText: l10n.isIndonesian ? 'Masukkan email kamu' : 'Enter your email',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Kirim'),
+            child: Text(l10n.send),
           ),
         ],
       ),
@@ -196,17 +240,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await _supabase.auth.resetPasswordForEmail(email);
-      _showMessage('Link reset kata sandi sudah dikirim ke $email.');
+      _showMessage(
+        l10n.isIndonesian
+            ? 'Link reset kata sandi sudah dikirim ke $email.'
+            : 'Password reset link sent to $email.',
+      );
     } catch (e) {
-      _showMessage('Gagal mengirim link reset: $e', isError: true);
+      _showMessage(
+        l10n.isIndonesian
+            ? 'Gagal mengirim link reset: $e'
+            : 'Failed to send reset link: $e',
+        isError: true,
+      );
     }
   }
 
   Future<void> _handleOAuth(OAuthProvider provider) async {
+    final l10n = context.l10n;
     try {
       await _supabase.auth.signInWithOAuth(provider);
     } catch (e) {
-      _showMessage('Gagal login dengan ${provider.name}: $e', isError: true);
+      _showMessage(
+        l10n.isIndonesian
+            ? 'Gagal login dengan ${provider.name}: $e'
+            : 'Failed to login with ${provider.name}: $e',
+        isError: true,
+      );
     }
   }
 
@@ -216,9 +275,14 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: _bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: _buildLanguageToggle(),
+              ),
+              const SizedBox(height: 12),
               _buildLogo(),
               const SizedBox(height: 16),
               _buildAppTitle(),
@@ -232,6 +296,48 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildOAuthButtons(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageToggle() {
+    final l10n = context.l10n;
+    final isIndo = l10n.isIndonesian;
+    return InkWell(
+      onTap: () {
+        final newLocale = isIndo ? const Locale('en') : const Locale('id');
+        LocaleService.instance.setLocale(newLocale);
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _fieldBorderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.language_rounded, size: 16, color: _darkColor),
+            const SizedBox(width: 5),
+            Text(
+              isIndo ? '🇮🇩 ID' : '🇬🇧 EN',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: _darkColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -285,11 +391,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildAppTitle() {
+    final l10n = context.l10n;
     return ValueListenableBuilder<AppConfig?>(
       valueListenable: AppConfigService.instance.configNotifier,
       builder: (context, config, _) {
         final appName = config?.namaAplikasi ?? 'Ketok Mitra';
-        final tagline = config?.tagline ?? 'Portal Khusus Mitra';
+        final tagline = l10n.isIndonesian
+            ? (config?.tagline ?? 'Portal Khusus Mitra')
+            : 'Technician Partner Portal';
 
         return Column(
           children: [
@@ -314,6 +423,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTabSelector() {
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFE7E5EC),
@@ -322,8 +432,13 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.all(4),
       child: Row(
         children: [
-          Expanded(child: _tabButton('Login', true)),
-          Expanded(child: _tabButton('Daftar Mitra', false)),
+          Expanded(child: _tabButton(l10n.login, true)),
+          Expanded(
+            child: _tabButton(
+              l10n.isIndonesian ? 'Daftar Mitra' : 'Register Partner',
+              false,
+            ),
+          ),
         ],
       ),
     );
@@ -394,21 +509,37 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildLoginForm() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel('Email atau Nama Mitra'),
+        _fieldLabel(
+          l10n.isIndonesian ? 'Email atau Nama Mitra' : 'Email or Partner Name',
+        ),
         TextField(
           controller: _identifierController,
-          decoration: _fieldDecoration('Masukkan email atau nama mitra'),
+          decoration: _fieldDecoration(
+            l10n.isIndonesian
+                ? 'Masukkan email atau nama mitra'
+                : 'Enter email or partner name',
+          ),
         ),
         const SizedBox(height: 18),
-        _fieldLabel('Kata Sandi'),
+        _fieldLabel(l10n.password),
         TextField(
           controller: _passwordController,
           obscureText: _obscurePassword,
-          decoration: _fieldDecoration('Masukkan kata sandi').copyWith(
+          decoration: _fieldDecoration(
+            l10n.isIndonesian ? 'Masukkan kata sandi' : 'Enter password',
+          ).copyWith(
             suffixIcon: IconButton(
+              tooltip: _obscurePassword
+                  ? (l10n.isIndonesian
+                      ? 'Tampilkan kata sandi'
+                      : 'Show password')
+                  : (l10n.isIndonesian
+                      ? 'Sembunyikan kata sandi'
+                      : 'Hide password'),
               icon: Icon(
                 _obscurePassword
                     ? Icons.visibility_off_outlined
@@ -424,40 +555,55 @@ class _LoginScreenState extends State<LoginScreen> {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: _handleForgotPassword,
-            child: const Text(
-              'Lupa kata sandi?',
-              style: TextStyle(color: Colors.black54),
+            child: Text(
+              l10n.isIndonesian ? 'Lupa kata sandi?' : 'Forgot password?',
+              style: const TextStyle(color: Colors.black54),
             ),
           ),
         ),
         const SizedBox(height: 8),
-        _buildSubmitButton('Masuk', _handleLogin),
+        _buildSubmitButton(l10n.login, _handleLogin),
       ],
     );
   }
 
   Widget _buildRegisterForm() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel('Nama Lengkap'),
+        _fieldLabel(l10n.isIndonesian ? 'Nama Lengkap' : 'Full Name'),
         TextField(
           controller: _namaController,
-          decoration: _fieldDecoration('Masukkan nama lengkap'),
+          decoration: _fieldDecoration(
+            l10n.isIndonesian ? 'Masukkan nama lengkap' : 'Enter full name',
+          ),
         ),
         const SizedBox(height: 18),
-        _fieldLabel('Email'),
+        _fieldLabel(l10n.email),
         TextField(
           controller: _emailController,
-          decoration: _fieldDecoration('Masukkan email'),
+          keyboardType: TextInputType.emailAddress,
+          decoration: _fieldDecoration(
+            l10n.isIndonesian ? 'Masukkan email' : 'Enter email',
+          ),
         ),
         const SizedBox(height: 18),
-        _fieldLabel('Kata Sandi'),
+        _fieldLabel(l10n.password),
         TextField(
           controller: _passwordController,
           obscureText: _obscurePassword,
-          decoration: _fieldDecoration('Masukkan kata sandi').copyWith(
+          decoration: _fieldDecoration(
+            l10n.isIndonesian ? 'Masukkan kata sandi' : 'Enter password',
+          ).copyWith(
             suffixIcon: IconButton(
+              tooltip: _obscurePassword
+                  ? (l10n.isIndonesian
+                      ? 'Tampilkan kata sandi'
+                      : 'Show password')
+                  : (l10n.isIndonesian
+                      ? 'Sembunyikan kata sandi'
+                      : 'Hide password'),
               icon: Icon(
                 _obscurePassword
                     ? Icons.visibility_off_outlined
@@ -470,14 +616,18 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 18),
-        _fieldLabel('Konfirmasi Kata Sandi'),
+        _fieldLabel(
+          l10n.isIndonesian ? 'Konfirmasi Kata Sandi' : 'Confirm Password',
+        ),
         TextField(
           controller: _confirmPasswordController,
           obscureText: _obscurePassword,
-          decoration: _fieldDecoration('Ulangi kata sandi'),
+          decoration: _fieldDecoration(
+            l10n.isIndonesian ? 'Ulangi kata sandi' : 'Repeat password',
+          ),
         ),
         const SizedBox(height: 20),
-        _buildSubmitButton('Daftar', _handleRegister),
+        _buildSubmitButton(l10n.register, _handleRegister),
       ],
     );
   }
@@ -512,14 +662,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildDivider() {
+    final l10n = context.l10n;
     return Row(
-      children: const [
-        Expanded(child: Divider(color: _fieldBorderColor)),
+      children: [
+        const Expanded(child: Divider(color: _fieldBorderColor)),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('ATAU', style: TextStyle(color: Colors.black38)),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(l10n.or, style: const TextStyle(color: Colors.black38)),
         ),
-        Expanded(child: Divider(color: _fieldBorderColor)),
+        const Expanded(child: Divider(color: _fieldBorderColor)),
       ],
     );
   }

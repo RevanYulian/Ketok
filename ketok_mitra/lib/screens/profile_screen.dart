@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+import '../services/locale_service.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 import '../widgets/profile_avatar.dart';
@@ -44,6 +46,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isApproved = approvalStatus == 'terverifikasi';
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
@@ -69,244 +72,256 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 22),
                     _buildOnlineCard(context),
                     const SizedBox(height: 16),
-                    _buildStats(),
+                    _buildStats(context),
                     const SizedBox(height: 24),
-                    _buildSectionLabel('MANAJEMEN PEKERJAAN'),
+                    _buildSectionLabel(l10n.sectionMitraService),
                     _buildSettingsGroup([
                       _SettingItem(
                         Icons.badge_outlined,
-                        'Verifikasi Identitas Usaha & KTP',
-                        'Status pengajuan identitas usaha & KTP',
+                        l10n.ktpVerificationTitle,
+                        l10n.ktpStatusItemSubtitle,
                         () => _openVerifikasiKtp(context),
-                        trailingBadge: _buildKtpBadge(),
+                        trailingBadge: _buildKtpBadge(context),
                       ),
                       _SettingItem(
                         Icons.build_circle_outlined,
-                        'Layanan & Tarif',
-                        isApproved ? 'Atur layanan dan kisaran tarif' : 'Terkunci (Menunggu Verifikasi KTP)',
+                        l10n.servicesAndRates,
+                        isApproved ? l10n.servicesAndRatesSubtitle : l10n.lockedWaitingKtp,
                         isApproved ? () => _openWorkManagement(context, 'services') : () => _showLockedWorkManagement(context),
                         isLocked: !isApproved,
                       ),
                       _SettingItem(
                         Icons.event_available_outlined,
-                        'Jadwal & Jam Kerja',
-                        isApproved ? 'Atur hari dan jam kerja Anda' : 'Terkunci (Menunggu Verifikasi KTP)',
+                        l10n.workSchedule,
+                        isApproved ? l10n.workScheduleSubtitle : l10n.lockedWaitingKtp,
                         isApproved ? () => _openWorkManagement(context, 'schedule') : () => _showLockedWorkManagement(context),
                         isLocked: !isApproved,
                       ),
                       _SettingItem(
                         Icons.verified_user_outlined,
-                        'Sertifikasi Tambahan',
-                        isApproved ? 'Kelola dokumen pendukung' : 'Terkunci (Menunggu Verifikasi KTP)',
+                        l10n.extraCertificates,
+                        isApproved ? l10n.extraCertificatesSubtitle : l10n.lockedWaitingKtp,
                         isApproved ? () => _openWorkManagement(context, 'certificate') : () => _showLockedWorkManagement(context),
                         isLocked: !isApproved,
                       ),
                     ]),
-            const SizedBox(height: 22),
-            _buildSectionLabel('PREFERENSI & KEAMANAN'),
-            _buildSettingsGroup([
-              _SettingItem(
-                Icons.notifications_outlined,
-                'Pusat Notifikasi',
-                'Lihat semua pemberitahuan dan status verifikasi',
-                onNotificationTap ??
-                    () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const NotifikasiScreen(),
+                    const SizedBox(height: 22),
+                    _buildSectionLabel(l10n.sectionSecurity),
+                    _buildSettingsGroup([
+                      _SettingItem(
+                        Icons.notifications_outlined,
+                        l10n.notificationCenter,
+                        l10n.notificationCenterSubtitle,
+                        onNotificationTap ??
+                            () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const NotifikasiScreen(),
+                                  ),
+                                ),
+                      ),
+                      _SettingItem(
+                        Icons.notifications_active_outlined,
+                        l10n.orderNotifications,
+                        l10n.orderNotificationsSubtitle,
+                        () => _showComingSoon(context),
+                        toggle: true,
+                      ),
+                      _SettingItem(
+                        Icons.lock_outline_rounded,
+                        l10n.accountSecurity,
+                        l10n.accountSecuritySubtitle,
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UbahSandiScreen())),
+                      ),
+                      _SettingItem(
+                        Icons.translate_rounded,
+                        l10n.appLanguage,
+                        l10n.currentLanguageName,
+                        () => _showLanguageModal(context),
+                      ),
+                    ]),
+                    const SizedBox(height: 22),
+
+                    _buildSectionLabel(l10n.sectionHelp),
+                    _buildSettingsGroup([
+                      _SettingItem(
+                        Icons.help_outline_rounded,
+                        l10n.helpCenter,
+                        '',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BantuanScreen())),
+                      ),
+                      _SettingItem(
+                        Icons.gavel_rounded,
+                        l10n.termsConditions,
+                        '',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SyaratKetentuanScreen())),
+                      ),
+                      _SettingItem(
+                        Icons.shield_outlined,
+                        l10n.privacyPolicy,
+                        '',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KebijakanPrivasiScreen())),
+                      ),
+                    ]),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => _confirmLogout(context),
+                        icon: const Icon(Icons.logout_rounded),
+                        label: Text(l10n.logoutButton),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFFFFD8D6),
+                          foregroundColor: const Color(0xFF9B1C1C),
+                          minimumSize: const Size.fromHeight(44),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-              ),
-              _SettingItem(
-                Icons.notifications_active_outlined,
-                'Notifikasi Pesanan',
-                'Pemberitahuan suara pesanan baru',
-                () => _showComingSoon(context),
-                toggle: true,
-              ),
-              _SettingItem(
-                Icons.lock_outline_rounded,
-                'Keamanan Akun',
-                'Ubah kata sandi dan pengaturan akun',
-                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UbahSandiScreen())),
-              ),
-            ]),
-            const SizedBox(height: 22),
-
-            _buildSectionLabel('BANTUAN & INFO KETOK'),
-            _buildSettingsGroup([
-              _SettingItem(
-                Icons.help_outline_rounded,
-                'Pusat Bantuan & FAQ',
-                '',
-                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BantuanScreen())),
-              ),
-              _SettingItem(
-                Icons.gavel_rounded,
-                'Syarat & Ketentuan Layanan',
-                '',
-                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SyaratKetentuanScreen())),
-              ),
-              _SettingItem(
-                Icons.shield_outlined,
-                'Kebijakan Privasi',
-                '',
-                () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KebijakanPrivasiScreen())),
-              ),
-            ]),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: onLogout,
-                icon: const Icon(Icons.logout_rounded),
-                label: const Text('Keluar dari Akun'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFD8D6),
-                  foregroundColor: const Color(0xFF9B1C1C),
-                  minimumSize: const Size.fromHeight(44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ValueListenableBuilder<AppConfig?>(
+                      valueListenable: AppConfigService.instance.configNotifier,
+                      builder: (context, config, _) {
+                        final version = config?.versiAplikasi ?? '1.0.0';
+                        final tagline = config?.tagline ?? 'Platform Jasa Teknisi On-Demand Terpercaya';
+                        return Center(
+                          child: Text(
+                            'Versi $version (Ketok Mitra)\n$tagline',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF8B8F96),
+                              height: 1.8,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            ValueListenableBuilder<AppConfig?>(
-              valueListenable: AppConfigService.instance.configNotifier,
-              builder: (context, config, _) {
-                final version = config?.versiAplikasi ?? '1.0.0';
-                final tagline = config?.tagline ?? 'Platform Jasa Teknisi On-Demand Terpercaya';
-                return Center(
-                  child: Text(
-                    'Versi $version (Ketok Mitra)\n$tagline',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF8B8F96),
-                      height: 1.8,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountCard(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 6)],
-    ),
-    child: Column(
-      children: [
-        Row(
-          children: [
-            ProfileAvatar(
-              name: _displayName,
-              photoUrl: photoUrl,
-              radius: 36,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        _displayName,
-                        style: const TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      _MitraBadge(approved: approvalStatus == 'terverifikasi'),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    phoneNumber.isNotEmpty
-                        ? phoneNumber
-                        : 'Nomor telepon belum diatur',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: KetokColors.onSurfaceVariant,
-                    ),
-                  ),
-                  Text(
-                    userEmail.isNotEmpty ? userEmail : 'Email belum diatur',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: KetokColors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+  Widget _buildAccountCard(BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [BoxShadow(color: Color(0x0C000000), blurRadius: 6)],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              ProfileAvatar(
+                name: _displayName,
+                photoUrl: photoUrl,
+                radius: 36,
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => _openProfileSetup(context),
-            icon: const Icon(Icons.edit_note_rounded, size: 18),
-            label: const Text('Edit Profil'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: KetokColors.darkPrimary,
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
-              minimumSize: const Size.fromHeight(40),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          _displayName,
+                          style: const TextStyle(
+                            fontSize: 21,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        _MitraBadge(approved: approvalStatus == 'terverifikasi'),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      phoneNumber.isNotEmpty
+                          ? phoneNumber
+                          : l10n.phoneNotSet,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: KetokColors.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      userEmail.isNotEmpty ? userEmail : l10n.emailNotSet,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: KetokColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _openProfileSetup(context),
+              icon: const Icon(Icons.edit_note_rounded, size: 18),
+              label: Text(l10n.editProfile),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: KetokColors.darkPrimary,
+                side: const BorderSide(color: Color(0xFFCBD5E1)),
+                minimumSize: const Size.fromHeight(40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStats(BuildContext context) {
+    final l10n = context.l10n;
+    return Row(
+      children: [
+        Expanded(
+          child: _StatCard(
+            icon: Icons.star_rounded,
+            value: '4.9',
+            label: l10n.ratingLabel,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.verified_outlined,
+            value: '128',
+            label: l10n.ordersCompletedLabel,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.bolt_rounded,
+            value: isOnline ? (l10n.isIndonesian ? 'Online' : 'Online') : (l10n.isIndonesian ? 'Offline' : 'Offline'),
+            label: l10n.statusLabel,
+          ),
         ),
       ],
-    ),
-  );
-
-  Widget _buildStats() => Row(
-    children: [
-      Expanded(
-        child: _StatCard(
-          icon: Icons.star_rounded,
-          value: '4.9',
-          label: 'Rating',
-        ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: _StatCard(
-          icon: Icons.verified_outlined,
-          value: '128',
-          label: 'Pesanan Selesai',
-        ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: _StatCard(
-          icon: Icons.bolt_rounded,
-          value: isOnline ? 'Online' : 'Offline',
-          label: 'Status',
-        ),
-      ),
-    ],
-  );
+    );
+  }
 
   Widget _buildSectionLabel(String title) => Padding(
     padding: const EdgeInsets.only(left: 4, bottom: 10),
@@ -389,6 +404,7 @@ class ProfileScreen extends StatelessWidget {
   );
 
   Widget _buildOnlineCard(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -416,14 +432,14 @@ class ProfileScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isOnline ? 'Sedang online' : 'Sedang offline',
+                  isOnline ? l10n.onlineNow : l10n.offlineNow,
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   isOnline
-                      ? 'Pelanggan dapat menemukan Anda sekarang.'
-                      : 'Anda tidak akan menerima pesanan baru.',
+                      ? l10n.onlineDescription
+                      : l10n.offlineDescription,
                   style: const TextStyle(
                     color: KetokColors.onSurfaceVariant,
                     fontSize: 12,
@@ -437,9 +453,9 @@ class ProfileScreen extends StatelessWidget {
             onChanged: (val) {
               if (val && approvalStatus != 'terverifikasi') {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Lengkapi verifikasi KTP dan tunggu persetujuan admin untuk dapat online.'),
-                    backgroundColor: Color(0xFFDC2626),
+                  SnackBar(
+                    content: Text(l10n.ktpRequiredToOnline),
+                    backgroundColor: const Color(0xFFDC2626),
                   ),
                 );
                 return;
@@ -452,7 +468,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildKtpBadge() {
+  Widget _buildKtpBadge(BuildContext context) {
+    final l10n = context.l10n;
     Color bg;
     Color text;
     String label;
@@ -461,22 +478,22 @@ class ProfileScreen extends StatelessWidget {
       case 'terverifikasi':
         bg = const Color(0xFFE8F5E9);
         text = const Color(0xFF2E7D32);
-        label = 'Terverifikasi';
+        label = l10n.ktpVerified;
         break;
       case 'menunggu':
         bg = const Color(0xFFFFF7ED);
         text = const Color(0xFFC2410C);
-        label = 'Menunggu';
+        label = l10n.ktpPending;
         break;
       case 'ditolak':
         bg = const Color(0xFFFFEBEE);
         text = const Color(0xFFC62828);
-        label = 'Ditolak';
+        label = l10n.rejectedBadge;
         break;
       default:
         bg = const Color(0xFFF3F4F6);
         text = const Color(0xFF4B5563);
-        label = 'Belum Upload';
+        label = l10n.notUploaded;
     }
 
     return Container(
@@ -493,25 +510,26 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showLockedWorkManagement(BuildContext context) {
+    final l10n = context.l10n;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.lock_rounded, color: Color(0xFFD97706), size: 22),
-            SizedBox(width: 8),
-            Text('Fitur Terkunci', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Icon(Icons.lock_rounded, color: Color(0xFFD97706), size: 22),
+            const SizedBox(width: 8),
+            Text(l10n.lockedFeatureTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
           ],
         ),
-        content: const Text(
-          'Manajemen pekerjaan belum dapat digunakan karena akun Anda masih dalam status Pengajuan / Menunggu Verifikasi KTP dari Admin Ketok.\n\nSetelah dokumen KTP Anda disetujui, Anda dapat langsung mengatur layanan dan tarif pekerjaan Anda.',
-          style: TextStyle(fontSize: 12, height: 1.5),
+        content: Text(
+          l10n.lockedWorkManagementDesc,
+          style: const TextStyle(fontSize: 12, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup', style: TextStyle(color: KetokColors.onSurfaceVariant)),
+            child: Text(l10n.close, style: const TextStyle(color: KetokColors.onSurfaceVariant)),
           ),
           FilledButton(
             onPressed: () {
@@ -522,10 +540,122 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: KetokColors.darkPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Cek Status KTP'),
+            child: Text(l10n.checkKtpStatus),
           ),
         ],
       ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    final l10n = context.l10n;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.logoutConfirmTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Text(
+          l10n.logoutConfirmDesc,
+          style: const TextStyle(color: Color(0xFF475569)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              onLogout();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            child: Text(l10n.logoutButton),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageModal(BuildContext context) {
+    final l10n = context.l10n;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 38,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.selectLanguageTitle,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildLanguageTile(context, 'Bahasa Indonesia (ID)', const Locale('id')),
+            const Divider(height: 1),
+            _buildLanguageTile(context, 'English (US)', const Locale('en')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageTile(BuildContext context, String label, Locale targetLocale) {
+    final isSelected =
+        LocaleService.instance.currentLocale.languageCode == targetLocale.languageCode;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF475569),
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981))
+          : null,
+      onTap: () async {
+        await LocaleService.instance.setLocale(targetLocale);
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              targetLocale.languageCode == 'id'
+                  ? 'Bahasa aplikasi diubah ke Bahasa Indonesia.'
+                  : 'App language changed to English.',
+            ),
+            backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
     );
   }
 
@@ -550,7 +680,7 @@ class ProfileScreen extends StatelessWidget {
 
   void _showComingSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fitur ini sedang disiapkan.')),
+      SnackBar(content: Text(context.l10n.comingSoon)),
     );
   }
 
@@ -578,7 +708,7 @@ class _MitraBadge extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
     ),
     child: Text(
-      approved ? 'Mitra Terverifikasi' : 'Menunggu Persetujuan',
+      approved ? context.l10n.partnerVerified : context.l10n.waitingApproval,
       style: TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w700,

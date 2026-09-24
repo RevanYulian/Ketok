@@ -3,6 +3,13 @@
 .env.*
 !.env.example
 
+ketok_dashboard/
+supabase/
+Screenshot/
+erd_ketok.drawio
+SKEMA_DATABASE.md
+
+
 # Archive files
 *.zip
 *.tar.gz

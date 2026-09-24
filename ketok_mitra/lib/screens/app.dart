@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_screen.dart';
 import 'beranda_screen.dart';
 import 'maintenance_screen.dart';
+import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
+import '../services/locale_service.dart';
 
 final GlobalKey<NavigatorState> ketokMitraNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -12,16 +15,29 @@ class KetokMitraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: ketokMitraNavigatorKey,
-      title: 'Ketok Mitra',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF030813),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FB),
-        useMaterial3: true,
-      ),
-      home: const _MitraRootGate(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: LocaleService.instance.localeNotifier,
+      builder: (context, currentLocale, _) {
+        return MaterialApp(
+          navigatorKey: ketokMitraNavigatorKey,
+          title: 'Ketok Mitra',
+          debugShowCheckedModeBanner: false,
+          locale: currentLocale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          theme: ThemeData(
+            colorSchemeSeed: const Color(0xFF030813),
+            scaffoldBackgroundColor: const Color(0xFFF8F9FB),
+            useMaterial3: true,
+          ),
+          home: const _MitraRootGate(),
+        );
+      },
     );
   }
 }

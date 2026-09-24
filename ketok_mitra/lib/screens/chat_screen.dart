@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 
@@ -111,9 +112,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
+    final l10n = context.l10n;
     setState(() {
       _conversations[_selectedConversation].messages.add(
-        _ChatMessage(text, true, 'Baru'),
+        _ChatMessage(text, true, l10n.isIndonesian ? 'Baru' : 'Just now'),
       );
       _messageController.clear();
     });
@@ -184,13 +186,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildConversationList() {
     final conversations = _filteredConversations;
+    final l10n = context.l10n;
     return Column(
       children: [
         TextField(
           controller: _searchController,
           onChanged: (value) => setState(() => _searchQuery = value),
           decoration: InputDecoration(
-            hintText: 'Cari pelanggan atau pesanan',
+            hintText: l10n.isIndonesian ? 'Cari pelanggan atau pesanan' : 'Search customer or order',
             prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _searchQuery.isEmpty
                 ? null
@@ -212,10 +215,12 @@ class _ChatScreenState extends State<ChatScreen> {
         const SizedBox(height: 12),
         Expanded(
           child: conversations.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
-                    'Percakapan tidak ditemukan.',
-                    style: TextStyle(color: KetokColors.onSurfaceVariant),
+                    l10n.isIndonesian
+                        ? 'Percakapan tidak ditemukan.'
+                        : 'No conversations found.',
+                    style: const TextStyle(color: KetokColors.onSurfaceVariant),
                   ),
                 )
               : ListView.separated(
@@ -319,6 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildThread({bool showBackButton = false, bool compact = false}) {
+    final l10n = context.l10n;
     final conversation = _conversations[_selectedConversation];
     return Column(
       children: [
@@ -333,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   onPressed: () => setState(() => _showThreadOnMobile = false),
                   icon: const Icon(Icons.arrow_back_rounded),
-                  tooltip: 'Kembali ke daftar chat',
+                  tooltip: l10n.isIndonesian ? 'Kembali ke daftar chat' : 'Back to chat list',
                 ),
               _Avatar(name: conversation.name),
               const SizedBox(width: 10),
@@ -358,7 +364,7 @@ class _ChatScreenState extends State<ChatScreen> {
               IconButton(
                 onPressed: () {},
                 icon: const Icon(Icons.more_horiz_rounded),
-                tooltip: 'Opsi percakapan',
+                tooltip: l10n.isIndonesian ? 'Opsi percakapan' : 'Conversation options',
               ),
             ],
           ),
@@ -440,6 +446,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildComposer() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, top: 4),
       child: Row(
@@ -450,7 +457,7 @@ class _ChatScreenState extends State<ChatScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendMessage(),
               decoration: InputDecoration(
-                hintText: 'Tulis pesan untuk pelanggan...',
+                hintText: l10n.typeMessageHint,
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
@@ -473,7 +480,7 @@ class _ChatScreenState extends State<ChatScreen> {
               fixedSize: const Size(46, 46),
             ),
             icon: const Icon(Icons.send_rounded, size: 20),
-            tooltip: 'Kirim pesan',
+            tooltip: l10n.isIndonesian ? 'Kirim pesan' : 'Send message',
           ),
         ],
       ),

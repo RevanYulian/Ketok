@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/ketok_order_repository.dart';
 import '../widgets/ketok_colors.dart';
 import 'app.dart';
@@ -16,7 +17,7 @@ class PesananScreen extends StatefulWidget {
 
 class _PesananScreenState extends State<PesananScreen> {
   late Future<List<KetokOrder>> _ordersFuture;
-  String _filter = 'Semua';
+  String _filter = 'all';
 
   @override
   void initState() {
@@ -78,13 +79,13 @@ class _PesananScreenState extends State<PesananScreen> {
   );
 
   List<KetokOrder> _filterOrders(List<KetokOrder> orders) {
-    if (_filter == 'Semua') {
+    if (_filter == 'all' || _filter == 'Semua') {
       return orders;
     }
-    if (_filter == 'Berjalan') {
+    if (_filter == 'active' || _filter == 'Berjalan') {
       return orders.where((order) => order.isActive).toList();
     }
-    if (_filter == 'Selesai') {
+    if (_filter == 'completed' || _filter == 'Selesai') {
       return orders.where((order) => order.status == 'selesai').toList();
     }
     return orders.where((order) => order.status == 'dibatalkan').toList();
@@ -95,57 +96,68 @@ class _FilterChips extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onSelected;
   const _FilterChips({required this.selected, required this.onSelected});
+
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
-    ),
-    child: Row(
-      children: ['Semua', 'Berjalan', 'Selesai', 'Dibatalkan']
-          .map(
-            (value) => Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: value == 'Dibatalkan' ? 0 : 8),
-                child: ChoiceChip(
-                  label: SizedBox(
-                    width: double.infinity,
-                    child: Text(
-                      value,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final options = [
+      ('all', l10n.tabAll),
+      ('active', l10n.tabInProgress),
+      ('completed', l10n.tabCompleted),
+      ('cancelled', l10n.tabCancelled),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+      ),
+      child: Row(
+        children: options
+            .map(
+              (opt) => Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: opt.$1 == 'cancelled' ? 0 : 8),
+                  child: ChoiceChip(
+                    label: SizedBox(
+                      width: double.infinity,
+                      child: Text(
+                        opt.$2,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  selected: selected == value,
-                  onSelected: (_) => onSelected(value),
-                  showCheckmark: false,
-                  labelStyle: TextStyle(
-                    color: selected == value
-                        ? Colors.white
-                        : KetokColors.textMuted,
-                    fontSize: 11,
-                    fontWeight: selected == value
-                        ? FontWeight.w700
-                        : FontWeight.w500,
-                  ),
-                  backgroundColor: KetokColors.surfaceLow,
-                  selectedColor: KetokColors.primary,
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 7,
+                    selected: selected == opt.$1 || selected == opt.$2,
+                    onSelected: (_) => onSelected(opt.$1),
+                    showCheckmark: false,
+                    labelStyle: TextStyle(
+                      color: (selected == opt.$1 || selected == opt.$2)
+                          ? Colors.white
+                          : KetokColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: (selected == opt.$1 || selected == opt.$2)
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ),
+                    backgroundColor: KetokColors.surfaceLow,
+                    selectedColor: KetokColors.primary,
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 7,
+                    ),
                   ),
                 ),
               ),
-            ),
-          )
-          .toList(),
-    ),
-  );
+            )
+            .toList(),
+      ),
+    );
+  }
 }
 
 class _OrderCard extends StatelessWidget {
@@ -588,22 +600,25 @@ class _BackendNotice extends StatelessWidget {
 class _EmptyOrders extends StatelessWidget {
   const _EmptyOrders();
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(vertical: 80),
-    child: Column(
-      children: [
-        Icon(Icons.receipt_long_outlined, size: 50, color: Colors.grey),
-        SizedBox(height: 12),
-        Text(
-          'Belum ada pesanan',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 5),
-        Text(
-          'Pesanan layanan Anda akan muncul di sini.',
-          style: TextStyle(color: KetokColors.textMuted),
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 80),
+      child: Column(
+        children: [
+          const Icon(Icons.receipt_long_outlined, size: 50, color: Colors.grey),
+          const SizedBox(height: 12),
+          Text(
+            l10n.emptyOrders,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            l10n.emptyOrdersDesc,
+            style: const TextStyle(color: KetokColors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
 }

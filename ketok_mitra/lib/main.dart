@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/app.dart';
 import 'services/app_config_service.dart';
+import 'services/locale_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,9 @@ Future<void> main() async {
   // Load dynamic branding & app config
   await AppConfigService.instance.loadConfig();
   AppConfigService.instance.subscribeConfig();
+
+  // Load persisted language
+  await LocaleService.instance.init();
 
   runApp(const KetokMitraApp());
 }

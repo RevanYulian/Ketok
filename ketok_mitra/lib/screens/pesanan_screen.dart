@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 import 'pesanan_detail_screen.dart';
@@ -134,8 +135,10 @@ class _PesananScreenState extends State<PesananScreen> {
     }).toList();
   }
 
-  String _formatPrice(dynamic value) {
-    if (value == null) return 'Belum ditentukan';
+  String _formatPrice(BuildContext context, dynamic value) {
+    if (value == null) {
+      return context.l10n.isIndonesian ? 'Belum ditentukan' : 'To be determined';
+    }
     final number = (value as num).round().toString();
     final formatted = number.replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
@@ -167,20 +170,21 @@ class _PesananScreenState extends State<PesananScreen> {
 
   bool _isActive(String status) => !{'selesai', 'dibatalkan'}.contains(status);
 
-  String _statusLabel(String status) {
+  String _statusLabel(BuildContext context, String status) {
+    final l10n = context.l10n;
     switch (status) {
       case 'diproses':
-        return 'Diproses';
+        return l10n.isIndonesian ? 'Diproses' : 'In Process';
       case 'menuju_lokasi':
-        return 'Menuju Lokasi';
+        return l10n.isIndonesian ? 'Menuju Lokasi' : 'On The Way';
       case 'dikerjakan':
-        return 'Dalam Pengerjaan';
+        return l10n.isIndonesian ? 'Dalam Pengerjaan' : 'In Progress';
       case 'selesai':
-        return 'Selesai';
+        return l10n.isIndonesian ? 'Selesai' : 'Completed';
       case 'dibatalkan':
-        return 'Dibatalkan';
+        return l10n.isIndonesian ? 'Dibatalkan' : 'Cancelled';
       default:
-        return 'Menunggu Konfirmasi';
+        return l10n.isIndonesian ? 'Menunggu Konfirmasi' : 'Awaiting Confirmation';
     }
   }
 
@@ -192,6 +196,7 @@ class _PesananScreenState extends State<PesananScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       color: _background,
       child: Column(
@@ -206,19 +211,19 @@ class _PesananScreenState extends State<PesananScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildFilters(),
+                    _buildFilters(context),
                     if (_loading)
                       const Padding(
                         padding: EdgeInsets.all(48),
                         child: Center(child: CircularProgressIndicator()),
                       )
                     else if (_errorMessage != null)
-                      _buildErrorState()
+                      _buildErrorState(context)
                     else
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 14, 16, 30),
                         child: _filteredOrders.isEmpty
-                            ? _buildEmptyState()
+                            ? _buildEmptyState(context)
                             : Column(
                                 children: [
                                   for (
@@ -228,6 +233,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                   ) ...[
                                     if (index > 0) const SizedBox(height: 14),
                                     _buildOrderCardFromData(
+                                      context,
                                       _filteredOrders[index],
                                     ),
                                   ],
@@ -238,9 +244,11 @@ class _PesananScreenState extends State<PesananScreen> {
                                     color: Color(0xFFD1D5DB),
                                   ),
                                   const SizedBox(height: 12),
-                                  const Text(
-                                    'Menampilkan semua pesanan',
-                                    style: TextStyle(
+                                  Text(
+                                    l10n.isIndonesian
+                                        ? 'Menampilkan semua pesanan'
+                                        : 'Showing all orders',
+                                    style: const TextStyle(
                                       color: Color(0xFF9CA3AF),
                                       fontSize: 14,
                                     ),
@@ -258,7 +266,8 @@ class _PesananScreenState extends State<PesananScreen> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.all(32),
       child: Center(
@@ -275,7 +284,7 @@ class _PesananScreenState extends State<PesananScreen> {
             OutlinedButton.icon(
               onPressed: _loadOrders,
               icon: const Icon(Icons.refresh),
-              label: const Text('Coba Lagi'),
+              label: Text(l10n.retry),
             ),
           ],
         ),
@@ -283,18 +292,21 @@ class _PesananScreenState extends State<PesananScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 48),
+  Widget _buildEmptyState(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
       child: SizedBox(
         width: double.infinity,
         child: Column(
           children: [
-            Icon(Icons.receipt_long_outlined, size: 48, color: Color(0xFFD1D5DB)),
-            SizedBox(height: 12),
+            const Icon(Icons.receipt_long_outlined, size: 48, color: Color(0xFFD1D5DB)),
+            const SizedBox(height: 12),
             Text(
-              'Belum ada pesanan pada filter ini',
-              style: TextStyle(color: _muted),
+              l10n.isIndonesian
+                  ? 'Belum ada pesanan pada filter ini'
+                  : 'No orders found for this filter',
+              style: const TextStyle(color: _muted),
             ),
           ],
         ),
@@ -302,30 +314,33 @@ class _PesananScreenState extends State<PesananScreen> {
     );
   }
 
-  Widget _buildOrderCardFromData(Map<String, dynamic> order) {
+  Widget _buildOrderCardFromData(BuildContext context, Map<String, dynamic> order) {
+    final l10n = context.l10n;
     final status = order['status'] as String? ?? '';
     final active = _isActive(status);
     return _buildOrderCard(
+      context: context,
       order: order,
-      status: _statusLabel(status),
+      status: _statusLabel(context, status),
       statusColor: _statusColor(status),
       reference: active
-          ? 'Pesanan #${order['id_pesanan']}'
+          ? '${l10n.navOrders} #${order['id_pesanan']}'
           : _formatDate(order['jadwal']),
       title: order['category_name'] as String,
       customer: order['customer_name'] as String,
-      price: _formatPrice(order['price']),
-      location: order['lokasi'] as String? ?? 'Lokasi belum tersedia',
+      price: _formatPrice(context, order['price']),
+      location: order['lokasi'] as String? ?? (l10n.isIndonesian ? 'Lokasi belum tersedia' : 'Location not available'),
       active: active,
       orderId: order['id_pesanan'] as int,
     );
   }
 
   Future<void> _completeOrder(int orderId) async {
+    final l10n = context.l10n;
     try {
       final client = Supabase.instance.client;
       final authUser = client.auth.currentUser;
-      if (authUser == null) throw Exception('Sesi login tidak ditemukan.');
+      if (authUser == null) throw Exception(l10n.isIndonesian ? 'Sesi login tidak ditemukan.' : 'Login session not found.');
 
       final profile = await client
           .from('users')
@@ -333,7 +348,7 @@ class _PesananScreenState extends State<PesananScreen> {
           .eq('auth_uid', authUser.id)
           .maybeSingle();
       final mitraId = profile?['id_user'];
-      if (mitraId == null) throw Exception('Profil Mitra tidak ditemukan.');
+      if (mitraId == null) throw Exception(l10n.isIndonesian ? 'Profil Mitra tidak ditemukan.' : 'Partner profile not found.');
 
       final updated = await client
           .from('pesanan')
@@ -343,7 +358,7 @@ class _PesananScreenState extends State<PesananScreen> {
           .neq('status', 'selesai')
           .neq('status', 'dibatalkan')
           .select('id_pesanan');
-      if (updated.isEmpty) throw Exception('Pesanan tidak dapat diselesaikan.');
+      if (updated.isEmpty) throw Exception(l10n.isIndonesian ? 'Pesanan tidak dapat diselesaikan.' : 'Order could not be completed.');
 
       await client
           .from('invoice')
@@ -353,12 +368,12 @@ class _PesananScreenState extends State<PesananScreen> {
       await _loadOrders();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pesanan berhasil diselesaikan.')),
+        SnackBar(content: Text(l10n.isIndonesian ? 'Pesanan berhasil diselesaikan.' : 'Order completed successfully.')),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pesanan gagal diselesaikan: $error')),
+        SnackBar(content: Text(l10n.isIndonesian ? 'Pesanan gagal diselesaikan: $error' : 'Failed to complete order: $error')),
       );
     }
   }
@@ -369,8 +384,9 @@ class _PesananScreenState extends State<PesananScreen> {
     );
   }
 
-  Widget _buildFilters() {
-    const filters = ['Semua', 'Berjalan', 'Selesai', 'Dibatalkan'];
+  Widget _buildFilters(BuildContext context) {
+    final l10n = context.l10n;
+    final filters = [l10n.tabAll, l10n.tabInProgress, l10n.tabCompleted, l10n.tabCancelled];
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
@@ -418,6 +434,7 @@ class _PesananScreenState extends State<PesananScreen> {
   }
 
   Widget _buildOrderCard({
+    required BuildContext context,
     required Map<String, dynamic> order,
     required String status,
     required Color statusColor,
@@ -429,6 +446,7 @@ class _PesananScreenState extends State<PesananScreen> {
     required int orderId,
     bool active = false,
   }) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -521,7 +539,7 @@ class _PesananScreenState extends State<PesananScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      active ? 'Pemesan: $customer' : customer,
+                      active ? '${l10n.customerLabel}: $customer' : customer,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 13, color: _muted),
@@ -537,7 +555,9 @@ class _PesananScreenState extends State<PesananScreen> {
                     Row(
                       children: [
                         Text(
-                          active ? 'Biaya Kunjungan' : 'Total Biaya',
+                          active
+                              ? l10n.visitFeeLabel
+                              : (l10n.isIndonesian ? 'Total Biaya' : 'Total Fee'),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF94A3B8),
@@ -586,7 +606,7 @@ class _PesananScreenState extends State<PesananScreen> {
                         side: const BorderSide(color: Color(0xFFE2E8F0)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Detail'),
+                      child: Text(l10n.isIndonesian ? 'Detail' : 'Details'),
                     ),
                   ),
                   SizedBox(width: narrow ? 0 : 10, height: narrow ? 8 : 0),
@@ -613,7 +633,9 @@ class _PesananScreenState extends State<PesananScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: Text(
-                        isApproved ? 'Selesaikan' : 'Kirim Estimasi',
+                        isApproved
+                            ? (l10n.isIndonesian ? 'Selesaikan' : 'Complete')
+                            : (l10n.isIndonesian ? 'Kirim Estimasi' : 'Send Estimate'),
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -642,9 +664,9 @@ class _PesananScreenState extends State<PesananScreen> {
                   side: BorderSide.none,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: const Text(
-                  'Lihat Rincian',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                child: Text(
+                  l10n.isIndonesian ? 'Lihat Rincian' : 'View Details',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
             ),

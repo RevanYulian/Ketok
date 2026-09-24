@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/app_config_service.dart';
+import '../services/locale_service.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/profile_avatar.dart';
 import 'app.dart';
@@ -39,7 +41,6 @@ class KetokProfileScreen extends StatefulWidget {
 
 class _KetokProfileScreenState extends State<KetokProfileScreen> {
   bool _notificationsEnabled = true;
-  String _selectedLanguage = 'Bahasa Indonesia (ID)';
   int _completedOrdersCount = 0;
   int _reviewsCount = 0;
   int _activeVoucherCount = 0;
@@ -124,6 +125,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
 
 
   void _showLanguageModal() {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -147,26 +149,27 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Pilih Bahasa Aplikasi',
-              style: TextStyle(
+            Text(
+              l10n.selectLanguageTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF0F172A),
               ),
             ),
             const SizedBox(height: 16),
-            _buildLanguageTile('Bahasa Indonesia (ID)', 'id'),
+            _buildLanguageTile('Bahasa Indonesia (ID)', const Locale('id')),
             const Divider(height: 1),
-            _buildLanguageTile('English (US)', 'en'),
+            _buildLanguageTile('English (US)', const Locale('en')),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLanguageTile(String label, String code) {
-    final isSelected = _selectedLanguage.contains(code == 'id' ? 'Indonesia' : 'English');
+  Widget _buildLanguageTile(String label, Locale targetLocale) {
+    final isSelected =
+        LocaleService.instance.currentLocale.languageCode == targetLocale.languageCode;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(
@@ -180,13 +183,20 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
       trailing: isSelected
           ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981))
           : null,
-      onTap: () {
-        setState(() => _selectedLanguage = label);
+      onTap: () async {
+        await LocaleService.instance.setLocale(targetLocale);
+        if (!mounted) return;
+        setState(() {});
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Bahasa aplikasi diubah ke $label.'),
+            content: Text(
+              targetLocale.languageCode == 'id'
+                  ? 'Bahasa aplikasi diubah ke Bahasa Indonesia.'
+                  : 'App language changed to English.',
+            ),
             backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 2),
           ),
         );
       },
@@ -309,22 +319,23 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
   }
 
   void _confirmLogout() {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Keluar dari Akun',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.logoutConfirmTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
-        content: const Text(
-          'Apakah Anda yakin ingin keluar dari akun Ketok Anda?',
-          style: TextStyle(color: Color(0xFF475569)),
+        content: Text(
+          l10n.logoutConfirmDesc,
+          style: const TextStyle(color: Color(0xFF475569)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -334,7 +345,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
             ),
-            child: const Text('Keluar'),
+            child: Text(l10n.logoutButton),
           ),
         ],
       ),
@@ -342,11 +353,13 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFFF8F9FB),
-    body: SafeArea(
-      child: KetokResponsiveContent(
-        child: Column(
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FB),
+      body: SafeArea(
+        child: KetokResponsiveContent(
+          child: Column(
           children: [
             const KetokScreenHeader(),
             Expanded(
@@ -359,12 +372,12 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                     const SizedBox(height: 20),
                     _buildStats(),
                     const SizedBox(height: 24),
-                    _buildSectionLabel('AKTIVITAS & ALAMAT'),
+                    _buildSectionLabel(l10n.sectionActivity),
                     _buildSettingsGroup(context, [
                       _SettingItem(
                         Icons.location_on_outlined,
-                        'Alamat Tersimpan',
-                        'Kelola alamat rumah, kantor, atau lokasi kerja',
+                        l10n.savedAddresses,
+                        l10n.savedAddressesSubtitle,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -374,8 +387,8 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.account_balance_wallet_outlined,
-                        'Saldo KetokPay',
-                        'Pemasukan, pengeluaran & isi saldo',
+                        l10n.ketokPayBalance,
+                        l10n.ketokPaySubtitle,
                         badge: 'Rp 0',
                         onTap: () => Navigator.push(
                           context,
@@ -386,8 +399,8 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.confirmation_num_outlined,
-                        'Voucher & Promo Saya',
-                        'Koleksi voucher promo yang Anda miliki',
+                        l10n.myVouchers,
+                        l10n.myVouchersSubtitle,
                         badge: _activeVoucherCount > 0
                             ? '$_activeVoucherCount Voucher'
                             : 'Promo',
@@ -403,12 +416,12 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                     ]),
                     const SizedBox(height: 22),
-                    _buildSectionLabel('PREFERENSI & KEAMANAN'),
+                    _buildSectionLabel(l10n.sectionSecurity),
                     _buildSettingsGroup(context, [
                       _SettingItem(
                         Icons.notifications_none_rounded,
-                        'Notifikasi Pesanan & Chat',
-                        'Pemberitahuan pembaruan pesanan waktu nyata',
+                        l10n.notificationsSetting,
+                        l10n.notificationsSubtitle,
                         toggle: true,
                         toggleValue: _notificationsEnabled,
                         onToggleChanged: (val) {
@@ -417,8 +430,12 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                             SnackBar(
                               content: Text(
                                 val
-                                    ? 'Notifikasi pesanan & chat diaktifkan.'
-                                    : 'Notifikasi dinonaktifkan.',
+                                    ? (l10n.isIndonesian
+                                        ? 'Notifikasi pesanan & chat diaktifkan.'
+                                        : 'Order & chat notifications enabled.')
+                                    : (l10n.isIndonesian
+                                        ? 'Notifikasi dinonaktifkan.'
+                                        : 'Notifications disabled.'),
                               ),
                               duration: const Duration(seconds: 2),
                             ),
@@ -427,8 +444,8 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.lock_outline_rounded,
-                        'Keamanan Akun & Sandi',
-                        'Ubah kata sandi akun Anda',
+                        l10n.accountSecurity,
+                        l10n.accountSecuritySubtitle,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -438,20 +455,20 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.translate_rounded,
-                        'Bahasa Aplikasi',
-                        _selectedLanguage,
+                        l10n.appLanguage,
+                        l10n.currentLanguageName,
                         onTap: _showLanguageModal,
                       ),
                     ]),
                     const SizedBox(height: 20),
                     _buildPartnerBanner(),
                     const SizedBox(height: 22),
-                    _buildSectionLabel('BANTUAN & INFO KETOK'),
+                    _buildSectionLabel(l10n.sectionHelp),
                     _buildSettingsGroup(context, [
                       _SettingItem(
                         Icons.help_outline_rounded,
-                        'Pusat Bantuan & FAQ',
-                        'Pertanyaan umum dan kontak Customer Service',
+                        l10n.helpCenter,
+                        l10n.helpCenterSubtitle,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -461,8 +478,8 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.gavel_rounded,
-                        'Syarat & Ketentuan Layanan',
-                        'Ketentuan penggunaan platform Ketok',
+                        l10n.termsConditions,
+                        l10n.termsConditionsSubtitle,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -472,8 +489,8 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       ),
                       _SettingItem(
                         Icons.shield_outlined,
-                        'Kebijakan Privasi',
-                        'Perlindungan data dan privasi pengguna',
+                        l10n.privacyPolicy,
+                        l10n.privacyPolicySubtitle,
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -488,7 +505,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
                       child: FilledButton.icon(
                         onPressed: _confirmLogout,
                         icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Keluar dari Akun'),
+                        label: Text(l10n.logoutButton),
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFFFFD8D6),
                           foregroundColor: const Color(0xFF9B1C1C),
@@ -528,6 +545,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
       ),
     ),
   );
+}
 
   Widget _buildAccountCard(BuildContext context) => Container(
     width: double.infinity,
@@ -604,7 +622,7 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
           child: OutlinedButton.icon(
             onPressed: _openEditProfile,
             icon: const Icon(Icons.edit_note_rounded, size: 18),
-            label: const Text('Edit Profil'),
+            label: Text(context.l10n.editProfileTitle),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF0F172A),
               side: const BorderSide(color: Color(0xFFCBD5E1)),
@@ -619,57 +637,64 @@ class _KetokProfileScreenState extends State<KetokProfileScreen> {
     ),
   );
 
-  Widget _buildStats() => Row(
-    children: [
-      Expanded(
-        child: _StatCard(
-          icon: Icons.verified_outlined,
-          value: '$_completedOrdersCount',
-          label: 'Pesanan Selesai',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Anda telah menyelesaikan $_completedOrdersCount pesanan layanan di Ketok.',
+  Widget _buildStats() {
+    final l10n = context.l10n;
+    return Row(
+      children: [
+        Expanded(
+          child: _StatCard(
+            icon: Icons.verified_outlined,
+            value: '$_completedOrdersCount',
+            label: l10n.completedOrdersCountLabel,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    l10n.isIndonesian
+                        ? 'Anda telah menyelesaikan $_completedOrdersCount pesanan layanan di Ketok.'
+                        : 'You have completed $_completedOrdersCount service orders on Ketok.',
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: _StatCard(
-          icon: Icons.account_balance_wallet_outlined,
-          value: '0',
-          label: 'KetokPay (Rp)',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const MetodePembayaranScreen(),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.account_balance_wallet_outlined,
+            value: '0',
+            label: 'KetokPay (Rp)',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MetodePembayaranScreen(),
+              ),
             ),
           ),
         ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: _StatCard(
-          icon: Icons.star_rounded,
-          value: '$_reviewsCount',
-          label: 'Ulasan Anda',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Anda telah memberikan $_reviewsCount ulasan kepuasan layanan.',
+        const SizedBox(width: 10),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.star_rounded,
+            value: '$_reviewsCount',
+            label: l10n.reviewsCountLabel,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    l10n.isIndonesian
+                        ? 'Anda telah memberikan $_reviewsCount ulasan kepuasan layanan.'
+                        : 'You have written $_reviewsCount service reviews.',
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   Widget _buildSectionLabel(String title) => Padding(
     padding: const EdgeInsets.only(left: 4, bottom: 10),

@@ -19,6 +19,7 @@ import 'quick_menu/tip_detail_screen.dart';
 import '../widgets/ketok_colors.dart';
 import '../widgets/ketok_app_bar.dart';
 import '../widgets/ketok_nav_bar.dart';
+import '../l10n/app_localizations.dart';
 
 class BerandaScreen extends StatefulWidget {
   const BerandaScreen({super.key});
@@ -334,17 +335,20 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Future<void> _declineOrder(Map<String, dynamic> order) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tolak Pesanan?'),
-        content: const Text(
-          'Apakah Anda yakin ingin menolak pesanan ini? Pesanan akan dibatalkan.',
+        title: Text(l10n.isIndonesian ? 'Tolak Pesanan?' : 'Decline Order?'),
+        content: Text(
+          l10n.isIndonesian
+              ? 'Apakah Anda yakin ingin menolak pesanan ini? Pesanan akan dibatalkan.'
+              : 'Are you sure you want to decline this order? The order will be cancelled.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -352,7 +356,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Ya, Tolak'),
+            child: Text(l10n.isIndonesian ? 'Ya, Tolak' : 'Yes, Decline'),
           ),
         ],
       ),
@@ -375,9 +379,16 @@ class _BerandaScreenState extends State<BerandaScreen> {
           (item) => item['id_pesanan'] == order['id_pesanan'],
         );
       });
-      _showOrderMessage('Pesanan telah ditolak dan dibatalkan.');
+      _showOrderMessage(
+        l10n.isIndonesian
+            ? 'Pesanan telah ditolak dan dibatalkan.'
+            : 'Order has been declined and cancelled.',
+      );
     } catch (error) {
-      _showOrderMessage('Gagal menolak pesanan: $error', error: true);
+      _showOrderMessage(
+        l10n.isIndonesian ? 'Gagal menolak pesanan: $error' : 'Failed to decline order: $error',
+        error: true,
+      );
     }
   }
 
@@ -434,21 +445,22 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = context.l10n;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Konfirmasi Keluar',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Text(
+          l10n.logoutConfirmTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        content: const Text('Apakah Anda yakin ingin keluar dari akun Mitra?'),
+        content: Text(l10n.logoutConfirmDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(
-              'Batal',
-              style: TextStyle(color: _onSurfaceVariant),
+            child: Text(
+              l10n.cancel,
+              style: const TextStyle(color: _onSurfaceVariant),
             ),
           ),
           ElevatedButton(
@@ -460,7 +472,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
               ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Keluar'),
+            child: Text(l10n.logoutButton),
           ),
         ],
       ),
@@ -483,6 +495,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: _bgColor,
       body: SafeArea(
@@ -499,27 +512,27 @@ class _BerandaScreenState extends State<BerandaScreen> {
       bottomNavigationBar: KetokNavBar(
         currentIndex: _currentTabIndex,
         items: [
-          const KetokNavItem(
+          KetokNavItem(
             selectedIcon: Icons.home_rounded,
             unselectedIcon: Icons.home_outlined,
-            label: 'Beranda',
+            label: l10n.navHome,
           ),
           KetokNavItem(
             selectedIcon: Icons.assignment_rounded,
             unselectedIcon: Icons.assignment_outlined,
-            label: 'Pesanan',
+            label: l10n.navOrders,
             badge: _activeOrdersCount > 0 ? _activeOrdersCount.toString() : null,
           ),
           KetokNavItem(
             selectedIcon: Icons.chat_bubble_rounded,
             unselectedIcon: Icons.chat_bubble_outline_rounded,
-            label: 'Chat',
+            label: l10n.navChat,
             badge: _chatCount > 0 ? _chatCount.toString() : null,
           ),
-          const KetokNavItem(
+          KetokNavItem(
             selectedIcon: Icons.person_rounded,
             unselectedIcon: Icons.person_outline_rounded,
-            label: 'Profil',
+            label: l10n.navProfile,
           ),
         ],
         onTap: (i) => setState(() {
@@ -569,6 +582,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildApprovalBanner() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: InkWell(
@@ -589,21 +603,23 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 size: 28,
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Menunggu Verifikasi KTP',
-                      style: TextStyle(
+                      l10n.isIndonesian ? 'Menunggu Verifikasi KTP' : 'Awaiting ID Verification',
+                      style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF9A3412),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'Pengajuan akun & berkas KTP sedang ditinjau admin. Ketuk untuk melihat status verifikasi.',
-                      style: TextStyle(
+                      l10n.isIndonesian
+                          ? 'Pengajuan akun & berkas KTP sedang ditinjau admin. Ketuk untuk melihat status verifikasi.'
+                          : 'Account and ID documents are under admin review. Tap to check verification status.',
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF9A3412),
                         height: 1.3,
@@ -621,6 +637,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildProfileCompletionBanner() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: InkWell(
@@ -641,21 +658,23 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 size: 28,
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Lengkapi profil Anda',
-                      style: TextStyle(
+                      l10n.isIndonesian ? 'Lengkapi profil Anda' : 'Complete your profile',
+                      style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF9A3412),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'Isi data diri dan keahlian agar bisa menerima pekerjaan yang sesuai.',
-                      style: TextStyle(
+                      l10n.isIndonesian
+                          ? 'Isi data diri dan keahlian agar bisa menerima pekerjaan yang sesuai.'
+                          : 'Fill in your details and skills to receive relevant job orders.',
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF9A3412),
                         height: 1.3,
@@ -699,6 +718,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildMitraGreeting() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
@@ -710,9 +730,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Halo Mitra,',
-                      style: TextStyle(color: _onSurfaceVariant),
+                    Text(
+                      l10n.greetingPartner,
+                      style: const TextStyle(color: _onSurfaceVariant),
                     ),
                     const SizedBox(width: 6),
                     Container(
@@ -765,14 +785,18 @@ class _BerandaScreenState extends State<BerandaScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isOnline ? 'Online' : 'Istirahat',
+                        _isOnline
+                            ? (l10n.isIndonesian ? 'Online' : 'Online')
+                            : (l10n.isIndonesian ? 'Istirahat' : 'Resting'),
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
-                        _isOnline ? 'Siap Order' : 'Tidak menerima',
+                        _isOnline
+                            ? (l10n.isIndonesian ? 'Siap Order' : 'Ready')
+                            : (l10n.isIndonesian ? 'Tidak menerima' : 'Offline'),
                         style: const TextStyle(
                           fontSize: 10,
                           color: _onSurfaceVariant,
@@ -792,6 +816,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildPerformanceCard() {
+    final l10n = context.l10n;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(20),
@@ -817,10 +842,10 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 size: 17,
               ),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'RINGKASAN BULAN INI',
-                  style: TextStyle(
+                  l10n.isIndonesian ? 'RINGKASAN BULAN INI' : 'THIS MONTH SUMMARY',
+                  style: const TextStyle(
                     color: Color(0xFFD8DCE5),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -838,7 +863,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                   );
                 },
                 icon: const Icon(Icons.arrow_forward, size: 14),
-                label: const Text('Detail Dompet'),
+                label: Text(l10n.isIndonesian ? 'Detail Dompet' : 'Wallet Details'),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.white24,
@@ -852,14 +877,14 @@ class _BerandaScreenState extends State<BerandaScreen> {
             ],
           ),
           const SizedBox(height: 21),
-          const Text(
-            'Total Pendapatan Bersih',
-            style: TextStyle(color: Color(0xFF9AA2B2), fontSize: 12),
+          Text(
+            l10n.isIndonesian ? 'Total Pendapatan Bersih' : 'Total Net Income',
+            style: const TextStyle(color: Color(0xFF9AA2B2), fontSize: 12),
           ),
           const SizedBox(height: 2),
           Text(
             _formatCurrency(_monthlyIncome),
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 42,
               fontWeight: FontWeight.w800,
@@ -873,13 +898,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
               _metric(
                 Icons.task_alt_rounded,
                 '$_completedOrderCount Order',
-                'Pesanan selesai',
+                l10n.isIndonesian ? 'Pesanan selesai' : 'Completed orders',
               ),
               const SizedBox(width: 22),
               _metric(
                 Icons.star_rounded,
                 _averageRating == 0 ? '-' : _averageRating.toStringAsFixed(1),
-                '($_reviewCount Ulasan)',
+                '($_reviewCount ${l10n.isIndonesian ? 'Ulasan' : 'Reviews'})',
               ),
             ],
           ),
@@ -894,7 +919,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 );
               },
               icon: const Icon(Icons.account_balance_wallet_outlined, size: 18),
-              label: const Text('Tarik Saldo Instan'),
+              label: Text(l10n.isIndonesian ? 'Tarik Saldo Instan' : 'Instant Withdrawal'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: _darkPrimary,
@@ -956,35 +981,36 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildQuickMenu() {
+    final l10n = context.l10n;
     final items = [
       (
         Icons.inventory_2_outlined,
-        'Pesanan Tersedia',
+        l10n.quickMenuAvailable,
         _availableOrders.isNotEmpty ? _availableOrders.length.toString() : '',
         const PesananTersediaScreen(),
       ),
       (
         Icons.rate_review_outlined,
-        'Ulasan Pengguna',
+        l10n.quickMenuReviews,
         _reviewCount > 0 ? _reviewCount.toString() : '',
         const UlasanMitraScreen(),
       ),
       (
         Icons.receipt_long_outlined,
-        'Tagihan Marketing',
+        l10n.quickMenuMarketing,
         _tagihanMarketingCount > 0 ? _tagihanMarketingCount.toString() : '',
         const TagihanMarketingScreen(),
       ),
-      (Icons.lightbulb_outline, 'Tips Mitra', '', const TipsMitraScreen()),
+      (Icons.lightbulb_outline, l10n.quickMenuTips, '', const TipsMitraScreen()),
       (
         Icons.support_agent_outlined,
-        'Pusat Bantuan',
+        l10n.quickMenuHelp,
         '',
         const BantuanScreen(),
       ),
       (
         Icons.verified_user_outlined,
-        'Panduan SOP',
+        l10n.quickMenuSop,
         '',
         const PanduanSopScreen(),
       ),
@@ -1070,15 +1096,16 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _buildAvailableOrders() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 26, 16, 0),
       child: Column(
         children: [
           Row(
             children: [
-              const Text(
-                'Pesanan Tersedia',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                l10n.isIndonesian ? 'Pesanan Tersedia' : 'Available Orders',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(width: 8),
               Container(
@@ -1091,9 +1118,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
               const Spacer(),
               GestureDetector(
                 onTap: _loadAvailableOrders,
-                child: const Text(
-                  'Segarkan',
-                  style: TextStyle(fontSize: 12, color: _onSurfaceVariant),
+                child: Text(
+                  l10n.refresh,
+                  style: const TextStyle(fontSize: 12, color: _onSurfaceVariant),
                 ),
               ),
             ],
@@ -1105,11 +1132,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
               child: CircularProgressIndicator(),
             )
           else if (_availableOrders.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                'Belum ada pesanan baru untuk Anda.',
-                style: TextStyle(color: _onSurfaceVariant),
+                l10n.isIndonesian
+                    ? 'Belum ada pesanan baru untuk Anda.'
+                    : 'No new orders available for you right now.',
+                style: const TextStyle(color: _onSurfaceVariant),
               ),
             )
           else
@@ -1123,22 +1152,23 @@ class _BerandaScreenState extends State<BerandaScreen> {
   }
 
   Widget _orderCardFromData(Map<String, dynamic> order) {
+    final l10n = context.l10n;
     final schedule = DateTime.tryParse(order['jadwal']?.toString() ?? '');
     final scheduleText = schedule == null
-        ? 'Jadwal belum ditentukan'
+        ? (l10n.isIndonesian ? 'Jadwal belum ditentukan' : 'Schedule not set')
         : '${schedule.day}/${schedule.month}/${schedule.year}, ${schedule.hour.toString().padLeft(2, '0')}:${schedule.minute.toString().padLeft(2, '0')} WIB';
-    final category = order['category_name'] as String? ?? 'Layanan Ketok';
+    final category = order['category_name'] as String? ?? (l10n.isIndonesian ? 'Layanan Ketok' : 'Ketok Service');
     final amount = order['price'];
     final price = amount == null
-        ? 'Harga akan dikonfirmasi'
+        ? (l10n.isIndonesian ? 'Harga akan dikonfirmasi' : 'Price to be confirmed')
         : 'Rp ${(amount as num).round()}';
     return _orderCard(
       order: order,
       title: category,
       schedule: scheduleText,
-      address: order['lokasi'] as String? ?? 'Lokasi belum tersedia',
+      address: order['lokasi'] as String? ?? (l10n.isIndonesian ? 'Lokasi belum tersedia' : 'Location not available'),
       price: price,
-      status: 'Pesanan Baru',
+      status: l10n.isIndonesian ? 'Pesanan Baru' : 'New Order',
       icon: Icons.ac_unit_rounded,
       urgent: true,
     );
@@ -1154,6 +1184,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
     required IconData icon,
     required bool urgent,
   }) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1291,7 +1322,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                     side: BorderSide.none,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Tolak'),
+                  child: Text(l10n.isIndonesian ? 'Tolak' : 'Decline'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -1303,9 +1334,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text(
-                    'Detail & Estimasi',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  child: Text(
+                    l10n.isIndonesian ? 'Detail & Estimasi' : 'Details & Estimate',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -1318,14 +1349,15 @@ class _BerandaScreenState extends State<BerandaScreen> {
 
   // 6. TIPS & ARTIKEL SECTION
   Widget _buildTipsArtikelSection() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Artikel',
-            style: TextStyle(
+          Text(
+            l10n.isIndonesian ? 'Artikel & Tips' : 'Articles & Tips',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: _onSurface,
@@ -1335,7 +1367,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
           if (_loadingHomeData)
             const CircularProgressIndicator()
           else if (_tips.isEmpty)
-            const Text('Belum ada tips untuk ditampilkan.')
+            Text(l10n.isIndonesian ? 'Belum ada tips untuk ditampilkan.' : 'No tips to display yet.')
           else
             ListView.separated(
               shrinkWrap: true,
@@ -1428,6 +1460,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
 
   // 7. TESTIMONI PELANGGAN SECTION
   Widget _buildTestimoniSection() {
+    final l10n = context.l10n;
     return Column(
       children: [
         Padding(
@@ -1435,9 +1468,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Ulasan Pengguna',
-                style: TextStyle(
+              Text(
+                l10n.quickMenuReviews,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: _onSurface,
@@ -1450,9 +1483,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                   minimumSize: const Size(50, 30),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  'Lihat Semua',
-                  style: TextStyle(
+                child: Text(
+                  l10n.viewAll,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: _darkPrimary,
@@ -1469,9 +1502,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
             child: CircularProgressIndicator(),
           )
         else if (_reviews.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Belum ada ulasan dari pelanggan.'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(l10n.isIndonesian ? 'Belum ada ulasan dari pelanggan.' : 'No reviews from customers yet.'),
           )
         else
           SizedBox(
@@ -1524,7 +1557,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                         ],
                       ),
                       Text(
-                        '"${item['komentar'] ?? 'Pelanggan belum menulis komentar.'}"',
+                        '"${item['komentar'] ?? (l10n.isIndonesian ? 'Pelanggan belum menulis komentar.' : 'Customer has not written a comment.')}"',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -1535,7 +1568,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                         ),
                       ),
                       Text(
-                        '${item['customer_name']} - Pelanggan',
+                        '${item['customer_name']} - ${l10n.customerLabel}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: _onSurfaceVariant,

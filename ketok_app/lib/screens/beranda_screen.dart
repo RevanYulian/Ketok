@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/ketok_colors.dart';
 import '../services/app_config_service.dart';
 import 'app.dart';
@@ -26,14 +27,17 @@ class _BerandaScreenState extends State<BerandaScreen> {
   late Future<List<Map<String, dynamic>>> _tipsFuture;
   final String _searchTerm = '';
 
-  static const _categories = [
-    ('Teknisi & Perbaikan', Icons.home_repair_service_outlined),
-    ('Kebersihan & Laundry', Icons.cleaning_services_outlined),
-    ('Pertukangan & Bangunan', Icons.construction_outlined),
-    ('Elektronik & Gadget', Icons.devices_other_outlined),
-    ('Gaya Hidup & Perawatan', Icons.spa_outlined),
-    ('Logistik & Lainnya', Icons.local_shipping_outlined),
-  ];
+  List<(String, IconData)> _getLocalizedCategories(BuildContext context) {
+    final isIndo = context.l10n.isIndonesian;
+    return [
+      (isIndo ? 'Teknisi & Perbaikan' : 'Technician & Repair', Icons.home_repair_service_outlined),
+      (isIndo ? 'Kebersihan & Laundry' : 'Cleaning & Laundry', Icons.cleaning_services_outlined),
+      (isIndo ? 'Pertukangan & Bangunan' : 'Carpentry & Building', Icons.construction_outlined),
+      (isIndo ? 'Elektronik & Gadget' : 'Electronics & Gadgets', Icons.devices_other_outlined),
+      (isIndo ? 'Gaya Hidup & Perawatan' : 'Lifestyle & Grooming', Icons.spa_outlined),
+      (isIndo ? 'Logistik & Lainnya' : 'Logistics & Others', Icons.local_shipping_outlined),
+    ];
+  }
 
   @override
   void initState() {
@@ -81,13 +85,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
                       ),
                     ),
                   ),
-            const SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Layanan Kami'),
+            SliverToBoxAdapter(
+              child: _SectionTitle(title: context.l10n.mainCategories),
             ),
-            SliverToBoxAdapter(child: _CategoryGrid(categories: _categories)),
+            SliverToBoxAdapter(child: _CategoryGrid(categories: _getLocalizedCategories(context))),
             SliverToBoxAdapter(
               child: _SectionTitle(
-                title: 'Jasa Populer',
+                title: context.l10n.popularServices,
                 onSeeAll: () => Navigator.push<void>(
                   context,
                   MaterialPageRoute(builder: (_) => const JasaPopulerScreen()),
@@ -114,11 +118,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
                       )
                       .toList();
                   if (snapshot.hasError || services.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                       child: Text(
-                        'Belum ada jasa dari mitra yang tersedia.',
-                        style: TextStyle(color: KetokColors.textMuted),
+                        context.l10n.isIndonesian
+                            ? 'Belum ada jasa dari mitra yang tersedia.'
+                            : 'No partner services available yet.',
+                        style: const TextStyle(color: KetokColors.textMuted),
                       ),
                     );
                   }
@@ -140,7 +146,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
             ),
             SliverToBoxAdapter(
               child: _SectionTitle(
-                title: 'Tips & Artikel',
+                title: context.l10n.tipsAndInsights,
                 onSeeAll: () => Navigator.push<void>(
                   context,
                   MaterialPageRoute(builder: (_) => const TipsArtikelScreen()),
@@ -406,23 +412,27 @@ class _GreetingSection extends StatelessWidget {
   const _GreetingSection();
 
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Halo, Pengguna Ketok',
-          style: TextStyle(color: KetokColors.textMuted),
-        ),
-        SizedBox(height: 2),
-        Text(
-          'Butuh bantuan hari ini?',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
-      ],
-    ),
-  );
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.isIndonesian ? 'Halo, Pengguna Ketok' : 'Hello, Ketok User',
+            style: const TextStyle(color: KetokColors.textMuted),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            l10n.isIndonesian ? 'Butuh bantuan hari ini?' : 'Need any help today?',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _SectionTitle extends StatelessWidget {
@@ -443,7 +453,7 @@ class _SectionTitle extends StatelessWidget {
         if (onSeeAll != null)
           TextButton(
             onPressed: onSeeAll,
-            child: const Text('Lihat Semua'),
+            child: Text(context.l10n.viewAll),
           ),
       ],
     ),
@@ -501,10 +511,10 @@ class _HomeSearchBar extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Cari jasa, tukang, atau layanan...',
-                      style: TextStyle(
+                      context.l10n.searchServiceHint,
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
