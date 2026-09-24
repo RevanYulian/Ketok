@@ -355,7 +355,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
       for (final order in rows) {
         final customer = await client
             .from('users')
-            .select('nama')
+            .select('nama, foto_profil')
             .eq('id_user', order['pengguna_id'])
             .maybeSingle();
         final category = await client
@@ -377,6 +377,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
         orders.add({
           ...Map<String, dynamic>.from(order),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
+          'customer_photo': customer?['foto_profil'],
           'category_name': serviceName,
           'raw_category': catName,
           'price': invoice?['jumlah_biaya'] ?? order['biaya_kunjungan'] ?? 50000,
@@ -1250,7 +1251,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
       address: order['lokasi'] as String? ?? (l10n.isIndonesian ? 'Lokasi belum tersedia' : 'Location not available'),
       price: price,
       status: l10n.isIndonesian ? 'Pesanan Baru' : 'New Order',
-      icon: Icons.build_circle_outlined,
       urgent: true,
     );
   }
@@ -1262,7 +1262,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
     required String address,
     required String price,
     required String status,
-    required IconData icon,
     required bool urgent,
   }) {
     final l10n = context.l10n;
@@ -1278,14 +1277,11 @@ class _BerandaScreenState extends State<BerandaScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: _surfaceLow,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, size: 29),
+              OrderCustomerAvatar(
+                customerName: order['customer_name'] as String? ?? 'Pelanggan',
+                photoUrl: order['customer_photo'] as String?,
+                size: 64,
+                borderRadius: 10,
               ),
               const SizedBox(width: 12),
               Expanded(

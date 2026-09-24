@@ -75,7 +75,7 @@ class _PesananScreenState extends State<PesananScreen> {
       for (final row in rows) {
         final customer = await client
             .from('users')
-            .select('nama')
+            .select('nama, foto_profil')
             .eq('id_user', row['pengguna_id'])
             .maybeSingle();
         final category = await client
@@ -106,6 +106,7 @@ class _PesananScreenState extends State<PesananScreen> {
         loadedOrders.add({
           ...Map<String, dynamic>.from(row),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
+          'customer_photo': customer?['foto_profil'],
           'category_name': serviceName,
           'raw_category': catName,
           'price': priceVal,
@@ -531,18 +532,11 @@ class _PesananScreenState extends State<PesananScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: _soft,
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: const Icon(
-                  Icons.build_circle_outlined,
-                  size: 30,
-                  color: _primary,
-                ),
+              OrderCustomerAvatar(
+                customerName: customer,
+                photoUrl: order['customer_photo'] as String?,
+                size: 64,
+                borderRadius: 11,
               ),
               const SizedBox(width: 12),
               Expanded(

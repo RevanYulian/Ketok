@@ -46,7 +46,7 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
       for (final order in rows) {
         final customer = await client
             .from('users')
-            .select('nama')
+            .select('nama, foto_profil')
             .eq('id_user', order['pengguna_id'])
             .maybeSingle();
         final category = await client
@@ -68,6 +68,7 @@ class _PesananTersediaScreenState extends State<PesananTersediaScreen> {
         loaded.add({
           ...Map<String, dynamic>.from(order),
           'customer_name': customer?['nama'] ?? 'Pelanggan',
+          'customer_photo': customer?['foto_profil'],
           'category_name': serviceName,
           'raw_category': catName,
           'price': invoice?['jumlah_biaya'] ?? order['biaya_kunjungan'] ?? 50000,

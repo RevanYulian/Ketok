@@ -314,3 +314,73 @@ String extractServiceName(String? catatan, String fallback) {
   }
   return fallback;
 }
+
+/// Avatar widget for order cards that displays the ordering customer's profile photo,
+/// with a graceful fallback to their initial or person icon if no photo is available.
+class OrderCustomerAvatar extends StatelessWidget {
+  final String? photoUrl;
+  final String customerName;
+  final double size;
+  final double borderRadius;
+
+  const OrderCustomerAvatar({
+    super.key,
+    required this.customerName,
+    this.photoUrl,
+    this.size = 64,
+    this.borderRadius = 12,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanUrl = photoUrl?.trim();
+    final trimmedName = customerName.trim();
+    final initial = trimmedName.isNotEmpty ? trimmedName[0].toUpperCase() : '';
+
+    Widget fallback = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      child: Center(
+        child: initial.isNotEmpty
+            ? Text(
+                initial,
+                style: TextStyle(
+                  color: KetokColors.darkPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: size * 0.38,
+                ),
+              )
+            : Icon(
+                Icons.person_rounded,
+                size: size * 0.5,
+                color: KetokColors.darkPrimary,
+              ),
+      ),
+    );
+
+    if (cleanUrl == null || cleanUrl.isEmpty) {
+      return fallback;
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Container(
+        width: size,
+        height: size,
+        color: const Color(0xFFEFF6FF),
+        child: Image.network(
+          cleanUrl,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => fallback,
+        ),
+      ),
+    );
+  }
+}
+
